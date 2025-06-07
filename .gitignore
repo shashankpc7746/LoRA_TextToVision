@@ -1,3 +1,20 @@
+# Custom Files
+gurukul-lora-env/
+LoRA_Text/distilbert_full_finetuned/
+LoRA_Text/distilbert_lora_adapter/
+*.pt
+*.pth
+*.safetensors
+*.bin
+
+wandb/
+*.log
+
+results/
+test_output_dir_diag/
+generated_image_*.png
+*.mp4
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
