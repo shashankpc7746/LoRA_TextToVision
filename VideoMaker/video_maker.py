@@ -33,7 +33,7 @@ def create_video_from_images(image_folder, output_path, fps=1):
             ImageClip(img_path)
             .resize(width=720)  # Resize image for consistent size
             .set_duration(3)  # Each image stays for 3 seconds
-            .fx(vfx.resize, lambda t: 1 + 0.01 * t)  # gentler Zoom in slightly over time
+            .fx(vfx.resize, lambda t: 1 + 0.05 * t)  # Zoom in slightly over time
             .fadein(0.5)  # Optional: fade-in effect
         )
         clips.append(clip)
@@ -46,7 +46,7 @@ def create_video_from_images(image_folder, output_path, fps=1):
 
 # Example usage
 if __name__ == "__main__":
-    scene_number = 1  # Change based on the scene you generated
+    scene_number = 2  # Change based on the scene you generated
     input_folder = f"./frames_scene_{scene_number}"
     output_file = f"video_outputs/anime_scene_{scene_number}.mp4"
 

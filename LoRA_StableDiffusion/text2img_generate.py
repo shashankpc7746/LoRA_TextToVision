@@ -122,16 +122,24 @@ if __name__ == "__main__":
         torch.cuda.empty_cache()
 
     # --- Run Example 1 (SDXL Anime model) ---
+    
+    # story_paragraph = """
+    # A bear cub wakes up in a treehouse.  
+    # The bear cub slides down a vine.  
+    # A butterfly lands on the bear cub’s nose.  
+    # The bear cub finds glowing fish in a pond.  
+    # The bear cub joins a picnic with other animals.
+    # """
+    
     story_paragraph = """
-    Omenz in Valorant
+    
+    A bunny is walking in the forest.  
+    The bunny notices a magic hat lying on the grass.  
+    The bunny curiously looks at the magic hat.  
+    The bunny jumps into the magic hat.  
+    The bunny wears the magic hat as it begins to glow.  
+    The bunny wearing the glowing magic hat starts floating.  
+
     """
     print("--- Running example with a paragraph~ ---")
     generate_images_from_prompts(story_paragraph, style="anime", seed=12345)
-
-    # # --- Run Example 2 (Standard SD 1.5 model) ---
-    # prompt_list = [
-    #     "A cute robot building a sandcastle on a beach.",
-    #     "The robot looks up as a friendly crab approaches.",
-    # ]
-    # print("\n--- Running example with a list of prompts (Fantasy) ---")
-    # generate_images_from_prompts(prompt_list, style="fantasy", seed=12345, scene_number=2)
