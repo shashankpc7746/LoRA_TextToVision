@@ -6,7 +6,7 @@ LoRA_Text/distilbert_lora_adapter/
 *.pth
 *.safetensors
 *.bin
-
+huggingface_cache/
 wandb/
 *.log
 

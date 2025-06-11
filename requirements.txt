@@ -1,0 +1,6 @@
+pip install torch==2.3.0+cu121 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+pip install diffusers==0.27.2
+pip install transformers==4.39.3
+pip install accelerate==0.28.0
+pip install safetensors==0.4.2
+pip install moviepy==1.0.3

@@ -66,3 +66,84 @@ python LoRA_Text/train_distilbert_full_vs_lora.py
 Offline wandb logs: ./wandb/
 
 =================================================================================================================================================================
+
+✅ Phase 2: LoRA for Vision – Image Fine-tuning with Stable Diffusion (Completed)
+
+🎯 Objective:
+To apply LoRA for parameter-efficient fine-tuning of the Stable Diffusion model and stylize image generation for futuristic "Gurukul"-themed concepts.
+
+📝 Task:
+Train a LoRA adapter on CompVis/stable-diffusion-v1-4 using a small 10-image dataset. After training, generate themed images using custom prompts and the learned visual style.
+
+📌 What is LoRA for Diffusion Models?
+Just like in text-based models, LoRA works by freezing the original weights of the UNet inside Stable Diffusion and inserting small trainable adapter modules in selected attention layers (attn2.to_q, to_k, to_v). During fine-tuning, only these adapters are updated — allowing the model to learn a new visual style or task without retraining the full base model.
+
+This results in a compact and efficient model adapter that can be plugged into the original Stable Diffusion model to produce stylized images with minimal overhead.
+
+⚡ Why is LoRA Efficient for Vision Tasks?
+This phase demonstrates LoRA’s versatility beyond text models by successfully applying it to large vision diffusion models with only ~0.03% trainable parameters.
+
+📊 Training Summary
+
+Metric	                          Value	                       Insight
+Trainable Parameters	   297,984 (~0.035%)	          Only a tiny portion of model was updated
+Total Parameters	         859 Million	              Most of the model remains frozen
+Training Steps	              10 steps	                  Small dataset, quick experimentation
+Sample Loss Range	        0.002 – 0.534	              Typical for very small datasets with high variance
+Output Adapter Size	            ~3 MB	                  Highly portable and modular
+
+📸 Prompts Used for Image Generation:
+
+"AI robot teaching students in a village school"
+
+"A traditional Gurukul reimagined with VR and AR"
+
+"Students learning under a hologram tree"
+
+"A child meditating in a virtual garden"
+
+"Knowledge as light in a dark classroom"
+
+🧪 How to Run the Scripts:
+
+## Ensure the environment has the required libraries:
+pip install diffusers transformers peft accelerate xformers
+
+## Activate the environment:
+gurukul-lora-env\Scripts\activate
+
+## Run the LoRA fine-tuning script:
+python LoRA_StableDiffusion/train_lora_sd.py
+
+## Then, generate images using the trained adapter:
+python LoRA_StableDiffusion/inference_generate.py
+
+Results:
+🔧 Trained Adapter: ./lora_output/
+
+🖼️ Final Images: ./outputs/
+
+🧠 Dataset: ./training_data/gurukul_hologram_style/
+
+⚠️ Warnings Noted During Training:
+
+xFormers and triton not available — memory optimizations skipped
+
+AMP deprecated warnings — model still trained correctly and loss converged
+
+📚 What Was Learned
+
+LoRA is Model-Agnostic:
+We saw that LoRA can be successfully applied to both text and vision models — requiring minimal compute for meaningful style learning.
+
+Fast and Flexible Style Transfer:
+Despite using only 10 training samples, the model could stylize concepts like "hologram tree" and "AI teaching" effectively in under 10 steps.
+
+Tiny but Powerful:
+The final adapter (~3MB) gives us a stylized generation ability that normally requires re-training hundreds of millions of parameters.
+
+Easier Deployment:
+One base SD model can support multiple adapters for different visual styles — ideal for low-storage apps like mobile or embedded inference.
+
+========================================================================================================================================================
+
