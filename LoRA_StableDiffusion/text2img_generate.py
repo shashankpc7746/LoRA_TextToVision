@@ -133,12 +133,10 @@ if __name__ == "__main__":
     
     story_paragraph = """
     
-    A bunny is walking in the forest.  
-    The bunny notices a magic hat lying on the grass.  
-    The bunny curiously looks at the magic hat.  
-    The bunny jumps into the magic hat.  
-    The bunny wears the magic hat as it begins to glow.  
-    The bunny wearing the glowing magic hat starts floating.  
+    A young wizard stands near his cottage.
+    The wizard opens a glowing spellbook.
+    The wizard waves his wand at a nearby tree.
+    The wizard watches as the tree starts floating.
 
     """
     print("--- Running example with a paragraph~ ---")

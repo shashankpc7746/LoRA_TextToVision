@@ -46,7 +46,7 @@ def create_video_from_images(image_folder, output_path, fps=1):
 
 # Example usage
 if __name__ == "__main__":
-    scene_number = 2  # Change based on the scene you generated
+    scene_number = 3  # Change based on the scene you generated
     input_folder = f"./frames_scene_{scene_number}"
     output_file = f"video_outputs/anime_scene_{scene_number}.mp4"
 
