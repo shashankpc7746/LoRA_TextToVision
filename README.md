@@ -43,8 +43,8 @@ LoRA (Low-Rank Adaptation) is a Parameter-Efficient Fine-Tuning (PEFT) technique
 ### 🧪 How to Run
 
 ```bash
-pip install transformers==4.40.0 datasets==3.6.0 peft==0.10.0 accelerate torch wandb numpy
 gurukul-lora-env\Scripts\activate
+pip install -r requirements.txt
 python LoRA_Text/train_distilbert_full_vs_lora.py
 ```
 
