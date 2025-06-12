@@ -158,7 +158,3 @@ Convert short textual scenes into sequential image frames, enabling visual story
 * Stable Diffusion (v1.4 + SDXL)
 * Prompt Engineering
 * File System Automation (os, pathlib)
-
----
-
-Feel free to explore each phase and contribute improvements to this growing visual AI toolkit!
