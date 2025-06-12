@@ -147,3 +147,49 @@ One base SD model can support multiple adapters for different visual styles — 
 
 ========================================================================================================================================================
 
+✅ Phase 3: Visual Sequencing - Image-to-Video Integration
+
+🎯 Objective:
+To generate coherent sequences of images from short descriptive prompts and automate their organization into video-ready folders, setting the foundation for future image-to-video conversion.
+
+📝 Tasks Performed:
+Consistent Folder Management
+
+Automated creation of output directories:
+Each new run now saves images in a unique folder like frames_scene_1, frames_scene_2, etc., without overwriting older runs.
+
+Prompt Optimization
+
+Long paragraphs are split into shorter sentences for better granularity in image generation.
+
+Ensured consistent object presence (e.g., "bunny with magic hat") across all prompts to reduce hallucinations in generated frames.
+
+Sequential Prompt Testing
+
+Designed and tested example scenes with a character performing actions step-by-step.
+
+Example 1: Bunny + Magic Hat Journey
+
+Example 2: Alien Explorer on Mars (short, sequential, consistent)
+
+Discussion on Frame Consistency
+
+Explored the idea of image-to-image chaining for consistent character motion across frames.
+
+Identified this as a future direction using Stable Diffusion img2img or ControlNet.
+
+📁 Output:
+Scene-wise image folders in /VideoMaker/frames_scene_X/ format
+
+Short, optimized prompts leading to visually coherent image sequences
+
+Example prompts prepared for use in future video generation pipelines
+
+🔧 Tools & Technologies Used:
+Python, diffusers, Hugging Face Models
+
+Stable Diffusion / SDXL pipelines
+
+Prompt Engineering for visual storytelling
+
+File system automation (os, pathlib)
