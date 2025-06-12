@@ -7,7 +7,7 @@ This repository documents the progress for the "From Language to Light" onboardi
 
 This README will be updated as each phase of the project is completed.
 
-=================================================================================================================================================================
+=====================================================================================================================================
 
 ✅ Phase 1: LoRA Basics - Text Fine-tuning (Completed)
 🎯 Objective:
@@ -65,7 +65,7 @@ python LoRA_Text/train_distilbert_full_vs_lora.py
 
 Offline wandb logs: ./wandb/
 
-===================================================================================================================================================
+=====================================================================================================================================
 
 ✅ Phase 2: LoRA for Vision – Image Fine-tuning with Stable Diffusion (Completed)
 
@@ -145,7 +145,7 @@ The final adapter (~3MB) gives us a stylized generation ability that normally re
 Easier Deployment:
 One base SD model can support multiple adapters for different visual styles — ideal for low-storage apps like mobile or embedded inference.
 
-===================================================================================================================================================
+=====================================================================================================================================
 
 ✅ Phase 3: Visual Sequencing - Image-to-Video Integration
 
