@@ -1,0 +1,7 @@
+{
+  "_class_name": "UNet2DConditionModel",
+  "_diffusers_version": "0.24.0",
+  "architectures": ["UNet2DConditionModel"],
+  "model_type": "AnimateDiff",
+  "torch_dtype": "float16"
+}
