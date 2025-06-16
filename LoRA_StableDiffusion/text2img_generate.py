@@ -140,4 +140,4 @@ if __name__ == "__main__":
 
     """
     print("--- Running example with a paragraph~ ---")
-    generate_images_from_prompts(story_paragraph, style="anime", seed=12345)
+    generate_images_from_prompts(story_paragraph, style="realistic", seed=12345)
