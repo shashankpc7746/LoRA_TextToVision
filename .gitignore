@@ -9,6 +9,7 @@ LoRA_Text/distilbert_lora_adapter/
 huggingface_cache/
 wandb/
 *.log
+Generate_Videos/
 
 results/
 test_output_dir_diag/
