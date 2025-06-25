@@ -330,7 +330,7 @@ if submit:
 
     status_text.markdown('<div class="status-text">🔄 Preparing generation request...</div>', unsafe_allow_html=True)
     time_estimate.info(f"⏱️ Estimated time: {estimated_total_time/60:.1f} minutes")
-    progress_bar.progress(5)
+    progress_bar.progress(5 )
 
     import time
     time.sleep(1)  # Brief pause for user to see initial status
@@ -352,7 +352,7 @@ if submit:
         time.sleep(0.5)
 
         # Send request to FastAPI backend
-        api_url = "https://997b-157-119-202-213.ngrok-free.app/generate-video"
+        api_url = "https://6c63-157-119-202-215.ngrok-free.app/generate-video"
 
         status_text.markdown('<div class="status-text">🧠 AI model loading and initializing...</div>', unsafe_allow_html=True)
         progress_bar.progress(15)
