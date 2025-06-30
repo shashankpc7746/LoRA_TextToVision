@@ -11,11 +11,12 @@ from utils.controlnet_utils import generate_openpose_image
 # ----------- CONFIGURATION -----------
 # paragraph = """A boy walks through a desert as sand swirls around him. He shields his eyes from the blazing sun and then picks up a strange glowing artifact. Suddenly, the sky turns purple and lightning flashes in the distance. The boy starts to run, clutching the artifact tightly."""
 # paragraph = """A young girl stands in an abandoned Victorian mansion at night, holding a flickering candle. The wallpaper peels, revealing faces that shift and whisper. As thunder crashes outside, a shadowy figure appears behind her in the mirror, but when she turns—no one's there. Slowly, the walls begin to bleed ink, and the chandelier swings violently above her."""
-paragraph = """A playful monkey roams through a lush jungle and spots a banana tree. It quickly climbs up, plucks a banana, and eats it with joy. The monkey smiles happily, surrounded by vibrant greenery."""
+# paragraph = """A curious monkey swings energetically through the dense jungle canopy. The monkey spots a tall banana tree glowing under the sunlight. With agility, the monkey climbs the tree, its tail curling around the branch. The monkey grabs a ripe banana and peels it with excitement. Joyfully, the monkey eats the banana while perched on a leafy branch. The monkey smiles happily, surrounded by birds and colorful butterflies."""
+paragraph = """A wise old wizard walks slowly through a foggy enchanted forest. The wizard raises his staff, summoning glowing fireflies around him. The wizard opens an ancient scroll glowing with runes. As thunder roars, the wizard casts a protection spell into the sky. The wizard walks toward a glowing portal that appears before him. Calmly, the wizard steps into the portal and vanishes in a burst of light."""
 
 base_output_dir = "outputs/multi_clip/"
 os.makedirs(base_output_dir, exist_ok=True)
-base_seed = 123455
+base_seed = 566565
 clip_prompts = []
 
 # ------------- STEP 1: Split Paragraph into Sub-Prompts -------------
@@ -100,4 +101,3 @@ final_path = os.path.join(base_output_dir, "final_output_stitched.mp4")
 final_video.write_videofile(final_path, codec='libx264', audio=False)
 
 print(f"\n✅ Final stitched video saved at: {final_path}")
-

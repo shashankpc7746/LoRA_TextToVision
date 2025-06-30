@@ -2,7 +2,7 @@ import torch
 from diffusers import AnimateDiffPipeline, MotionAdapter, EulerDiscreteScheduler, AutoencoderKL
 from diffusers.utils import export_to_video
 from PIL import Image
-from utils.controlnet_utils import generate_openpose_image
+from utils.controlnet_utils import generate_openpose_image, generate_depth_map, is_blank_pose_image
 
 device = "cuda"
 dtype = torch.float16
@@ -51,11 +51,19 @@ def generate_clip(prompt: str,
     """
     Generate a 32-frame animation with optional ControlNet and init_image.
     """
-    generator = torch.Generator(device).manual_seed(seed)
 
+    generator = torch.Generator(device).manual_seed(seed)
     control_image = None
+
     if pose_path:
-        control_image = Image.open(pose_path).convert("RGB").resize((512, 512))
+        # Check if pose is blank
+        if is_blank_pose_image(pose_path):
+            print("⚠️ OpenPose image is blank. Switching to depth control...")
+            depth_path = pose_path.replace("_pose.png", "_depth.png")
+            generate_depth_map(init_image_path, depth_path)
+            control_image = Image.open(depth_path).convert("RGB").resize((512, 512))
+        else:
+            control_image = Image.open(pose_path).convert("RGB").resize((512, 512))
 
     init_image = None
     if init_image_path:
@@ -73,7 +81,7 @@ def generate_clip(prompt: str,
         height=512,
         generator=generator,
         control_image=control_image,
-        image=init_image  # Note: only used if AnimateDiff supports img2img init
+        image=init_image  # Only effective if AnimateDiff supports img2img init
     )
     frames = output.frames[0]
 
