@@ -1,44 +1,37 @@
-# utils/controlnet_utils.py
-
-from controlnet_aux import OpenposeDetector, MidasDetector
+from controlnet_aux import OpenposeDetector, ZoeDetector
 from PIL import Image
 import numpy as np
 import torch
-import os
+import cv2
 
-# Load OpenPose and Depth models once
+# Load OpenPose and ZoeDepth once
 pose_detector = OpenposeDetector.from_pretrained("lllyasviel/ControlNet")
-depth_estimator = MidasDetector.from_pretrained("lllyasviel/ControlNet")
+depth_detector = ZoeDetector.from_pretrained("lllyasviel/Annotators")
+
+def is_blank_image(pil_image: Image.Image, threshold: float = 10.0) -> bool:
+    """
+    Checks whether an image is mostly blank (black or low variance).
+    """
+    gray = np.array(pil_image.convert("L"))
+    std = np.std(gray)
+    return std < threshold
 
 def generate_openpose_image(input_image_path: str, output_path: str = "pose_output.png") -> str:
     """
-    Generate OpenPose image from input. Returns saved path.
+    Generates OpenPose image. Falls back to depth if result is blank.
     """
     image = Image.open(input_image_path).convert("RGB")
     pose_image = pose_detector(image)
 
+    # Convert and check if blank
     pose_np = np.array(pose_image)
-    Image.fromarray(pose_np).save(output_path)
+    pose_pil = Image.fromarray(pose_np)
+
+    if is_blank_image(pose_pil):
+        print("⚠️ OpenPose result is blank. Falling back to ZoeDepth...")
+        pose_image = depth_detector(image)
+        pose_np = np.array(pose_image)
+        pose_pil = Image.fromarray(pose_np)
+
+    pose_pil.save(output_path)
     return output_path
-
-def generate_depth_map(input_image_path: str, output_path: str = "depth_output.png") -> str:
-    """
-    Generate depth map using controlnet_aux. Returns saved path.
-    """
-    image = Image.open(input_image_path).convert("RGB")
-    depth_image = depth_estimator(image)
-
-    depth_np = np.array(depth_image)
-    depth_np = np.clip(depth_np, 0, 255).astype(np.uint8)
-
-    Image.fromarray(depth_np).save(output_path)
-    return output_path
-
-def is_blank_pose_image(pose_path: str, threshold: float = 5.0) -> bool:
-    """
-    Check if pose image is essentially blank (low intensity).
-    Returns True if blank.
-    """
-    img = Image.open(pose_path).convert("L")
-    avg_pixel = np.array(img).mean()
-    return avg_pixel < threshold

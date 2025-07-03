@@ -16,6 +16,16 @@ test_output_dir_diag/
 generated_image_*.png
 *.mp4
 
+# Skip training artifacts
+tts_module/gender_detection/data/
+tts_module/gender_detection/logs/
+tts_module/gender_detection/test-samples/
+tts_module/gender_detection/__pycache__/
+tts_module/gender_detection/*.csv
+tts_module/gender_detection/*.py
+!tts_module/gender_detection/results/model.h5
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
