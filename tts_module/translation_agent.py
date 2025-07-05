@@ -10,9 +10,11 @@ from dotenv import load_dotenv
 import time
 import re
 import unicodedata
+from pathlib import Path
 
-# Load environment variables
-load_dotenv()
+# Force load the root .env
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
 # Logging setup
 USER_ID = 'agent_t_translator'

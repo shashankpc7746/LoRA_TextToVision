@@ -14,7 +14,7 @@ st.markdown("Enter text below and generate a lip-synced video using AI avatars."
 # ========================
 # Backend Configuration
 # ========================
-API_URL = "http://192.168.0.125:8001/api/generate-and-sync"  # Update IP if needed
+API_URL = "http://192.168.0.121:8001/api/generate-and-sync"  # Update IP if needed
 TIMEOUT = 300  # seconds
 
 # ========================

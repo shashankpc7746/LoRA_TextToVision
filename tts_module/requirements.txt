@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+gtts
+librosa
+numpy
+tensorflow
+keras
+python-dotenv
+scipy
+google-generativeai
+gdown  # if downloading checkpoints or avatars

@@ -141,5 +141,11 @@ if __name__ == '__main__':
     else:
         args.device = "cpu"
 
+
     main(args)
+    print("SadTalker received audio path:", args.driven_audio)
+    print("os.path.exists?", os.path.exists(args.driven_audio))
+    
+    
+    
 
