@@ -9,7 +9,7 @@ step = 25
 base_model = "SG161222/Realistic_Vision_V5.1_noVAE"
 vae_model = "stabilityai/sd-vae-ft-mse"
 num_frames = 32
-fps = 16
+fps = 24
 
 # Load Motion Adapter
 adapter = MotionAdapter.from_pretrained(

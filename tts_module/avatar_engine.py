@@ -36,11 +36,11 @@ gender_model = load_model(GENDER_MODEL_PATH) if os.path.exists(GENDER_MODEL_PATH
 MAX_VIDEO_FILES = 5  # Keep only 5 most recent videos
 MAX_AUDIO_FILES = 5  # Keep only 5 most recent audio files
 
-AVATARS = {
-    "female": [os.path.join(AVATAR_DIR, "pht1.jpg"), os.path.join(AVATAR_DIR, "pht2.jpg")],
-    "male": [os.path.join(AVATAR_DIR, "pht3.jpg"), os.path.join(AVATAR_DIR, "pht4.jpg")],
-    "default": [os.path.join(AVATAR_DIR, "pht1.jpg")]
-}
+# 👩 FEMALE AVATARS ONLY - Available female character images
+FEMALE_AVATARS = [
+    os.path.join(AVATAR_DIR, "pht1.jpg"),
+    os.path.join(AVATAR_DIR, "pht2.jpg")
+]
 
 def extract_features(file_path: str) -> np.ndarray:
     try:
@@ -71,14 +71,18 @@ def predict_gender(audio_path: str) -> str:
         print("[ERROR] Gender prediction error. Using default.")
         return "default"
 
-def select_avatar(gender: str) -> str:
+def select_female_avatar() -> str:
+    """👩 Select a random female avatar from available options"""
     import random
-    if gender not in AVATARS:
-        gender = "default"
-    avatar_list = AVATARS[gender]
-    avatar_path = random.choice(avatar_list)
+
+    # Randomly select one of the available female avatars
+    avatar_path = random.choice(FEMALE_AVATARS)
+
     if not os.path.isfile(avatar_path):
-        raise FileNotFoundError(f"Avatar not found: {avatar_path}")
+        raise FileNotFoundError(f"Female avatar not found: {avatar_path}")
+
+    avatar_name = os.path.basename(avatar_path)
+    print(f"[INFO] Selected female avatar: {avatar_name}")
     return avatar_path
 
 def convert_mp3_to_wav(mp3_path: str, wav_path: str):
@@ -222,14 +226,14 @@ async def generate_and_sync(text: str = Form(...), target_lang: str = Form(defau
         gTTS(text=text, lang='en', slow=False).save(mp3_path)
         convert_mp3_to_wav(mp3_path, wav_path)
 
-        gender = predict_gender(wav_path)
-        avatar_path = select_avatar(gender)
+        # 👩 Always use female avatar (gender prediction removed)
+        avatar_path = select_female_avatar()
         generated_path = run_sadtalker(wav_path, avatar_path)
 
         final_output_path = os.path.join(RESULTS_DIR, f"{session_id}.mp4")
         shutil.copy2(generated_path, final_output_path)
 
-        generate_video_metadata(session_id, original_text, target_lang, gender, avatar_path)
+        generate_video_metadata(session_id, original_text, target_lang, "female", avatar_path)
 
         # 🗂️ Clean up old files after successful generation
         cleanup_old_files()

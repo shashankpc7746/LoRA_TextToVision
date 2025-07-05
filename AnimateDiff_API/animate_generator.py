@@ -5,7 +5,8 @@ from diffusers.utils import export_to_video
 from datetime import datetime
 import os
 
-device = "cuda"; dtype = torch.float16
+device = "cuda" # torch.device("cuda" if torch.cuda.is_available() else "cpu")
+dtype = torch.float16
 
 # Static load (once)
 base_model = "SG161222/Realistic_Vision_V5.1_noVAE"

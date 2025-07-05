@@ -107,3 +107,4 @@
   "translated_text": "नमस्ते शशांक, आप कैसे हैं?",
   "confidence_score": 0.95
 }
+2025-07-05 12:41:16,020 - INFO - User: agent_t_translator - Initializing translation_agent.py

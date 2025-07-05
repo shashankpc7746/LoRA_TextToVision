@@ -352,7 +352,7 @@ if submit:
         time.sleep(0.5)
 
         # Send request to FastAPI backend
-        api_url = "https://9bc3-157-119-202-215.ngrok-free.app/generate-video"
+        api_url = "http://localhost:8000/generate-video"
 
         status_text.markdown('<div class="status-text">🧠 AI model loading and initializing...</div>', unsafe_allow_html=True)
         progress_bar.progress(15)
