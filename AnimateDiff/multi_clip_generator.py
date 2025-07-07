@@ -15,22 +15,36 @@ from utils.controlnet_utils import generate_openpose_image
 # paragraph = """The girl walks down a quiet city street at sunrise. The girl looks up at the tall buildings glowing in the morning light. The girl pulls out her camera and takes a photo. The girl hears music nearby and follows the sound. The girl smiles as she finds a street artist playing guitar on the corner."""
 # paragraph = """A wise old wizard walks slowly through a foggy enchanted forest. The wizard raises his staff, summoning glowing fireflies around him. The wizard opens an ancient scroll glowing with runes. As thunder roars, the wizard casts a protection spell into the sky. The wizard walks toward a glowing portal that appears before him. Calmly, the wizard steps into the portal and vanishes in a burst of light."""
 # paragraph = """The person stands at the edge of the pool, arms raised. The person takes a deep breath and runs forward. The person jumps high and flips into a somersault. The person spins through the air above the water. The person splashes into the pool with a big, clean dive."""
+# paragraph = """
+# Anime boy wearing a hoodie walks on a quiet street under a grey sky.
+# Rain falls gently on anime boy as soft wind moves the hoodie.
+# Anime boy stops at a glowing vending machine beside the road.
+# Anime boy buys a warm canned coffee and holds the coffee with both hands.
+# A small dog runs past anime boy, splashing water in anime style.
+# Anime boy smiles and starts walking again through the calm street.
+# Anime boy passes an anime bakery with warm yellow lights in the window.
+# Anime boy pauses and looks inside the bakery as steam fogs the glass.
+# Anime boy stands near a train crossing while red lights start flashing.
+# Anime boy drinks the coffee slowly as the train moves fast through the rain.
+# """
 paragraph = """
-Anime boy wearing a hoodie walks on a quiet street under a grey sky.
-Rain falls gently on anime boy as soft wind moves the hoodie.
-Anime boy stops at a glowing vending machine beside the road.
-Anime boy buys a warm canned coffee and holds the coffee with both hands.
-A small dog runs past anime boy, splashing water in anime style.
-Anime boy smiles and starts walking again through the calm street.
-Anime boy passes an anime bakery with warm yellow lights in the window.
-Anime boy pauses and looks inside the bakery as steam fogs the glass.
-Anime boy stands near a train crossing while red lights start flashing.
-Anime boy drinks the coffee slowly as the train moves fast through the rain.
+A photorealistic young woman in a dark blue hoodie walks slowly down a quiet, rain-soaked city street at dusk.
+She looks tired but peaceful. Rain gently falls as her hoodie shifts in the soft wind.
+She stops at a neon-lit vending machine, buys a warm canned drink, and warms her hands around it.
+A small dog suddenly runs past, splashing water from a puddle. 
+She smiles gently, as if reminded of something.
+She continues walking and pauses at a glowing bakery window. 
+The glass is fogged. Inside, a child waves at her.
+She waves back softly, a quiet warmth in her eyes.
+She walks on, approaching a train crossing as red warning lights begin to blink.
+As the train speeds by behind her, she takes a sip of the warm drink, standing still in the gentle rain.
+
 """
+
 
 base_output_dir = "outputs/multi_clip/"
 os.makedirs(base_output_dir, exist_ok=True)
-base_seed = 545456451
+base_seed = 112234
 clip_prompts = []
 
 # ------------- STEP 1: Split Paragraph into Sub-Prompts -------------
