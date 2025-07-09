@@ -219,17 +219,33 @@ with col1:
             help="What you DON'T want to see in the video"
         )
 
+        # Video metadata for main system
+        meta_col1, meta_col2 = st.columns(2)
+        with meta_col1:
+            subject = st.text_input(
+                "📚 Subject",
+                value="AnimateDiff Video",
+                help="Subject category for the main system"
+            )
+        with meta_col2:
+            topic = st.text_input(
+                "🏷️ Topic",
+                value="AI Generated Video",
+                help="Topic category for the main system"
+            )
+
         st.markdown('<div class="section-header"><h3>🎛️ Generation Parameters</h3></div>', unsafe_allow_html=True)
 
         # Parameters in columns for better layout
         param_col1, param_col2 = st.columns(2)
 
         with param_col1:
-            seed = st.number_input(
-                "🎲 Seed",
-                value=333,
-                help="Random seed for reproducible results. Use -1 for random."
-            )
+            # seed = st.number_input(
+            #     "🎲 Seed",
+            #     value=333,
+            #     help="Random seed for reproducible results. Use -1 for random."
+            # )
+            seed = -1
 
             guidance_scale = st.slider(
                 "🎯 Guidance Scale",
@@ -343,7 +359,9 @@ if submit:
         "guidance_scale": guidance_scale,
         "steps": steps,
         "num_frames": num_frames,
-        "fps": fps
+        "fps": fps,
+        "subject": subject,
+        "topic": topic
     }
 
     try:
@@ -351,8 +369,8 @@ if submit:
         progress_bar.progress(10)
         time.sleep(0.5)
 
-        # Send request to FastAPI backend
-        api_url = "http://localhost:8000/generate-video"
+        # Send request to FastAPI backend (use enhanced endpoint for transfer info)
+        api_url = "http://localhost:8000/generate-video-with-transfer"
 
         status_text.markdown('<div class="status-text">🧠 AI model loading and initializing...</div>', unsafe_allow_html=True)
         progress_bar.progress(15)
@@ -378,16 +396,57 @@ if submit:
         status_text.markdown('<div class="status-text">🎬 Finalizing video encoding...</div>', unsafe_allow_html=True)
 
         if response.status_code == 200:
-            video_path = "generated_video.mp4"
-            with open(video_path, "wb") as f:
-                f.write(response.content)
+            try:
+                # Try to parse JSON response (enhanced endpoint)
+                result = response.json()
 
-            progress_bar.progress(100)
-            status_text.text("✅ Video generated successfully!")
+                progress_bar.progress(95)
+                status_text.markdown('<div class="status-text">📤 Transferring video to production system...</div>', unsafe_allow_html=True)
 
-            # Success message with details
-            st.balloons()
-            st.success("🎉 **Video Generation Complete!**")
+                progress_bar.progress(100)
+                status_text.text("✅ Video generated and processed successfully!")
+
+                # Success message with details
+                st.balloons()
+                st.success("🎉 **Video Generation Complete!**")
+
+                # Show transfer status
+                if result.get("transfer_success"):
+                    st.success("✅ **Video successfully sent to production system!**")
+                    if result.get("video_id"):
+                        st.info(f"🎬 **Video ID:** {result.get('video_id')}")
+                    if result.get("access_url"):
+                        st.info(f"🔗 **Access URL:** http://192.168.0.121:8001{result.get('access_url')}")
+                    st.success("🎯 **Production team can now see the video on their system!**")
+                else:
+                    st.warning("⚠️ **Video generated locally but transfer to production system failed**")
+                    if result.get("transfer_error"):
+                        st.error(f"Transfer error: {result.get('transfer_error')}")
+
+                # For local display, we need to get the video file
+                video_path = "generated_video.mp4"
+                # Make a request to the original endpoint to get the video file for local display
+                video_response = requests.post("http://localhost:8000/generate-video", json=payload, headers=headers, timeout=900)
+                if video_response.status_code == 200:
+                    with open(video_path, "wb") as f:
+                        f.write(video_response.content)
+                else:
+                    st.warning("⚠️ Video file not available for local display, but it has been sent to production system.")
+                    video_path = None
+
+            except ValueError:
+                # Fallback for binary response (original endpoint)
+                video_path = "generated_video.mp4"
+                with open(video_path, "wb") as f:
+                    f.write(response.content)
+
+                progress_bar.progress(100)
+                status_text.text("✅ Video generated successfully!")
+
+                # Success message with details
+                st.balloons()
+                st.success("🎉 **Video Generation Complete!**")
+                st.info("📤 **Video transfer**: Check server logs for transfer status")
 
             # Display generation details
             col1, col2, col3 = st.columns(3)
@@ -400,10 +459,10 @@ if submit:
 
             # Display the video
             st.markdown("### 🎬 Generated Video")
-            st.video(video_path)
+            if video_path and os.path.exists(video_path):
+                st.video(video_path)
 
-            # Video info
-            if os.path.exists(video_path):
+                # Video info
                 file_size = os.path.getsize(video_path) / (1024 * 1024)  # MB
                 st.info(f"📁 File size: {file_size:.1f} MB | 📍 Path: {os.path.basename(video_path)}")
 
@@ -418,6 +477,8 @@ if submit:
                         use_container_width=True,
                         type="secondary"
                     )
+            else:
+                st.warning("⚠️ Video file not available for local display, but it has been sent to the main system.")
         else:
             progress_bar.progress(0)
             status_text.text("❌ Generation failed")
@@ -433,7 +494,7 @@ if submit:
                 - Network timeout
 
                 **Solutions:**
-                - Check if FastAPI server is running on port 8000
+                - Check if FastAPI server is running on port 8002
                 - Reduce number of frames or steps
                 - Verify prompt format
                 """)
@@ -452,7 +513,7 @@ if submit:
             ```
 
             **Check if server is running:**
-            - Open http://127.0.0.1:8000/docs in your browser
+            - Open http://127.0.0.1:8002/docs in your browser
             - You should see the FastAPI documentation
             """)
 
