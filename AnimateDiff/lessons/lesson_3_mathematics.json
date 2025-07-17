@@ -1,0 +1,13 @@
+{
+  "title": "Ancient Indian Mathematics",
+  "level": "Intermediate",
+  "text": "An ancient Indian mathematician sits under a tree writing numbers on palm leaves. He discovers the concept of zero and draws a circle to represent nothing. The mathematician shows how zero makes calculations much easier and more accurate. He teaches his students about place value using the decimal system. The students practice writing large numbers using the new zero symbol. The mathematician explains how this discovery will help future generations solve complex problems.",
+  "quiz": [
+    {
+      "question": "What important mathematical concept was discovered?",
+      "options": ["Algebra", "Zero", "Geometry", "Calculus"],
+      "correct": 1
+    }
+  ],
+  "tts": true
+}

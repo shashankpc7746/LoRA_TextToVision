@@ -1,0 +1,13 @@
+{
+  "title": "The Water Cycle",
+  "level": "Elementary",
+  "text": "A young scientist stands by a lake observing water evaporation in the morning sun. She points to the clouds forming high above the mountains. The scientist explains how water vapor rises and cools in the atmosphere. Dark clouds gather and begin to release raindrops over the forest. The rain falls gently on trees and flows into streams. The scientist follows the water as it travels back to the lake. She demonstrates the complete cycle using simple diagrams in her notebook.",
+  "quiz": [
+    {
+      "question": "What happens to water when it evaporates?",
+      "options": ["It disappears", "It becomes vapor", "It freezes", "It turns to ice"],
+      "correct": 1
+    }
+  ],
+  "tts": true
+}

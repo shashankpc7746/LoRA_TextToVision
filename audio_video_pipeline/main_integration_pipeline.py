@@ -110,8 +110,8 @@ class MainIntegrationPipeline:
                 print(f"✅ Video generation completed")
 
                 # Find the generated video
-                outputs_dir = os.path.join(animatediff_dir, "outputs")
-                final_video = os.path.join(outputs_dir, "final_output_stitched.mp4")
+                outputs_dir = os.path.join(animatediff_dir, "outputs", "multi_clip")
+                final_video = os.path.join(outputs_dir, "final_video_NO_FADE_ENHANCED_CAMERA.mp4")
 
                 if os.path.exists(final_video):
                     print(f"✅ Video generated: {os.path.basename(final_video)}")
@@ -401,30 +401,52 @@ def test_main_integration_pipeline():
         "Rain falls gently as he hurries toward a nearby building.",
     ]
     
+    # Use the Mahabharata story prompts
+    mahabharata_prompts = [
+        "Prince Arjuna with dark skin and long black hair stands on his golden chariot in anime style with traditional Indian armor.",
+        "Lord Krishna with blue-tinted skin and peacock feather crown sits beside Arjuna as charioteer in detailed anime art style.",
+        "Arjuna looks across the vast Kurukshetra battlefield with thousands of warriors in traditional Indian anime character design.",
+        "Krishna points toward the enemy army while speaking wisdom to the troubled prince in cinematic anime lighting.",
+        "Arjuna drops his legendary bow Gandiva with trembling hands showing internal conflict in expressive anime style.",
+        "Krishna reveals his divine cosmic form with multiple arms and radiant aura in mystical anime visual effects.",
+        "Arjuna bows in reverence before Krishna's divine manifestation with golden light surrounding both characters.",
+        "Krishna returns to his charioteer form and places a reassuring hand on Arjuna's shoulder in warm anime character interaction.",
+        "Arjuna picks up his bow with renewed determination and divine knowledge shining in his eyes in heroic anime style.",
+        "The war conch shells blow as both warriors prepare for battle with the sun rising behind them in epic anime cinematography."
+    ]
+
     config = IntegrationConfig(
-        prompts=test_prompts,
-        output_dir="test_outputs",
+        prompts=mahabharata_prompts,
+        output_dir="mahabharata_outputs",
         narrator_gender="female",
         apply_lipsync=False,  # Skip lip-sync for faster testing
         enhance_prompts=True,
-        generate_video=False  # Skip video generation for testing
+        generate_video=False  # Use existing video
     )
     
-    # Look for existing video to test with
-    test_video_paths = [
-        "../AnimateDiff/outputs",
-        "../tts_module/results"
-    ]
-    
-    for path in test_video_paths:
-        if os.path.exists(path):
-            for file in os.listdir(path):
-                if file.endswith('.mp4'):
-                    config.video_input_path = os.path.join(path, file)
-                    print(f"📹 Using test video: {config.video_input_path}")
+    # Use the specific AnimateDiff generated video
+    animatediff_video = "../AnimateDiff/outputs/multi_clip/final_video_NO_FADE_ENHANCED_CAMERA.mp4"
+
+    if os.path.exists(animatediff_video):
+        config.video_input_path = animatediff_video
+        print(f"📹 Using AnimateDiff video: {config.video_input_path}")
+    else:
+        print(f"❌ AnimateDiff video not found: {animatediff_video}")
+        # Fallback to any available video
+        test_video_paths = [
+            "../AnimateDiff/outputs/multi_clip",
+            "../tts_module/results"
+        ]
+
+        for path in test_video_paths:
+            if os.path.exists(path):
+                for file in os.listdir(path):
+                    if file.endswith('.mp4'):
+                        config.video_input_path = os.path.join(path, file)
+                        print(f"📹 Using fallback video: {config.video_input_path}")
+                        break
+                if config.video_input_path:
                     break
-            if config.video_input_path:
-                break
     
     if not config.video_input_path:
         print("⚠️ No test video found. Please generate a video first.")

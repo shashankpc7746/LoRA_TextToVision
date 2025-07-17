@@ -119,14 +119,16 @@ class MultiLayerAudioProcessor:
                 # Get actual duration
                 actual_duration = self.multi_voice_tts.get_audio_duration(audio_path)
 
-                # Truncate audio to match clip duration if it's too long
-                target_duration = clip.get('duration', 1.33)  # Default to 1.33s per clip
+                # Allow longer audio duration for complete sentences
+                target_duration = clip.get('duration', 8.0)  # Increased to 8.0s per clip for complete sentences
                 if actual_duration > target_duration:
                     print(f"🔧 Truncating audio from {actual_duration:.2f}s to {target_duration:.2f}s")
                     truncated_path = self.truncate_audio(audio_path, target_duration)
                     if truncated_path:
                         audio_path = truncated_path
                         actual_duration = target_duration
+                else:
+                    print(f"✅ Audio duration {actual_duration:.2f}s fits within {target_duration:.2f}s limit")
 
                 layer = AudioLayer(
                     audio_path=audio_path,

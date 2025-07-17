@@ -1,0 +1,20 @@
+{
+  "title": "Introduction to Dharma",
+  "level": "Seed",
+  "style": "Realistic Style",
+  "text": "A wise teacher sits under a large banyan tree in a peaceful garden. Students gather around the teacher with notebooks and eager expressions. The teacher begins explaining the concept of dharma with gentle hand gestures. Ancient scriptures lie open on a wooden table beside the teacher. Sunlight filters through the leaves creating patterns on the ground. The teacher draws symbols in the sand to illustrate key points. Students nod in understanding as wisdom is shared. Birds chirp softly in the background adding to the serene atmosphere.",
+  "subject": "Text-to-Video Generation",
+  "topic": "Introduction to Dharma",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 15,
+    "steps": 25,
+    "clips_count": 8,
+    "total_duration": 16.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 360\u00b0 movements",
+    "style_description": "Photorealistic characters and environments"
+  },
+  "timestamp": "2025-07-16T16:43:30.583552",
+  "lesson_id": "cadb033b"
+}

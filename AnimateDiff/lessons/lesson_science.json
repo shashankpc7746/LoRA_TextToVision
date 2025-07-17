@@ -1,0 +1,13 @@
+{
+  "title": "Introduction to Simple Machines",
+  "level": "Elementary",
+  "text": "A young scientist demonstrates how a lever works by lifting a heavy rock. She places a long wooden board on a small stone to create a simple lever. The scientist pushes down on one end of the lever to lift the heavy rock on the other end. Next, she shows how a pulley works by hanging a rope over a wheel. The scientist pulls down on the rope to lift a bucket of water upward. She explains how pulleys make work easier by changing the direction of force.",
+  "quiz": [
+    {
+      "question": "What simple machines were demonstrated?",
+      "options": ["Lever and pulley", "Wheel and axle", "Inclined plane", "Screw and wedge"],
+      "correct": 0
+    }
+  ],
+  "tts": true
+}

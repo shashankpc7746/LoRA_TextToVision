@@ -1,0 +1,13 @@
+{
+  "title": "Ocean Explorer Discovery",
+  "level": "Intermediate",
+  "text": "A young marine biologist dives into the crystal clear ocean waters. She discovers a vibrant coral reef teeming with colorful fish. The scientist carefully observes a family of sea turtles swimming gracefully. She takes detailed notes about the underwater ecosystem in her waterproof notebook. A school of dolphins playfully swims around the researcher. The biologist photographs rare seahorses hiding among the coral branches. She surfaces to share her amazing discoveries with her research team. The ocean adventure reveals the importance of protecting marine life.",
+  "quiz": [
+    {
+      "question": "What did the marine biologist discover?",
+      "options": ["A treasure chest", "A vibrant coral reef", "A sunken ship", "A cave"],
+      "correct": 1
+    }
+  ],
+  "tts": true
+}

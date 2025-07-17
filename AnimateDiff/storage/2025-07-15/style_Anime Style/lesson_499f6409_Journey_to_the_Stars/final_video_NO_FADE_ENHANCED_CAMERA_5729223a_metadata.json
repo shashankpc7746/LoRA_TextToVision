@@ -1,0 +1,20 @@
+{
+  "title": "Journey to the Stars",
+  "level": "Beginner",
+  "style": "Anime Style",
+  "text": "A young astronaut prepares for her first space mission. She puts on her shiny white spacesuit with great excitement. The rocket launches into the bright blue sky with powerful flames. She floats weightlessly inside the spaceship looking at Earth below. The astronaut discovers a beautiful planet with purple mountains and silver rivers. She plants a flag on the new planet's surface. The astronaut collects colorful space rocks as souvenirs. She returns home safely with amazing stories to share.",
+  "subject": "Text-to-Video Generation",
+  "topic": "Journey to the Stars",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 18,
+    "steps": 30,
+    "clips_count": 8,
+    "total_duration": 16.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 360\u00b0 movements",
+    "style_description": "Traditional anime art style"
+  },
+  "timestamp": "2025-07-15T17:32:53.754545",
+  "lesson_id": "499f6409"
+}
