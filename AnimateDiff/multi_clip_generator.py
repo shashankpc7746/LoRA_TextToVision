@@ -11,7 +11,7 @@ import hashlib
 from moviepy.editor import VideoFileClip, concatenate_videoclips, vfx, TextClip, CompositeVideoClip
 from moviepy.video.fx.all import crop
 # Re-added vfx and crop for dynamic camera effects (but no fade effects)
-from animate_gurukul import generate_clip
+from animate_gurukul import generate_clip, fps
 from utils.controlnet_utils import (
     generate_multi_control_guidance,
     generate_adaptive_multi_control_guidance,
@@ -35,13 +35,13 @@ def load_lesson_from_json(json_path: str) -> dict:
         with open(json_path, 'r', encoding='utf-8') as f:
             lesson_data = json.load(f)
 
-        print(f"📚 Loaded lesson: {lesson_data.get('title', 'Unknown')}")
+        print(f"LOADED: {lesson_data.get('title', 'Unknown')}")
         print(f"📊 Level: {lesson_data.get('level', 'Unknown')}")
         print(f"🎵 TTS enabled: {lesson_data.get('tts', False)}")
 
         return lesson_data
     except Exception as e:
-        print(f"❌ Error loading lesson JSON: {e}")
+        print(f"ERROR: Error loading lesson JSON: {e}")
         return None
 
 def extract_text_from_lesson(lesson_data: dict) -> str:
@@ -51,6 +51,7 @@ def extract_text_from_lesson(lesson_data: dict) -> str:
 
     text_content = lesson_data.get('text', '')
     if not text_content:
+        
         print("⚠️ No text content found in lesson")
         return None
 
@@ -107,7 +108,7 @@ def add_subtitles_to_video(video_path: str, text_content: str, output_path: str)
                 output_path,
                 codec='libx264',
                 audio_codec='aac',
-                fps=24,
+                fps=fps,  # Using centralized FPS setting
                 bitrate="8000k"
             )
 
@@ -185,7 +186,7 @@ def add_subtitles_to_video_clips(video_path: str, sentences: list, output_path: 
                 output_path,
                 codec='libx264',
                 audio_codec='aac',
-                fps=24,
+                fps=fps,  # Using centralized FPS setting
                 bitrate="8000k"
             )
 
@@ -304,32 +305,8 @@ def select_render_style(style_name: str = 'realistic') -> dict:
 
     return style
 
-def generate_multiple_styles(lesson_data: dict, base_paragraph: str) -> list:
-    """Generate videos in multiple render styles"""
-    generated_videos = []
-
-    for style_name, style_config in RENDER_STYLES.items():
-        print(f"\n🎨 GENERATING {style_config['name'].upper()}...")
-
-        # Create style-specific output directory
-        style_output_dir = os.path.join("outputs", f"multi_clip_style_{style_name}")
-        os.makedirs(style_output_dir, exist_ok=True)
-
-        print(f"   📁 Output directory: {style_output_dir}")
-        print(f"   🎬 Style: {style_config['description']}")
-        print(f"   🎨 Model: {style_config['model']}")
-
-        # Add to generated videos list
-        generated_videos.append({
-            'style': style_name,
-            'config': style_config,
-            'output_dir': style_output_dir,
-            'status': 'prepared',
-            'lesson_data': lesson_data,
-            'paragraph': base_paragraph
-        })
-
-    return generated_videos
+# REMOVED: Multiple style generation function - simplified to single output directory
+# All styles now use the same outputs/multi_clip/ directory
 
 def create_style_selection_menu():
     """Create a simple style selection interface"""
@@ -379,24 +356,41 @@ def process_lesson_queue():
         print("📝 No lesson files found, using default content")
         return None, None
 
-    print(f"📚 Found {len(lesson_files)} lesson file(s): {[os.path.basename(f) for f in lesson_files]}")
+    print(f"LESSONS: Found {len(lesson_files)} lesson file(s): {[os.path.basename(f) for f in lesson_files]}")
 
-    # Dynamic lesson selection - prioritize space adventure, then others
+    # FIXED: Use lesson from command line arguments (unified system passes it)
     lesson_file = None
 
-    # Check for space adventure first
-    space_lesson = "lessons/lesson_space_adventure.json"
-    if os.path.exists(space_lesson):
-        lesson_file = space_lesson
+    # Check command line arguments: python multi_clip_generator.py lesson_file.json style
+    import sys
+    if len(sys.argv) > 1:
+        first_arg = sys.argv[1]
+        if first_arg.endswith('.json'):
+            # First argument is lesson file
+            lesson_file = os.path.join("lessons", first_arg)
+            if not os.path.exists(lesson_file):
+                print(f"❌ Specified lesson not found: {lesson_file}")
+                return None, None
+        else:
+            # Old format: just style argument, use default lesson
+            space_lesson = "lessons/lesson_forest_wisdom.json"
+            if os.path.exists(space_lesson):
+                lesson_file = space_lesson
+            else:
+                lesson_file = lesson_files[0] if lesson_files else None
     else:
-        # Use first available lesson
-        lesson_file = lesson_files[0] if lesson_files else None
+        # No arguments, use default
+        space_lesson = "lessons/lesson_forest_wisdom.json"
+        if os.path.exists(space_lesson):
+            lesson_file = space_lesson
+        else:
+            lesson_file = lesson_files[0] if lesson_files else None
 
     if not lesson_file:
         print(f"❌ No lesson files found")
         return None, None
 
-    print(f"🎯 Processing: {os.path.basename(lesson_file)}")
+    print(f"PROCESSING: {os.path.basename(lesson_file)}")
 
     lesson_data = load_lesson_from_json(lesson_file)
     if lesson_data:
@@ -689,7 +683,7 @@ for idx, prompt in enumerate(clip_prompts):
 
     # PHASE 1 IMPROVEMENT: Smart frame selection and multi-control guidance
     if idx > 0 and generated_clips:  # Not first clip
-        print(f"🎯 Finding best continuity frame from previous clip...")
+        print(f"CONTINUITY: Finding best frame from previous clip...")
 
         # Find best frame from previous clip
         prev_video = generated_clips[-1]
@@ -940,7 +934,7 @@ if clips:
         final_path,
         codec='libx264',
         audio=False,
-        fps=24,  # Smooth 24fps
+        fps=fps,  # Using centralized FPS setting
         bitrate="8000k",  # High quality
         preset='medium'
     )
@@ -1110,19 +1104,11 @@ if clips:
     # Show available styles
     create_style_selection_menu()
 
-    # Prepare multiple style generation (framework ready)
-    if lesson_data:
-        style_videos = generate_multiple_styles(lesson_data, paragraph)
-        print(f"\n✅ RENDER STYLE FRAMEWORK READY:")
-        for style_video in style_videos:
-            print(f"   🎨 {style_video['config']['name']}: {style_video['output_dir']}")
-
-        print(f"\n💡 TO GENERATE MULTIPLE STYLES:")
-        print(f"   • Modify the selected_style variable to 'realistic' or 'artistic'")
-        print(f"   • Run the script again to generate in different styles")
-        print(f"   • Each style will be saved in its own directory")
-    else:
-        print(f"⚠️ Multiple styles require lesson data for optimal results")
+    # SIMPLIFIED: Single output directory for all styles
+    print(f"\n✅ VIDEO GENERATION COMPLETE!")
+    print(f"   📁 All videos saved to: outputs/multi_clip/")
+    print(f"   🎨 Current style: {selected_style}")
+    print(f"   💡 To change style, modify the 'selected_style' variable and run again")
 
     # Close video objects
     final_video.close()
@@ -1139,13 +1125,23 @@ def main_function(selected_style='realistic'):
 if __name__ == "__main__":
     import sys
 
-    # Get style from command line argument
-    selected_style = sys.argv[1] if len(sys.argv) > 1 else 'realistic'
+    # Handle new parameter order: lesson_file.json style
+    # or old parameter order: style
+    selected_style = 'realistic'  # default
+
+    if len(sys.argv) > 1:
+        first_arg = sys.argv[1]
+        if first_arg.endswith('.json'):
+            # New format: lesson_file.json style
+            selected_style = sys.argv[2] if len(sys.argv) > 2 else 'realistic'
+        else:
+            # Old format: style
+            selected_style = first_arg
 
     print(f"🎨 Command line style selected: {selected_style}")
 
     # Check if unified system should be used
-    if len(sys.argv) > 2 and sys.argv[2] == 'unified':
+    if len(sys.argv) > 3 and sys.argv[3] == 'unified':
         print(f"🚀 Using Unified Video Generation System")
         try:
             from unified_video_generator import UnifiedVideoGenerator

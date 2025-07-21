@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Unified Video Generation System
-Consolidates all video generation, audio integration, and subtitle functionality
+Unified Video Generation System - SIMPLIFIED VERSION
+Single input lesson file, single output location, always with audio and subtitles
 """
 
 import os
@@ -17,18 +17,24 @@ from moviepy.editor import (
     TextClip, CompositeVideoClip, concatenate_videoclips
 )
 
+# Import centralized FPS setting
+from animate_gurukul import fps
+
 # Configure ImageMagick
 imagemagick_path = r"C:\Program Files\ImageMagick-7.1.2-Q16-HDRI\magick.exe"
 if os.path.exists(imagemagick_path):
     config.change_settings({"IMAGEMAGICK_BINARY": imagemagick_path})
 
 class UnifiedVideoGenerator:
-    """Unified system for complete video generation with audio and subtitles"""
-    
-    def __init__(self, output_dir="outputs/multi_clip"):
-        self.output_dir = output_dir
+    """Simplified unified system - single input, single output, always with audio+subtitles"""
+
+    def __init__(self):
+        # SIMPLIFIED: Only one output directory
+        self.output_dir = "outputs/multi_clip"
+        self.storage_dir = "storage"
         self.temp_dir = None
-        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(self.output_dir, exist_ok=True)
+        os.makedirs(self.storage_dir, exist_ok=True)
     
     def create_tts_audio(self, text, output_file, speech_rate=1):
         """Create TTS audio with configurable speech rate"""
@@ -143,29 +149,81 @@ $synth.Dispose()
             print(f"❌ Failed to load lesson: {e}")
             return None
 
-    def generate_video_clips_direct(self, lesson_data, style):
-        """Generate video clips directly without subprocess"""
+    def update_lesson_selection(self, lesson_path):
+        """Update multi_clip_generator to use specific lesson"""
         try:
-            print(f"🎬 Generating video clips directly...")
+            # Read the current multi_clip_generator
+            with open('multi_clip_generator.py', 'r', encoding='utf-8') as f:
+                content = f.read()
 
-            # Import the generation function directly
+            # Find and replace the lesson selection logic
+            import re
+
+            # Replace the lesson file selection with our specific lesson
+            pattern = r'lesson_file = "lessons/lesson_space_adventure\.json"'
+            replacement = f'lesson_file = "{lesson_path}"'
+
+            if re.search(pattern, content):
+                content = re.sub(pattern, replacement, content)
+            else:
+                # Fallback: replace any lesson_file assignment
+                pattern = r'lesson_file = "lessons/[^"]*\.json"'
+                content = re.sub(pattern, replacement, content)
+
+            # Write back the updated content
+            with open('multi_clip_generator.py', 'w', encoding='utf-8') as f:
+                f.write(content)
+
+            print(f"   ✅ Updated generator to use: {lesson_path}")
+
+        except Exception as e:
+            print(f"   ⚠️ Could not update lesson selection: {e}")
+            print(f"   📝 Will use default lesson selection")
+
+    def generate_video_clips_direct(self, lesson_data, style, lesson_path):
+        """Generate NEW video clips for each lesson"""
+        try:
+            print(f"🎬 Generating NEW video clips for this lesson...")
+
+            # ALWAYS generate new clips - don't reuse old ones
+            lesson_title = lesson_data.get('title', 'lesson')
+            print(f"   📚 Creating clips for: {lesson_title}")
+
+            # First, update the multi_clip_generator to use this specific lesson
+            self.update_lesson_selection(lesson_path)
+
+            # Run the main generator to create NEW clips for this specific lesson
+            import subprocess
             import sys
-            import os
-            sys.path.append(os.path.dirname(__file__))
 
-            # Use existing clips if available (faster)
-            clips_dir = "outputs/multi_clip"
-            clip_files = []
+            # Run the generator and wait for completion - PASS THE LESSON FILE!
+            lesson_filename = os.path.basename(lesson_path)
+            result = subprocess.run([
+                sys.executable, "multi_clip_generator.py", lesson_filename, style
+            ], capture_output=False, text=True, timeout=1800)  # Show output, 30 min timeout
 
-            for i in range(1, 9):  # Check for existing clips
-                clip_path = os.path.join(clips_dir, f"clip{i}.mp4")
-                if os.path.exists(clip_path):
-                    clip_files.append(clip_path)
+            if result.returncode == 0:
+                print(f"   ✅ NEW video clips generated successfully")
 
-            if len(clip_files) >= 4:  # Use existing clips if we have at least 4
-                print(f"   ✅ Using {len(clip_files)} existing video clips")
-                video_clips = [VideoFileClip(path) for path in clip_files[:8]]  # Max 8 clips
-                return video_clips
+                # Load the newly generated clips
+                clips_dir = "outputs/multi_clip"
+                clip_files = []
+
+                for i in range(1, 9):  # Load new clips
+                    clip_path = os.path.join(clips_dir, f"clip{i}.mp4")
+                    if os.path.exists(clip_path):
+                        clip_files.append(clip_path)
+
+                if clip_files:
+                    video_clips = [VideoFileClip(path) for path in clip_files]
+                    print(f"   ✅ Loaded {len(video_clips)} NEW clips for {lesson_title}")
+                    return video_clips
+                else:
+                    print(f"   ❌ No clip files found after generation")
+                    return None
+            else:
+                print(f"   ❌ Video generation failed")
+                return None
 
             # If no existing clips, create simple placeholder clips
             print(f"   🎬 Creating placeholder clips for faster processing...")
@@ -241,9 +299,9 @@ $synth.Dispose()
                 print("❌ Audio generation failed")
                 return None
 
-            # Step 2: Generate video clips directly
+            # Step 2: Generate video clips directly for this specific lesson
             print(f"\n🎬 Generating video clips in {style} style...")
-            video_clips = self.generate_video_clips_direct(lesson_data, style)
+            video_clips = self.generate_video_clips_direct(lesson_data, style, lesson_path)
 
             if not video_clips:
                 print("❌ Video generation failed")
@@ -296,10 +354,22 @@ $synth.Dispose()
                 output_path,
                 codec='libx264',
                 audio_codec='aac',
-                fps=16,
+                fps=fps,  # Using centralized FPS setting
                 verbose=False,
                 logger=None
             )
+
+            # IMPORTANT: Copy to storage folder for team sharing (Rishabh)
+            print(f"\n📤 Copying to storage folder for team sharing...")
+            from datetime import datetime
+            today = datetime.now().strftime("%Y-%m-%d")
+            storage_today_dir = os.path.join(self.storage_dir, today)
+            os.makedirs(storage_today_dir, exist_ok=True)
+
+            storage_path = os.path.join(storage_today_dir, output_filename)
+            shutil.copy2(output_path, storage_path)
+            print(f"   📁 Copied to: {storage_path}")
+            print(f"   🤝 Ready for Rishabh's team access!")
 
             # Cleanup
             combined_video.close()
@@ -322,7 +392,8 @@ $synth.Dispose()
             print(f"   🎵 Audio: {len(audio_clips)} sequential segments")
             print(f"   🎬 Video: {len(video_clips)} clips in {style} style")
             print(f"   📝 Subtitles: {len(subtitle_clips)} synchronized")
-            print(f"   📍 Full path: {os.path.abspath(output_path)}")
+            print(f"   📍 Main output: {os.path.abspath(output_path)}")
+            print(f"   📤 Team sharing: {os.path.abspath(storage_path)}")
 
             return output_path
             
@@ -341,41 +412,37 @@ $synth.Dispose()
             shutil.rmtree(self.temp_dir, ignore_errors=True)
 
 def main():
-    """Main function for command line usage"""
+    """SIMPLIFIED: Single lesson file input, always generates complete video with audio+subtitles"""
     import sys
 
-    # Default parameters
-    lesson_path = "lessons/lesson_space_adventure.json"
-    style = "realistic"
-    speech_rate = 1
-
-    # Parse command line arguments
-    if len(sys.argv) > 1:
-        style = sys.argv[1]
-    if len(sys.argv) > 2:
-        speech_rate = int(sys.argv[2])
-    if len(sys.argv) > 3:
-        lesson_path = sys.argv[3]
-
-    # Auto-detect lesson if not specified
-    if not os.path.exists(lesson_path):
-        print(f"⚠️ Lesson file not found: {lesson_path}")
-        # Try to find lesson files
+    # SIMPLIFIED: Only one required parameter - lesson file name
+    if len(sys.argv) < 2:
+        print("❌ Usage: python unified_video_generator.py <lesson_file.json> [style] [speech_rate]")
+        print("📚 Available lessons:")
         lesson_files = [f for f in os.listdir("lessons") if f.endswith('.json')]
-        if lesson_files:
-            # Prioritize space adventure, then others
-            priority_lessons = ['lesson_space_adventure.json', 'lesson_ocean_adventure.json']
-            for priority in priority_lessons:
-                if priority in lesson_files:
-                    lesson_path = os.path.join("lessons", priority)
-                    break
-            else:
-                lesson_path = os.path.join("lessons", lesson_files[0])
+        for lesson in lesson_files:
+            print(f"   • {lesson}")
+        return
 
-            print(f"   📚 Auto-selected: {os.path.basename(lesson_path)}")
-        else:
-            print("❌ No lesson files found")
-            return
+    lesson_filename = sys.argv[1]
+    style = sys.argv[2] if len(sys.argv) > 2 else "realistic"
+    speech_rate = int(sys.argv[3]) if len(sys.argv) > 3 else 1
+
+    # Build full lesson path
+    lesson_path = os.path.join("lessons", lesson_filename)
+
+    if not os.path.exists(lesson_path):
+        print(f"❌ Lesson file not found: {lesson_path}")
+        print("📚 Available lessons:")
+        lesson_files = [f for f in os.listdir("lessons") if f.endswith('.json')]
+        for lesson in lesson_files:
+            print(f"   • {lesson}")
+        return
+
+    print(f"🎬 GENERATING VIDEO FOR: {lesson_filename}")
+    print(f"🎨 Style: {style}")
+    print(f"🎵 Speech Rate: {speech_rate}")
+    print(f"📁 Output: outputs/multi_clip/")
 
     # Generate video
     generator = UnifiedVideoGenerator()
@@ -384,12 +451,12 @@ def main():
         result = generator.generate_complete_video(lesson_path, style, speech_rate)
 
         if result:
-            print(f"\n🎯 FINAL UNIFIED VIDEO: {os.path.basename(result)}")
-            print(f"📍 Location: {result}")
-            print(f"\n✅ Complete video with synchronized audio and subtitles!")
-            print(f"✅ Ready to play in any video player!")
+            print(f"\n🎯 SUCCESS! Complete video generated:")
+            print(f"📍 {result}")
+            print(f"✅ Includes: Video + Audio + Subtitles")
+            print(f"✅ Ready for team sharing!")
         else:
-            print(f"\n❌ Unified video generation failed")
+            print(f"\n❌ Video generation failed")
 
     finally:
         generator.cleanup()

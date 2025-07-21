@@ -1,0 +1,20 @@
+{
+  "title": "Ocean Explorer Discovery",
+  "level": "Intermediate",
+  "style": "Realistic Style",
+  "text": "A young marine biologist dives into the crystal clear ocean waters. She discovers a vibrant coral reef teeming with colorful fish. The scientist carefully observes a family of sea turtles swimming gracefully. She takes detailed notes about the underwater ecosystem in her waterproof notebook. A school of dolphins playfully swims around the researcher. The biologist photographs rare seahorses hiding among the coral branches. She surfaces to share her amazing discoveries with her research team. The ocean adventure reveals the importance of protecting marine life.",
+  "subject": "Text-to-Video Generation",
+  "topic": "Ocean Explorer Discovery",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 15,
+    "steps": 25,
+    "clips_count": 8,
+    "total_duration": 16.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 360\u00b0 movements",
+    "style_description": "Photorealistic characters and environments"
+  },
+  "timestamp": "2025-07-17T17:44:05.772138",
+  "lesson_id": "ceb6fe34"
+}

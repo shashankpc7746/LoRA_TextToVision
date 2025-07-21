@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.responses import FileResponse, JSONResponse
-from animate_generator import generate_video
+from animate_generator import generate_video, generate_lesson_video
 from dotenv import load_dotenv
 import os
 import requests
@@ -38,9 +38,17 @@ class VideoRequest(BaseModel):
     guidance_scale: float = 15
     steps: int = 25
     num_frames: int = 32
-    fps: int = 8
+    fps: int = 12  # Updated to match current system
+    style: str = "realistic"  # realistic, anime, artistic
     subject: str = "AnimateDiff Video"
     topic: str = "AI Generated Video"
+
+class LessonVideoRequest(BaseModel):
+    lesson_filename: str  # e.g., "lesson_1_dharma.json"
+    style: str = "realistic"  # realistic, anime, artistic
+    speech_rate: int = 1  # 0-2, where 1 is normal speed
+    subject: str = "Lesson Video"
+    topic: str = "Educational Content"
 
 class ManualVideoTransfer(BaseModel):
     video_path: str
@@ -142,9 +150,12 @@ async def root():
         "status": "healthy",
         "endpoints": {
             "generate_video": "/generate-video",
+            "generate_lesson_video": "/generate-lesson-video",
             "generate_video_with_transfer": "/generate-video-with-transfer",
+            "generate_lesson_with_transfer": "/generate-lesson-with-transfer",
             "send_video_to_main": "/send-video-to-main",
             "test_generate_video": "/test-generate-video",
+            "test_generate_lesson": "/test-generate-lesson",
             "health": "/health",
             "docs": "/docs"
         },
@@ -173,7 +184,7 @@ async def create_video(
         raise HTTPException(status_code=401, detail="Unauthorized - Invalid API Key")
 
     try:
-        # Generate the video
+        # Generate the video using updated system
         path = generate_video(
             prompt=req.prompt,
             negative_prompt=req.negative_prompt,
@@ -181,7 +192,8 @@ async def create_video(
             guidance_scale=req.guidance_scale,
             steps=req.steps,
             num_frames=req.num_frames,
-            fps=req.fps
+            fps=req.fps,
+            style=req.style
         )
 
         # After successful video generation, send to main system
@@ -230,7 +242,69 @@ async def test_create_video(req: VideoRequest):
         guidance_scale=req.guidance_scale,
         steps=req.steps,
         num_frames=req.num_frames,
-        fps=req.fps
+        fps=req.fps,
+        style=req.style
+    )
+    return FileResponse(path, media_type="video/mp4", filename=path.split("/")[-1])
+
+# NEW: Lesson video generation endpoint
+@app.post("/generate-lesson-video")
+async def create_lesson_video(
+    req: LessonVideoRequest,
+    x_api_key: str = Header(None)
+):
+    """Generate video from lesson file with audio and subtitles"""
+    if x_api_key != API_KEY:
+        raise HTTPException(status_code=401, detail="Unauthorized - Invalid API Key")
+
+    try:
+        # Generate the lesson video
+        path = generate_lesson_video(
+            lesson_filename=req.lesson_filename,
+            style=req.style,
+            speech_rate=req.speech_rate
+        )
+
+        # After successful video generation, send to main system
+        if ENABLE_VIDEO_TRANSFER:
+            try:
+                transfer_result = await send_video_to_main_system(
+                    video_file_path=path,
+                    subject=req.subject,
+                    topic=req.topic,
+                    prompt=f"Lesson: {req.lesson_filename}",
+                    metadata={
+                        "lesson_filename": req.lesson_filename,
+                        "style": req.style,
+                        "speech_rate": req.speech_rate,
+                        "type": "lesson_video"
+                    }
+                )
+
+                if transfer_result.get("status") != "disabled":
+                    print(f"✅ Lesson video successfully transferred to main system!")
+                    print(f"🎬 Video ID: {transfer_result.get('video_id')}")
+                    print(f"🎬 Access URL: {transfer_result.get('access_url')}")
+
+            except Exception as transfer_error:
+                print(f"⚠️ Warning: Failed to transfer lesson video to main system: {transfer_error}")
+        else:
+            print("ℹ️ Video transfer is disabled - serving local file only")
+
+        # Return the video file
+        return FileResponse(path, media_type="video/mp4", filename=path.split("/")[-1])
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lesson video generation failed: {str(e)}")
+
+# NEW: Test lesson video endpoint
+@app.post("/test-generate-lesson")
+async def test_create_lesson_video(req: LessonVideoRequest):
+    """Test endpoint for lesson video generation without API key authentication"""
+    path = generate_lesson_video(
+        lesson_filename=req.lesson_filename,
+        style=req.style,
+        speech_rate=req.speech_rate
     )
     return FileResponse(path, media_type="video/mp4", filename=path.split("/")[-1])
 

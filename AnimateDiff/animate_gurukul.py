@@ -3,13 +3,15 @@ from diffusers import AnimateDiffPipeline, MotionAdapter, EulerDiscreteScheduler
 from diffusers.utils import export_to_video
 from PIL import Image
 
+# ===== CENTRALIZED VIDEO SETTINGS =====
+# Change FPS here and it will be used everywhere
 device = "cuda"
 dtype = torch.float16
 step = 25
 base_model = "SG161222/Realistic_Vision_V5.1_noVAE"
 vae_model = "stabilityai/sd-vae-ft-mse"
 num_frames = 32
-fps = 16
+fps = 12  # ← SINGLE FPS SETTING FOR ALL VIDEO GENERATION
 
 # Load Motion Adapter
 adapter = MotionAdapter.from_pretrained(

@@ -1,0 +1,20 @@
+{
+  "title": "Forest of Ancient Wisdom",
+  "level": "Advanced",
+  "style": "Realistic Style",
+  "text": "A young seeker enters the mystical forest seeking ancient wisdom. She meets an old sage meditating beside a crystal clear stream. The sage shares stories of courage and compassion from ages past. Ancient trees whisper secrets of balance and harmony to those who listen. The seeker learns to find peace within herself through mindful breathing. She discovers that true strength comes from understanding and kindness. The forest spirits bless her journey with inner light and clarity. She returns to the world transformed with wisdom to share with others.",
+  "subject": "Text-to-Video Generation",
+  "topic": "Forest of Ancient Wisdom",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 15,
+    "steps": 25,
+    "clips_count": 8,
+    "total_duration": 16.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 360\u00b0 movements",
+    "style_description": "Photorealistic characters and environments"
+  },
+  "timestamp": "2025-07-18T14:24:44.881564",
+  "lesson_id": "361a65f0"
+}

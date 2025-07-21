@@ -1,0 +1,13 @@
+{
+  "title": "Forest of Ancient Wisdom",
+  "level": "Advanced",
+  "text": "A young seeker enters the mystical forest seeking ancient wisdom. She meets an old sage meditating beside a crystal clear stream. The sage shares stories of courage and compassion from ages past. Ancient trees whisper secrets of balance and harmony to those who listen. The seeker learns to find peace within herself through mindful breathing. She discovers that true strength comes from understanding and kindness. The forest spirits bless her journey with inner light and clarity. She returns to the world transformed with wisdom to share with others.",
+  "quiz": [
+    {
+      "question": "What did the seeker learn in the forest?",
+      "options": ["Magic spells", "Inner peace and wisdom", "Treasure location", "Fighting techniques"],
+      "correct": 1
+    }
+  ],
+  "tts": true
+}
