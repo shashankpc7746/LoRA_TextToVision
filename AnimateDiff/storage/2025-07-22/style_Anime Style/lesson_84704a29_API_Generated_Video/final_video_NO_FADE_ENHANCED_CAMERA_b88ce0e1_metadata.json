@@ -1,0 +1,20 @@
+{
+  "title": "API Generated Video",
+  "level": "API",
+  "style": "Anime Style",
+  "text": "A simple test video",
+  "subject": "Text-to-Video Generation",
+  "topic": "API Generated Video",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 18,
+    "steps": 18,
+    "clips_count": 1,
+    "total_duration": 2.67,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 360\u00b0 movements",
+    "style_description": "Traditional anime art style"
+  },
+  "timestamp": "2025-07-22T15:42:21.462611",
+  "lesson_id": "84704a29"
+}

@@ -1,0 +1,72 @@
+{
+  "system": {
+    "fps": 12,
+    "resolution": {
+      "width": 512,
+      "height": 512
+    },
+    "default_style": "realistic",
+    "default_speech_rate": 1
+  },
+  "paths": {
+    "lessons_dir": "lessons",
+    "output_dir": "outputs/multi_clip",
+    "storage_dir": "storage",
+    "models_dir": "models",
+    "imagemagick_binary": "C:\\Program Files\\ImageMagick-7.1.2-Q16-HDRI\\magick.exe"
+  },
+  "models": {
+    "realistic": {
+      "base_model": "SG161222/Realistic_Vision_V5.1_noVAE",
+      "vae_model": "stabilityai/sd-vae-ft-mse",
+      "motion_adapter": "guoyww/animatediff-motion-adapter-v1-5-2"
+    },
+    "anime": {
+      "base_model": "xyn-ai/anything-v4.0",
+      "vae_model": "stabilityai/sd-vae-ft-mse",
+      "motion_adapter": "guoyww/animatediff-motion-adapter-v1-5-2"
+    },
+    "artistic": {
+      "base_model": "runwayml/stable-diffusion-v1-5",
+      "vae_model": "stabilityai/sd-vae-ft-mse",
+      "motion_adapter": "guoyww/animatediff-motion-adapter-v1-5-2"
+    }
+  },
+  "generation": {
+    "num_frames": 32,
+    "num_inference_steps": 25,
+    "guidance_scale": 15,
+    "clip_duration": 4.0,
+    "max_clips": 8
+  },
+  "audio": {
+    "tts_enabled": true,
+    "sample_rate": 22050,
+    "audio_format": "wav"
+  },
+  "api": {
+    "production_url": "http://192.168.0.121:8001",
+    "transfer_endpoint": "/receive-video",
+    "api_key_header": "x-api-key",
+    "timeout_seconds": 1800
+  },
+  "performance": {
+    "track_metrics": true,
+    "log_directory": "logs",
+    "cleanup_temp_files": true,
+    "max_storage_days": 7
+  },
+  "fallback": {
+    "enabled": true,
+    "static_duration": 20,
+    "error_duration": 10,
+    "background_color": "#2c3e50"
+  },
+  "text_optimization": {
+    "enabled": true,
+    "gemini_model": "gemini-1.5-flash",
+    "max_scenes": 8,
+    "min_scenes": 4,
+    "words_per_scene": 15
+  }
+}

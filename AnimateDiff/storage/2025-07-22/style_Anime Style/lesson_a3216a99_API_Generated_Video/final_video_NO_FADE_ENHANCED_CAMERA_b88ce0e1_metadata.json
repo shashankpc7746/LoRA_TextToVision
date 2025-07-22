@@ -1,0 +1,20 @@
+{
+  "title": "API Generated Video",
+  "level": "API",
+  "style": "Anime Style",
+  "text": "Scene 1: Journey to ancient India, where Rishis discovered profound truths.  Their wisdom is captured in the Vedas. Scene 2:  These sacred texts, passed down for millennia, contain hymns, melodies, rituals, and practical guidance. Scene 3:  The four Vedas \u2013 Rigveda, Samaveda, Yajurveda, and Atharvaveda \u2013 offer a comprehensive understanding of life. Scene 4:  Even today, their insights on the universe, self-realization, and ethical living remain relevant. Scene 5:  The Vedic wisdom inspires practices like yoga and meditation, promoting inner peace and harmony. Scene 6: This ancient knowledge continues to enlighten and guide us on our journey of self-discovery.",
+  "subject": "Text-to-Video Generation",
+  "topic": "API Generated Video",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 18,
+    "steps": 18,
+    "clips_count": 7,
+    "total_duration": 18.689999999999998,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 360\u00b0 movements",
+    "style_description": "Traditional anime art style"
+  },
+  "timestamp": "2025-07-22T16:46:59.679808",
+  "lesson_id": "a3216a99"
+}

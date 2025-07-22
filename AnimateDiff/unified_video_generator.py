@@ -17,8 +17,24 @@ from moviepy.editor import (
     TextClip, CompositeVideoClip, concatenate_videoclips
 )
 
+# Fix Unicode encoding issues for Windows console
+if sys.platform == "win32":
+    import codecs
+    try:
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())
+    except:
+        # Fallback if console redirection fails
+        pass
+
+    # Set environment for subprocess calls
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+
 # Import centralized FPS setting
 from animate_gurukul import fps
+
+# Import performance tracking
+from performance_tracker import performance_tracker
 
 # Configure ImageMagick
 imagemagick_path = r"C:\Program Files\ImageMagick-7.1.2-Q16-HDRI\magick.exe"
@@ -198,9 +214,13 @@ $synth.Dispose()
 
             # Run the generator and wait for completion - PASS THE LESSON FILE!
             lesson_filename = os.path.basename(lesson_path)
+            env = os.environ.copy()
+            env['PYTHONIOENCODING'] = 'utf-8'
+            env['PYTHONLEGACYWINDOWSSTDIO'] = '1'
+
             result = subprocess.run([
                 sys.executable, "multi_clip_generator.py", lesson_filename, style
-            ], capture_output=False, text=True, timeout=1800)  # Show output, 30 min timeout
+            ], capture_output=False, text=True, encoding='utf-8', errors='replace', env=env, timeout=1800)  # Show output, 30 min timeout
 
             if result.returncode == 0:
                 print(f"   ✅ NEW video clips generated successfully")
@@ -276,10 +296,14 @@ $synth.Dispose()
     def generate_complete_video(self, lesson_path, style='realistic', speech_rate=1):
         """Generate complete video with matching visuals, audio, and subtitles"""
 
+        # Start performance tracking
+        performance_tracker.start_tracking("complete_video_generation")
+
         # Load lesson data to get dynamic title
         lesson_data = self.load_lesson_data(lesson_path)
         if not lesson_data:
             print("❌ Failed to load lesson data")
+            performance_tracker.end_tracking("complete_video_generation", {"status": "failed", "error": "lesson_load_failed"})
             return None
 
         lesson_title = lesson_data.get('title', 'Unknown Lesson')

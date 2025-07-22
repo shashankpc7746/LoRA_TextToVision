@@ -14,25 +14,31 @@ Examples:
 import os
 import sys
 
+# Fix Unicode encoding issues for Windows console
+if sys.platform == "win32":
+    import codecs
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+    sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())
+
 def main():
     """Simple wrapper for the unified video generator"""
     
     print("🎬 GURUKUL LESSON VIDEO GENERATOR")
     print("=" * 50)
-    
+
     if len(sys.argv) < 2:
         print("❌ Please provide a lesson file!")
         print("\n📚 Usage:")
         print("   python generate_lesson_video.py <lesson_file.json> [style] [speech_rate]")
         print("\n📚 Available lessons:")
-        
+
         if os.path.exists("lessons"):
             lesson_files = [f for f in os.listdir("lessons") if f.endswith('.json')]
             for lesson in sorted(lesson_files):
                 print(f"   • {lesson}")
         else:
             print("   ❌ No lessons folder found!")
-        
+
         print("\n🎨 Available styles: realistic, anime, artistic")
         print("🎵 Speech rates: 1 (normal), 2 (fast), 0.5 (slow)")
         return
