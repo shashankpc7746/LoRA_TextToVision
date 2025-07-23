@@ -10,6 +10,47 @@ Usage: python generate_lesson_video_safe.py <lesson_file.json> [style] [speech_r
 import os
 import sys
 
+# Fix Unicode encoding issues for Windows console
+if sys.platform == "win32":
+    import codecs
+    import locale
+
+    # Set console encoding to UTF-8
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    os.environ['PYTHONLEGACYWINDOWSSTDIO'] = '0'
+
+    # Configure progress bars to use ASCII only (no Unicode)
+    os.environ['TQDM_ASCII'] = '1'
+    os.environ['TQDM_NCOLS'] = '80'
+
+    # Try to set console code page to UTF-8
+    try:
+        import subprocess
+        subprocess.run(['chcp', '65001'], shell=True, capture_output=True)
+    except:
+        pass
+
+    # Set locale
+    try:
+        locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    except:
+        try:
+            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+        except:
+            pass
+
+    # Reconfigure stdout/stderr with UTF-8
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except:
+        # Fallback for older Python versions
+        try:
+            sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+            sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())
+        except:
+            pass
+
 def main():
     """Safe wrapper for the unified video generator with Unicode handling"""
     
@@ -89,6 +130,9 @@ def main():
         safe_print("   Make sure you're in the AnimateDiff directory!")
     except Exception as e:
         safe_print(f"ERROR: Error generating video: {e}")
+        import traceback
+        safe_print("Full traceback:")
+        traceback.print_exc()
 
 if __name__ == "__main__":
     main()

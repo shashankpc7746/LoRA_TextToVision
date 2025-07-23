@@ -846,81 +846,84 @@ for idx, clip_path in enumerate(generated_clips):
     movement_type = idx % 6  # 6 different movement patterns
 
     if movement_type == 0:
-        # 🔄 SMOOTH 360° CIRCULAR PAN - Continuous left-to-right sweep
-        clip = clip.fx(vfx.resize, lambda t: 1.12 + 0.03 * t)  # Gentle zoom for continuity
-        def smooth_circular_pan(get_frame, t):
+        # 🔄 SMOOTH 3D CIRCULAR PAN - No zoom, pure 3D motion
+        def smooth_3d_pan(get_frame, t):
             frame = get_frame(t)
             progress = t / duration
-            # Smooth continuous pan motion (no abrupt changes)
-            x_offset = int(35 * progress)  # Steady left-to-right movement
-            y_offset = int(12 * (0.5 + 0.5 * progress))  # Gentle vertical drift
+            import math
+            # Create 3D circular motion effect
+            angle = progress * 2 * math.pi  # Full 360° rotation
+            radius = 25  # Fixed radius for consistent motion
+            x_offset = int(radius * math.cos(angle)) + 25
+            y_offset = int(radius * math.sin(angle) * 0.6) + 15  # Elliptical for 3D effect
             return frame[y_offset:frame.shape[0]-y_offset, x_offset:frame.shape[1]-x_offset]
-        clip = clip.fl(smooth_circular_pan)
+        clip = clip.fl(smooth_3d_pan)
 
     elif movement_type == 1:
-        # 🌀 SMOOTH SPIRAL ZOOM - Continuous inward spiral motion
-        clip = clip.fx(vfx.resize, lambda t: 1.08 + 0.08 * t)  # Moderate zoom for flow
-        def smooth_spiral(get_frame, t):
+        # 🌀 SMOOTH 3D ORBITAL MOTION - No zoom, pure orbital movement
+        def smooth_3d_orbital(get_frame, t):
             frame = get_frame(t)
             progress = t / duration
             import math
-            # Smooth spiral motion using sine/cosine for natural flow
-            angle = progress * 2 * math.pi  # One full rotation
-            radius = 28 * (1 - progress)  # Spiral inward
-            x_shift = int(radius * math.cos(angle)) + 28
-            y_shift = int(radius * math.sin(angle)) + 18
-            return frame[y_shift:frame.shape[0]-y_shift, x_shift:frame.shape[1]-x_shift]
-        clip = clip.fl(smooth_spiral)
+            # Create 3D orbital motion (like satellite view)
+            angle = progress * 1.5 * math.pi  # 270° rotation for dynamic feel
+            orbit_radius = 30
+            x_orbit = int(orbit_radius * math.cos(angle)) + 30
+            y_orbit = int(orbit_radius * math.sin(angle) * 0.7) + 20  # Flattened for 3D perspective
+            return frame[y_orbit:frame.shape[0]-y_orbit, x_orbit:frame.shape[1]-x_orbit]
+        clip = clip.fl(smooth_3d_orbital)
 
     elif movement_type == 2:
-        # 📹 CINEMATIC DOLLY ZOOM - Smooth zoom with pan
-        clip = clip.fx(vfx.resize, lambda t: 1.25 - 0.08 * t)  # Zoom out while moving
-        def dolly_zoom(get_frame, t):
+        # 📹 CINEMATIC 3D TRACKING - No zoom, pure tracking motion
+        def cinematic_3d_tracking(get_frame, t):
             frame = get_frame(t)
             progress = t / duration
-            # Create smooth dolly effect
-            crop_factor = int(45 * progress)
-            return frame[crop_factor:frame.shape[0]-crop_factor,
-                       crop_factor:frame.shape[1]-crop_factor]
-        clip = clip.fl(dolly_zoom)
+            import math
+            # Create smooth tracking shot with 3D perspective
+            x_track = int(40 * math.sin(progress * math.pi)) + 20  # Smooth S-curve tracking
+            y_track = int(15 * progress) + 10  # Gentle vertical rise
+            return frame[y_track:frame.shape[0]-y_track, x_track:frame.shape[1]-x_track]
+        clip = clip.fl(cinematic_3d_tracking)
 
     elif movement_type == 3:
-        # 🎬 TRACKING SHOT - Smooth left-right-left movement
-        clip = clip.fx(vfx.resize, lambda t: 1.15 + 0.02 * t)
-        def tracking_shot(get_frame, t):
+        # 🎬 3D PENDULUM MOTION - No zoom, smooth pendulum-like movement
+        def pendulum_3d_motion(get_frame, t):
             frame = get_frame(t)
             progress = t / duration
-            # S-curve movement (left-right-left)
-            x_movement = int(55 * (progress - progress**2))
-            return frame[:, x_movement:frame.shape[1]-x_movement]
-        clip = clip.fl(tracking_shot)
+            import math
+            # Create 3D pendulum effect
+            swing_angle = math.sin(progress * 3 * math.pi) * 35  # 3 swings
+            x_swing = int(swing_angle) + 35
+            y_swing = int(abs(swing_angle) * 0.3) + 15  # Slight vertical movement
+            return frame[y_swing:frame.shape[0]-y_swing, x_swing:frame.shape[1]-x_swing]
+        clip = clip.fl(pendulum_3d_motion)
 
     elif movement_type == 4:
-        # 🎯 FOCUS PULL + TILT - Dynamic focus with vertical movement
-        clip = clip.fx(vfx.resize, lambda t: 1.06 + 0.08 * abs(t - duration/2))  # Focus pull
-        def tilt_effect(get_frame, t):
+        # 🎯 3D TILT & DRIFT - No zoom, pure tilt with drift motion
+        def tilt_3d_drift(get_frame, t):
             frame = get_frame(t)
             progress = t / duration
-            # Simulate tilt by shifting crop vertically
-            y_tilt = int(38 * (0.5 - abs(progress - 0.5)))
-            x_steady = 22
-            return frame[y_tilt:frame.shape[0]-y_tilt, x_steady:frame.shape[1]-x_steady]
-        clip = clip.fl(tilt_effect)
+            import math
+            # Create 3D tilt effect with drift
+            y_tilt = int(30 * math.sin(progress * math.pi)) + 20  # Smooth tilt motion
+            x_drift = int(20 * progress) + 15  # Gentle horizontal drift
+            return frame[y_tilt:frame.shape[0]-y_tilt, x_drift:frame.shape[1]-x_drift]
+        clip = clip.fl(tilt_3d_drift)
 
     else:  # movement_type == 5
-        # 🌊 WAVE MOTION + ZOOM PULSE - Organic wave-like movement
-        clip = clip.fx(vfx.resize, lambda t: 1.1 + 0.05 * abs(t - duration/2))  # Pulse zoom
-        def wave_motion(get_frame, t):
+        # 🌊 3D WAVE FLOW - No zoom, pure organic wave motion
+        def wave_3d_flow(get_frame, t):
             frame = get_frame(t)
             progress = t / duration
-            # Wave-like horizontal movement
             import math
-            x_wave = int(32 * math.sin(progress * 4 * math.pi))
-            y_wave = int(18 * math.cos(progress * 2 * math.pi))
-            x_start = max(0, 32 + x_wave)
-            y_start = max(0, 18 + y_wave)
+            # Create 3D wave flow effect
+            x_wave = int(30 * math.sin(progress * 4 * math.pi)) + 30  # Horizontal wave
+            y_wave = int(20 * math.cos(progress * 2 * math.pi)) + 20  # Vertical wave
+            # Ensure boundaries are within frame
+            x_start = max(0, min(x_wave, frame.shape[1] - 100))
+            y_start = max(0, min(y_wave, frame.shape[0] - 100))
             return frame[y_start:frame.shape[0]-y_start, x_start:frame.shape[1]-x_start]
-        clip = clip.fl(wave_motion)
+        clip = clip.fl(wave_3d_flow)
 
     clips.append(clip)
 
@@ -1014,7 +1017,7 @@ if clips:
             'clips_count': len(generated_clips),
             'total_duration': final_video.duration,
             'has_subtitles': lesson_data is not None,
-            'camera_effects': '6 dynamic 360° movements',
+            'camera_effects': '6 dynamic 3D motions (no zoom)',
             'style_description': selected_style['description']
         },
         'timestamp': datetime.datetime.now().isoformat(),
@@ -1060,11 +1063,12 @@ if clips:
     print(f"   • Total scenes: {len(clip_prompts)}")
     print(f"   • Successfully generated clips: {len(generated_clips)}")
     print(f"   • Final video duration: {final_video.duration:.2f} seconds")
-    print(f"   • Camera effects: 6 dynamic 360° movements ✅")
-    print(f"   • Pan effects: Smooth circular, spiral, tracking ✅")
-    print(f"   • Zoom effects: Dolly, focus pull, wave motion ✅")
+    print(f"   • Camera effects: 6 dynamic 3D motions (NO ZOOM) ✅")
+    print(f"   • 3D effects: Circular pan, orbital, tracking, pendulum ✅")
+    print(f"   • Motion types: Tilt & drift, wave flow (pure 3D) ✅")
+    print(f"   • Zoom effects: REMOVED - No zoom in/out ✅")
     print(f"   • Fades: ZERO - No fade in/out effects ✅")
-    print(f"   • Transitions: Direct cuts with camera flow ✅")
+    print(f"   • Transitions: Direct cuts with 3D motion flow ✅")
     print(f"   • Subtitles: {'✅ Added' if lesson_data else '❌ Not available'}")
     print(f"   • Output location: {final_path}")
 
@@ -1082,7 +1086,7 @@ if clips:
     print(f"   🚀 PHASE 3: Real-time LoRA training for character consistency")
     print(f"   🚀 PHASE 3: Automatic retry & recovery system")
     print(f"   🚀 PHASE 3: Multiple model support (anime, educational, etc.)")
-    print(f"   🎯 ENHANCED 360° CAMERA: Dynamic pan + zoom effects, zero fades")
+    print(f"   🎯 ENHANCED 3D CAMERA: Pure 3D motion effects, NO ZOOM, zero fades")
 
     # Phase 3 Statistics
     retry_stats = auto_retry_system.get_performance_stats()

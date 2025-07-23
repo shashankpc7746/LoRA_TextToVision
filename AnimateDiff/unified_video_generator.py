@@ -20,21 +20,53 @@ from moviepy.editor import (
 # Fix Unicode encoding issues for Windows console
 if sys.platform == "win32":
     import codecs
+    import locale
+
+    # Set console encoding to UTF-8
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    os.environ['PYTHONLEGACYWINDOWSSTDIO'] = '0'
+
+    # Try to set console code page to UTF-8
     try:
-        sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
-        sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())
+        import subprocess
+        subprocess.run(['chcp', '65001'], shell=True, capture_output=True)
     except:
-        # Fallback if console redirection fails
         pass
 
-    # Set environment for subprocess calls
-    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    # Set locale
+    try:
+        locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    except:
+        try:
+            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+        except:
+            pass
+
+    # Reconfigure stdout/stderr with UTF-8
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except:
+        # Fallback for older Python versions
+        try:
+            sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+            sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())
+        except:
+            pass
 
 # Import centralized FPS setting
 from animate_gurukul import fps
 
 # Import performance tracking
 from performance_tracker import performance_tracker
+
+# Configure progress bars to use ASCII only (no Unicode)
+os.environ['TQDM_ASCII'] = '1'
+os.environ['TQDM_NCOLS'] = '80'
+
+# Enable diffusers progress bars with ASCII
+import diffusers
+diffusers.utils.logging.enable_progress_bar()
 
 # Configure ImageMagick
 imagemagick_path = r"C:\Program Files\ImageMagick-7.1.2-Q16-HDRI\magick.exe"
@@ -331,27 +363,48 @@ $synth.Dispose()
                 print("❌ Video generation failed")
                 return None
             
-            # Step 4: Adjust video duration to match audio
-            print(f"\n⏱️ Adjusting video timing...")
-            
-            # Concatenate video clips
-            combined_video = concatenate_videoclips(video_clips, method="compose")
-            video_duration = combined_video.duration
-            audio_duration = final_audio.duration
-            
-            print(f"   📊 Video duration: {video_duration:.1f}s")
-            print(f"   📊 Audio duration: {audio_duration:.1f}s")
-            
-            # Extend or adjust video to match audio
-            if audio_duration > video_duration:
-                # Loop video to match audio duration
-                from moviepy.video.fx.loop import loop
-                adjusted_video = loop(combined_video, duration=audio_duration)
-                print(f"   📏 Extended video to {audio_duration:.1f}s")
-            else:
-                # Use original video
-                adjusted_video = combined_video
-                print(f"   📏 Using original video duration")
+            # Step 4: Adjust each video clip to match its corresponding audio
+            print(f"\n⏱️ Synchronizing video clips with audio segments...")
+
+            adjusted_video_clips = []
+            total_video_duration = 0
+            total_audio_duration = sum(clip.duration for clip in audio_clips)
+
+            print(f"   📊 Total audio duration: {total_audio_duration:.1f}s")
+            print(f"   🎬 Adjusting {len(video_clips)} video clips to match audio...")
+
+            for i, (video_clip, audio_clip) in enumerate(zip(video_clips, audio_clips)):
+                video_duration = video_clip.duration
+                audio_duration = audio_clip.duration
+
+                print(f"   📎 Clip {i+1}: Video={video_duration:.1f}s, Audio={audio_duration:.1f}s")
+
+                if audio_duration > video_duration:
+                    # Extend video clip to match audio duration by looping
+                    from moviepy.video.fx.loop import loop
+                    try:
+                        extended_clip = loop(video_clip, duration=audio_duration)
+                        print(f"      ✅ Extended to {audio_duration:.1f}s")
+                    except:
+                        # Fallback: freeze last frame
+                        from moviepy.video.fx.freeze import freeze
+                        extended_clip = video_clip.fx(freeze, t='end', freeze_duration=audio_duration-video_duration)
+                        print(f"      ✅ Freeze-extended to {audio_duration:.1f}s")
+                elif audio_duration < video_duration:
+                    # Trim video clip to match audio duration
+                    extended_clip = video_clip.subclip(0, audio_duration)
+                    print(f"      ✅ Trimmed to {audio_duration:.1f}s")
+                else:
+                    # Perfect match
+                    extended_clip = video_clip
+                    print(f"      ✅ Perfect match at {audio_duration:.1f}s")
+
+                adjusted_video_clips.append(extended_clip)
+                total_video_duration += extended_clip.duration
+
+            # Concatenate the synchronized video clips
+            adjusted_video = concatenate_videoclips(adjusted_video_clips, method="compose")
+            print(f"   ✅ Final synchronized video duration: {adjusted_video.duration:.1f}s")
             
             # Step 5: Add audio to video
             print(f"\n🎵 Adding audio to video...")
@@ -396,13 +449,15 @@ $synth.Dispose()
             print(f"   🤝 Ready for Rishabh's team access!")
 
             # Cleanup
-            combined_video.close()
             adjusted_video.close()
             video_with_audio.close()
             final_video.close()
             final_audio.close()
 
             for clip in video_clips:
+                clip.close()
+
+            for clip in adjusted_video_clips:
                 clip.close()
             for clip in audio_clips:
                 clip.close()
@@ -421,8 +476,14 @@ $synth.Dispose()
 
             return output_path
             
+        except ZeroDivisionError as e:
+            print(f"❌ Division by zero error: {e}")
+            print(f"   This might be due to empty audio or video clips")
+            return None
         except Exception as e:
             print(f"❌ Video generation failed: {e}")
+            import traceback
+            traceback.print_exc()
             return None
         
         finally:
