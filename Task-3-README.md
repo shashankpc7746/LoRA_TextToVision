@@ -136,7 +136,7 @@
 ```
 User Input (Lesson File)
          ↓
-AnimateDiff/generate_lesson_video.py
+AnimateDiff/generate_lesson_video_safe.py
          ↓
 unified_video_generator.py
          ↓
@@ -150,7 +150,7 @@ outputs/multi_clip/ + storage/ (Team Sharing)
 ### **📊 File Structure:**
 ```
 AnimateDiff/
-├── generate_lesson_video.py          # ← Simple usage script
+├── generate_lesson_video_safe.py     # ← Unicode-safe video generation script
 ├── unified_video_generator.py        # ← Complete video system
 ├── multi_clip_generator.py          # ← Core video generation
 ├── animate_gurukul.py               # ← Centralized settings (FPS)
@@ -197,7 +197,7 @@ AnimateDiff_API/
 ### **🎬 Generate New Video:**
 ```bash
 cd AnimateDiff
-python generate_lesson_video.py lesson_1_dharma.json realistic 1
+python generate_lesson_video_safe.py lesson_1_dharma.json realistic 1
 ```
 
 ### **🧠 Text Optimization (Automatic):**
