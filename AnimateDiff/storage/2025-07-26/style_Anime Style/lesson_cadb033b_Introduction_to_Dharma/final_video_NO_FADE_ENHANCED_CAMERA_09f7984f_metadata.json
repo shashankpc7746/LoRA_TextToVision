@@ -1,13 +1,20 @@
 {
   "title": "Introduction to Dharma",
   "level": "Seed",
+  "style": "Anime Style",
   "text": "A wise teacher sits under a large banyan tree in a peaceful garden. Students gather around the teacher with notebooks and eager expressions. The teacher begins explaining the concept of dharma with gentle hand gestures. Ancient scriptures lie open on a wooden table beside the teacher. Sunlight filters through the leaves creating patterns on the ground. The teacher draws symbols in the sand to illustrate key points. Students nod in understanding as wisdom is shared. Birds chirp softly in the background adding to the serene atmosphere.",
-  "quiz": [
-    {
-      "question": "What is the main concept being taught?",
-      "options": ["Dharma", "Karma", "Moksha", "Yoga"],
-      "correct": 0
-    }
-  ],
-  "tts": true
+  "subject": "Text-to-Video Generation",
+  "topic": "Introduction to Dharma",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 18,
+    "steps": 18,
+    "clips_count": 8,
+    "total_duration": 32.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "Traditional anime art style"
+  },
+  "timestamp": "2025-07-26T14:22:04.064846",
+  "lesson_id": "cadb033b"
 }

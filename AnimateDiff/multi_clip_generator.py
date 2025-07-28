@@ -1144,37 +1144,7 @@ if __name__ == "__main__":
 
     print(f"🎨 Command line style selected: {selected_style}")
 
-    # Check if unified system should be used
-    if len(sys.argv) > 3 and sys.argv[3] == 'unified':
-        print(f"🚀 Using Unified Video Generation System")
-        try:
-            from unified_video_generator import UnifiedVideoGenerator
-
-            generator = UnifiedVideoGenerator()
-            try:
-                # Auto-detect lesson or use space adventure
-                lesson_path = "lessons/lesson_space_adventure.json"
-                if not os.path.exists(lesson_path):
-                    lesson_files = [f for f in os.listdir("lessons") if f.endswith('.json')]
-                    if lesson_files:
-                        lesson_path = os.path.join("lessons", lesson_files[0])
-
-                result = generator.generate_complete_video(
-                    lesson_path,
-                    selected_style,
-                    speech_rate=1
-                )
-                if result:
-                    print(f"\n🎯 UNIFIED VIDEO COMPLETE: {os.path.basename(result)}")
-                    print(f"📍 Location: {result}")
-                else:
-                    print(f"\n❌ Unified generation failed")
-            finally:
-                generator.cleanup()
-        except ImportError as e:
-            print(f"❌ Unified system import failed: {e}")
-            print(f"🎬 Falling back to original system")
-    else:
-        # Use original system - the main generation logic runs automatically
-        print("🎬 Using original multi-clip generation system")
-        print("✅ Video generation completed above")
+    # FIXED: Avoid circular import with unified_video_generator
+    # The unified system calls this script, so we should NOT import it back
+    print("🎬 Using multi-clip generation system (called by unified system)")
+    print("✅ Video generation completed above")

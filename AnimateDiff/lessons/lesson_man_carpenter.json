@@ -1,0 +1,47 @@
+{
+  "title": "The Master Carpenter",
+  "level": "Beginner",
+  "duration": "20-25 seconds",
+  "tts_enabled": true,
+  "scenes": [
+    {
+      "text": "A skilled carpenter carefully measures a piece of oak wood with his ruler.",
+      "duration": 4.2
+    },
+    {
+      "text": "He marks the cutting lines with precision using a sharp pencil.",
+      "duration": 4
+    },
+    {
+      "text": "The man picks up his handsaw and begins cutting the wood with steady strokes.",
+      "duration": 4.5
+    },
+    {
+      "text": "He smooths the edges with sandpaper creating a perfect wooden plank.",
+      "duration": 4.3
+    },
+    {
+      "text": "Finally he steps back to admire his crafted work with a satisfied smile.",
+      "duration": 4
+    }
+  ],
+  "prompts": [
+    "A skilled carpenter carefully measures a piece of oak wood with his ruler.",
+    "He marks the cutting lines with precision using a sharp pencil.",
+    "The man picks up his handsaw and begins cutting the wood with steady strokes.",
+    "He smooths the edges with sandpaper creating a perfect wooden plank.",
+    "Finally he steps back to admire his crafted work with a satisfied smile."
+  ],
+  "text": "A skilled carpenter carefully measures a piece of oak wood with his ruler. He marks the cutting lines with precision using a sharp pencil. The man picks up his handsaw and begins cutting the wood with steady strokes. He smooths the edges with sandpaper creating a perfect wooden plank. Finally he steps back to admire his crafted work with a satisfied smile.",
+  "metadata": {
+    "theme": "craftsmanship and dedication",
+    "setting": "workshop",
+    "character": "skilled male carpenter",
+    "lesson": "precision and patience in work",
+    "mood": "focused and peaceful",
+    "visual_style": "warm workshop environment",
+    "created": "2025-07-28",
+    "story_type": "skill_demonstration",
+    "test_lesson": true
+  }
+}

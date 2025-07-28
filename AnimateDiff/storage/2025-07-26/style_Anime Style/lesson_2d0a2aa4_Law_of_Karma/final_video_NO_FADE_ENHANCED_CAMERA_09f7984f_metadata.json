@@ -1,0 +1,20 @@
+{
+  "title": "Law of Karma",
+  "level": "Production",
+  "style": "Anime Style",
+  "text": "Karma is the eternal law of cause and effect.. What you sow is what you shall reap.. Every action has consequences in this life or the next.",
+  "subject": "Text-to-Video Generation",
+  "topic": "Law of Karma",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 18,
+    "steps": 18,
+    "clips_count": 3,
+    "total_duration": 12.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "Traditional anime art style"
+  },
+  "timestamp": "2025-07-26T11:18:27.172415",
+  "lesson_id": "2d0a2aa4"
+}

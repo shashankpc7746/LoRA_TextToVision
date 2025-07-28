@@ -1,0 +1,20 @@
+{
+  "title": "The Sacred Teaching of Dharma",
+  "level": "Advanced",
+  "style": "Anime Style",
+  "text": "A peaceful forest ashram bathed in golden morning light with a vast banyan tree spreading its branches. Sunlight filters through leaves creating dancing rays while birds flutter and chalk mandalas decorate the ground. An elderly guru sits in calm meditation on a wooden platform beneath the sacred tree. Students gather around on woven mats with palm-leaf manuscripts and handmade notebooks ready to learn. The wise guru raises his hand and begins explaining the eternal concept of dharma with gentle gestures. He draws ancient symbols in the sand with a wooden stick as students watch with growing understanding. Students nod and smile softly as wisdom dawns while a squirrel scurries past sacred scriptures. The camera pans upward catching sunlight flaring through banyan leaves ending with peace and revelation.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Sacred Teaching of Dharma",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 18,
+    "steps": 18,
+    "clips_count": 8,
+    "total_duration": 32.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "Traditional anime art style"
+  },
+  "timestamp": "2025-07-26T16:58:45.305182",
+  "lesson_id": "c6f8cb64"
+}

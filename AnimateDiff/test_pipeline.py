@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """
-Basic Test Suite for AnimateDiff Pipeline
-Tests core functionality without breaking existing system
+Comprehensive Test Suite for AnimateDiff Pipeline
+Tests core functionality, API endpoints, performance, and integration
 """
 
 import os
 import json
 import tempfile
 import unittest
+import requests
+import time
+import subprocess
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 class TestAnimateDiffPipeline(unittest.TestCase):
     
@@ -171,6 +175,43 @@ class TestAnimateDiffPipeline(unittest.TestCase):
         except Exception as e:
             print(f"Performance tracking test skipped: {e}")
 
+class TestAPIEndpoints(unittest.TestCase):
+    """Test API endpoints and responses"""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up API test environment"""
+        cls.api_base_url = "http://localhost:8000"
+        cls.test_lesson_request = {
+            "lesson_filename": "lesson_1_dharma.json",
+            "style": "realistic",
+            "speech_rate": 1,
+            "subject": "Test Lesson",
+            "topic": "API Testing"
+        }
+
+    def test_health_endpoint(self):
+        """Test API health check endpoint"""
+        try:
+            response = requests.get(f"{self.api_base_url}/health", timeout=5)
+            self.assertEqual(response.status_code, 200)
+            data = response.json()
+            self.assertIn("status", data)
+            self.assertEqual(data["status"], "healthy")
+        except requests.exceptions.ConnectionError:
+            self.skipTest("API server not running")
+
+    def test_root_endpoint(self):
+        """Test API root endpoint"""
+        try:
+            response = requests.get(f"{self.api_base_url}/", timeout=5)
+            self.assertEqual(response.status_code, 200)
+            data = response.json()
+            self.assertIn("message", data)
+            self.assertIn("endpoints", data)
+        except requests.exceptions.ConnectionError:
+            self.skipTest("API server not running")
+
 class TestSystemIntegration(unittest.TestCase):
     """Integration tests for the complete system"""
     
@@ -207,6 +248,7 @@ def run_tests():
     
     # Add test classes
     suite.addTests(loader.loadTestsFromTestCase(TestAnimateDiffPipeline))
+    suite.addTests(loader.loadTestsFromTestCase(TestAPIEndpoints))
     suite.addTests(loader.loadTestsFromTestCase(TestSystemIntegration))
     
     # Run tests

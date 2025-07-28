@@ -1,0 +1,20 @@
+{
+  "title": "The Flowing River of Wisdom",
+  "level": "Beginner",
+  "style": "Anime Style",
+  "text": "A young girl sits by the flowing river listening to its song. The river teaches her about patience and persistence. She learns that like water she can overcome any obstacle. The river shows her the beauty of going with the flow. She discovers that wisdom flows like water to those who listen.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Flowing River of Wisdom",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 18,
+    "steps": 18,
+    "clips_count": 5,
+    "total_duration": 20.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "Traditional anime art style"
+  },
+  "timestamp": "2025-07-26T16:34:02.556349",
+  "lesson_id": "18d9387e"
+}

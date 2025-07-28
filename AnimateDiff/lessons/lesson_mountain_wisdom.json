@@ -1,0 +1,47 @@
+{
+  "title": "The Mountain's Ancient Wisdom",
+  "level": "Intermediate",
+  "duration": "20-25 seconds",
+  "tts_enabled": true,
+  "scenes": [
+    {
+      "text": "High in the mountains a wise sage sits in peaceful meditation.",
+      "duration": 4.2
+    },
+    {
+      "text": "The mountain winds carry ancient wisdom through the valleys.",
+      "duration": 4.5
+    },
+    {
+      "text": "She learns that patience is like the mountain eternal and strong.",
+      "duration": 4.8
+    },
+    {
+      "text": "The peaks teach her that true wisdom comes from stillness.",
+      "duration": 4.6
+    },
+    {
+      "text": "She opens her eyes with understanding as vast as the mountain range.",
+      "duration": 4.3
+    }
+  ],
+  "prompts": [
+    "High in the mountains a wise sage sits in peaceful meditation.",
+    "The mountain winds carry ancient wisdom through the valleys.",
+    "She learns that patience is like the mountain eternal and strong.",
+    "The peaks teach her that true wisdom comes from stillness.",
+    "She opens her eyes with understanding as vast as the mountain range."
+  ],
+  "text": "High in the mountains a wise sage sits in peaceful meditation. The mountain winds carry ancient wisdom through the valleys. She learns that patience is like the mountain eternal and strong. The peaks teach her that true wisdom comes from stillness. She opens her eyes with understanding as vast as the mountain range.",
+  "metadata": {
+    "theme": "mountain wisdom and meditation",
+    "setting": "mountain",
+    "character": "wise female sage",
+    "lesson": "patience and stillness",
+    "mood": "peaceful and profound",
+    "visual_style": "mountain landscape",
+    "created": "2025-07-28",
+    "story_type": "wisdom_teaching",
+    "test_lesson": true
+  }
+}

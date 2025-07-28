@@ -1,0 +1,35 @@
+{
+  "title": "Law of Karma",
+  "level": "Production",
+  "text": "Karma is the eternal law of cause and effect.. What you sow is what you shall reap.. Every action has consequences in this life or the next.",
+  "prompts": [
+    "Karma is the eternal law of cause and effect. in temple setting with calm mood, neutral expression",
+    "What you sow is what you shall reap. in forest setting with intense mood, wise expression",
+    "Every action has consequences in this life or the next. in cosmic setting with wise mood, contemplative expression"
+  ],
+  "metadata": {
+    "lesson_id": "karma_01",
+    "style": "realistic",
+    "bgm": "tanpura",
+    "segments": [
+      {
+        "text": "Karma is the eternal law of cause and effect.",
+        "mood": "calm",
+        "scene": "temple",
+        "expression": "neutral"
+      },
+      {
+        "text": "What you sow is what you shall reap.",
+        "mood": "intense",
+        "scene": "forest",
+        "expression": "wise"
+      },
+      {
+        "text": "Every action has consequences in this life or the next.",
+        "mood": "wise",
+        "scene": "cosmic",
+        "expression": "contemplative"
+      }
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "title": "The Sacred Mountain Journey",
+  "level": "Intermediate",
+  "style": "Anime Style",
+  "text": "A brave young traveler begins climbing the sacred mountain at dawn. She encounters a wise eagle who shares ancient secrets of courage. The path becomes steep but her determination grows stronger. At the summit she discovers a crystal temple glowing with light. The temple guardian teaches her the power of inner strength. She learns that true victory comes from helping others. With new wisdom she descends to share her knowledge. The mountain journey transforms her into a guide for others.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Sacred Mountain Journey",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 18,
+    "steps": 18,
+    "clips_count": 8,
+    "total_duration": 32.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "Traditional anime art style"
+  },
+  "timestamp": "2025-07-26T16:05:16.452447",
+  "lesson_id": "b5a74fa3"
+}

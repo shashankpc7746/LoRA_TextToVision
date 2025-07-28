@@ -1,0 +1,20 @@
+{
+  "title": "The Master Carpenter",
+  "level": "Beginner",
+  "style": "Anime Style",
+  "text": "A skilled carpenter carefully measures a piece of oak wood with his ruler. He marks the cutting lines with precision using a sharp pencil. The man picks up his handsaw and begins cutting the wood with steady strokes. He smooths the edges with sandpaper creating a perfect wooden plank. Finally he steps back to admire his crafted work with a satisfied smile.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Master Carpenter",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 18,
+    "steps": 18,
+    "clips_count": 5,
+    "total_duration": 20.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "Traditional anime art style"
+  },
+  "timestamp": "2025-07-28T15:59:29.167543",
+  "lesson_id": "8ba5bb5a"
+}

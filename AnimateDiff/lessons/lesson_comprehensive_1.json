@@ -1,0 +1,94 @@
+{
+  "title": "The Sacred Journey of Self-Discovery",
+  "level": "Advanced",
+  "duration": "90-120 seconds",
+  "tts_enabled": true,
+  "scenes": [
+    {
+      "text": "In the ancient mountains of the Himalayas a young seeker begins her spiritual journey.",
+      "duration": 6.2
+    },
+    {
+      "text": "She walks through misty forests where ancient sages once meditated for years.",
+      "duration": 6.8
+    },
+    {
+      "text": "At a sacred temple she meets a wise guru who teaches the path of self-realization.",
+      "duration": 7.1
+    },
+    {
+      "text": "The guru explains that true knowledge comes from within not from external sources.",
+      "duration": 7.4
+    },
+    {
+      "text": "Through meditation she learns to quiet her mind and listen to her inner voice.",
+      "duration": 7.0
+    },
+    {
+      "text": "Days pass as she practices mindfulness and develops deeper awareness of her thoughts.",
+      "duration": 7.6
+    },
+    {
+      "text": "She discovers that suffering comes from attachment to temporary things in life.",
+      "duration": 6.9
+    },
+    {
+      "text": "The guru teaches her about dharma and living in harmony with universal principles.",
+      "duration": 7.3
+    },
+    {
+      "text": "She learns that compassion and service to others are essential parts of spiritual growth.",
+      "duration": 7.8
+    },
+    {
+      "text": "Through daily practice she develops patience wisdom and inner peace that radiates outward.",
+      "duration": 7.5
+    },
+    {
+      "text": "She realizes that the journey of self-discovery is lifelong and filled with continuous learning.",
+      "duration": 7.9
+    },
+    {
+      "text": "With gratitude she returns to the world carrying the light of wisdom to help others.",
+      "duration": 7.2
+    },
+    {
+      "text": "Her transformation inspires many to begin their own sacred journey of awakening and growth.",
+      "duration": 7.8
+    },
+    {
+      "text": "The cycle continues as wisdom flows from teacher to student across generations of seekers.",
+      "duration": 7.6
+    }
+  ],
+  "prompts": [
+    "In the ancient mountains of the Himalayas a young seeker begins her spiritual journey, misty peaks, sacred atmosphere, cinematic mountain vista",
+    "She walks through misty forests where ancient sages once meditated for years, mystical forest path, dappled sunlight, spiritual ambiance",
+    "At a sacred temple she meets a wise guru who teaches the path of self-realization, ancient temple, guru and student, teaching scene",
+    "The guru explains that true knowledge comes from within not from external sources, wise teacher gesturing, inner wisdom concept, serene setting",
+    "Through meditation she learns to quiet her mind and listen to her inner voice, peaceful meditation pose, lotus position, tranquil expression",
+    "Days pass as she practices mindfulness and develops deeper awareness of her thoughts, daily practice montage, growing awareness, mindful moments",
+    "She discovers that suffering comes from attachment to temporary things in life, realization moment, letting go concept, peaceful understanding",
+    "The guru teaches her about dharma and living in harmony with universal principles, dharma teaching, cosmic harmony, universal connection",
+    "She learns that compassion and service to others are essential parts of spiritual growth, acts of kindness, helping others, compassionate service",
+    "Through daily practice she develops patience wisdom and inner peace that radiates outward, glowing aura, peaceful presence, wisdom emanating",
+    "She realizes that the journey of self-discovery is lifelong and filled with continuous learning, endless path, continuous growth, life journey",
+    "With gratitude she returns to the world carrying the light of wisdom to help others, returning to society, sharing wisdom, grateful heart",
+    "Her transformation inspires many to begin their own sacred journey of awakening and growth, inspiring others, ripple effect, transformation",
+    "The cycle continues as wisdom flows from teacher to student across generations of seekers, eternal cycle, wisdom transmission, generational flow"
+  ],
+  "text": "In the ancient mountains of the Himalayas a young seeker begins her spiritual journey. She walks through misty forests where ancient sages once meditated for years. At a sacred temple she meets a wise guru who teaches the path of self-realization. The guru explains that true knowledge comes from within not from external sources. Through meditation she learns to quiet her mind and listen to her inner voice. Days pass as she practices mindfulness and develops deeper awareness of her thoughts. She discovers that suffering comes from attachment to temporary things in life. The guru teaches her about dharma and living in harmony with universal principles. She learns that compassion and service to others are essential parts of spiritual growth. Through daily practice she develops patience wisdom and inner peace that radiates outward. She realizes that the journey of self-discovery is lifelong and filled with continuous learning. With gratitude she returns to the world carrying the light of wisdom to help others. Her transformation inspires many to begin their own sacred journey of awakening and growth. The cycle continues as wisdom flows from teacher to student across generations of seekers.",
+  "metadata": {
+    "theme": "spiritual journey and self-discovery",
+    "setting": "Himalayan mountains and sacred temples",
+    "character": "young female spiritual seeker",
+    "lesson": "path of self-realization and dharma",
+    "mood": "profound and transformative",
+    "visual_style": "cinematic spiritual journey",
+    "duration_target": "105 seconds",
+    "created": "2025-07-28",
+    "story_type": "comprehensive_spiritual_journey",
+    "test_video": true,
+    "sub_task_5": true
+  }
+}

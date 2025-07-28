@@ -11,11 +11,15 @@ import tempfile
 import shutil
 import sys
 from pathlib import Path
+from datetime import datetime
+from typing import List, Dict
 import moviepy.config as config
 from moviepy.editor import (
     VideoFileClip, AudioFileClip, concatenate_audioclips,
     TextClip, CompositeVideoClip, concatenate_videoclips
 )
+from subtitle_sync_engine import SubtitleSyncEngine
+from cinematic_flow_engine import CinematicFlowEngine
 
 # Fix Unicode encoding issues for Windows console
 if sys.platform == "win32":
@@ -149,43 +153,78 @@ $synth.Dispose()
             print(f"   ❌ Audio generation error: {e}")
             return None, []
     
-    def create_subtitles(self, sentences, audio_clips, video_width=512):
-        """Create synchronized subtitles"""
-        print(f"📝 Creating synchronized subtitles...")
-        
+    def create_advanced_subtitles(self, sentences, audio_clips, video_width=512, language='english'):
+        """Create advanced synchronized subtitles with Gurukul styling"""
+        print(f"📝 Creating advanced synchronized subtitles...")
+
+        try:
+            # Initialize subtitle sync engine
+            subtitle_engine = SubtitleSyncEngine()
+
+            # Generate precise SRT file
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            srt_path = os.path.join(self.temp_dir, f"subtitles_{timestamp}.srt")
+
+            subtitle_engine.generate_precise_subtitles(
+                audio_clips=audio_clips,
+                text_segments=sentences,
+                output_path=srt_path,
+                language=language
+            )
+
+            # Generate subtitle report
+            report = subtitle_engine.generate_subtitle_report(srt_path)
+            print(f"   📊 Subtitle Report:")
+            print(f"      • Total segments: {report.get('total_segments', 0)}")
+            print(f"      • Total duration: {report.get('total_duration', 0):.1f}s")
+            print(f"      • Average reading speed: {report.get('average_reading_speed', 0):.1f} chars/sec")
+
+            # Parse SRT to create MoviePy clips for preview
+            subtitle_clips = subtitle_engine._parse_srt_to_clips(srt_path, video_width, language)
+
+            print(f"   ✅ Created {len(subtitle_clips)} advanced subtitles")
+            print(f"   📁 SRT file: {srt_path}")
+
+            return subtitle_clips, srt_path
+
+        except Exception as e:
+            print(f"   ❌ Advanced subtitle creation failed: {e}")
+            # Fallback to simple subtitles
+            return self.create_simple_subtitles(sentences, audio_clips, video_width), None
+
+    def create_simple_subtitles(self, sentences, audio_clips, video_width=512):
+        """Fallback simple subtitle creation"""
+        print(f"   🔄 Using fallback simple subtitles...")
+
         subtitle_clips = []
         current_time = 0
-        
+
         for i, (sentence, audio_clip) in enumerate(zip(sentences, audio_clips)):
             if not sentence.strip():
                 continue
-            
+
             start_time = current_time
             duration = audio_clip.duration
-            
-            print(f"   📝 Subtitle {i+1}: {start_time:.1f}s - {start_time + duration:.1f}s")
-            
+
             try:
+                # FIXED: Proper movie-style subtitle positioning (moved significantly up)
                 subtitle = TextClip(
                     sentence.strip(),
-                    fontsize=36,
-                    color='white',
-                    stroke_color='black',
-                    stroke_width=2,
-                    font='Arial',
+                    fontsize=32,  # Reduced size as requested
+                    color='white',  # Pure white
+                    font='Arial-Bold',  # Bold for visibility
                     method='caption',
-                    size=(video_width * 0.8, None),
+                    size=(video_width * 0.85, None),
                     align='center'
-                ).set_position(('center', 'bottom')).set_start(start_time).set_duration(duration)
-                
+                ).set_position(('center', 350)).set_start(start_time).set_duration(duration)  # FIXED: Position at 350px from top (162px from bottom)
+
                 subtitle_clips.append(subtitle)
-                
+
             except Exception as e:
                 print(f"      ❌ Subtitle {i+1} failed: {e}")
-            
+
             current_time += duration
-        
-        print(f"   ✅ Created {len(subtitle_clips)} subtitles")
+
         return subtitle_clips
     
     def load_lesson_data(self, lesson_path):
@@ -252,7 +291,7 @@ $synth.Dispose()
 
             result = subprocess.run([
                 sys.executable, "multi_clip_generator.py", lesson_filename, style
-            ], capture_output=False, text=True, encoding='utf-8', errors='replace', env=env, timeout=1800)  # Show output, 30 min timeout
+            ], capture_output=False, text=True, encoding='utf-8', errors='replace', env=env, timeout=7200)  # Show output, 2 hour timeout
 
             if result.returncode == 0:
                 print(f"   ✅ NEW video clips generated successfully")
@@ -261,10 +300,15 @@ $synth.Dispose()
                 clips_dir = "outputs/multi_clip"
                 clip_files = []
 
-                for i in range(1, 9):  # Load new clips
+                # Dynamically detect all available clips (not hardcoded to 8!)
+                i = 1
+                while True:
                     clip_path = os.path.join(clips_dir, f"clip{i}.mp4")
                     if os.path.exists(clip_path):
                         clip_files.append(clip_path)
+                        i += 1
+                    else:
+                        break  # No more clips found
 
                 if clip_files:
                     video_clips = [VideoFileClip(path) for path in clip_files]
@@ -363,17 +407,39 @@ $synth.Dispose()
                 print("❌ Video generation failed")
                 return None
             
-            # Step 4: Adjust each video clip to match its corresponding audio
-            print(f"\n⏱️ Synchronizing video clips with audio segments...")
+            # Step 4: Apply cinematic flow and transitions
+            print(f"\n🎬 Applying cinematic flow and transitions...")
+
+            # Extract scene contexts from lesson data
+            scene_contexts = self._extract_scene_contexts(lesson_data)
+            flow_instructions = self._generate_flow_instructions(lesson_data, len(video_clips))
+
+            # Initialize cinematic flow engine
+            cinematic_engine = CinematicFlowEngine()
+
+            # Apply cinematic enhancements
+            cinematic_video_clips = []
+            for i, video_clip in enumerate(video_clips):
+                scene = scene_contexts[i] if i < len(scene_contexts) else 'temple'
+                flow_instruction = flow_instructions[i] if i < len(flow_instructions) else {}
+
+                enhanced_clip = cinematic_engine._enhance_clip_with_flow(
+                    video_clip, scene, flow_instruction, i
+                )
+                cinematic_video_clips.append(enhanced_clip)
+                print(f"   🎬 Clip {i+1}: Applied {flow_instruction.get('movement', 'default')} in {scene} scene")
+
+            # Step 5: Synchronize enhanced clips with audio
+            print(f"\n⏱️ Synchronizing cinematic clips with audio segments...")
 
             adjusted_video_clips = []
             total_video_duration = 0
             total_audio_duration = sum(clip.duration for clip in audio_clips)
 
             print(f"   📊 Total audio duration: {total_audio_duration:.1f}s")
-            print(f"   🎬 Adjusting {len(video_clips)} video clips to match audio...")
+            print(f"   🎬 Adjusting {len(cinematic_video_clips)} cinematic clips to match audio...")
 
-            for i, (video_clip, audio_clip) in enumerate(zip(video_clips, audio_clips)):
+            for i, (video_clip, audio_clip) in enumerate(zip(cinematic_video_clips, audio_clips)):
                 video_duration = video_clip.duration
                 audio_duration = audio_clip.duration
 
@@ -402,22 +468,35 @@ $synth.Dispose()
                 adjusted_video_clips.append(extended_clip)
                 total_video_duration += extended_clip.duration
 
-            # Concatenate the synchronized video clips
+            # Step 6: Create final video (TEMPORARILY DISABLED cinematic transitions to fix black screen)
+            print(f"\n🎭 Creating final video sequence...")
+
+            # SAFETY: Use simple concatenation to prevent black screen issues
+            from moviepy.editor import concatenate_videoclips
             adjusted_video = concatenate_videoclips(adjusted_video_clips, method="compose")
-            print(f"   ✅ Final synchronized video duration: {adjusted_video.duration:.1f}s")
+            print(f"   ✅ Safe video sequence created: {adjusted_video.duration:.1f}s")
+            print(f"   ⚠️ Cinematic transitions temporarily disabled for stability")
             
             # Step 5: Add audio to video
             print(f"\n🎵 Adding audio to video...")
             video_with_audio = adjusted_video.set_audio(final_audio)
             
-            # Step 6: Create and add subtitles
-            print(f"\n📝 Adding subtitles...")
-            subtitle_clips = self.create_subtitles(sentences, audio_clips, adjusted_video.w)
-            
+            # Step 6: Create advanced subtitles with Gurukul styling
+            print(f"\n📝 Adding advanced subtitles...")
+            subtitle_clips, srt_path = self.create_advanced_subtitles(
+                sentences, audio_clips, adjusted_video.w, language='english'
+            )
+
             if subtitle_clips:
                 final_video = CompositeVideoClip([video_with_audio] + subtitle_clips)
+                print(f"   ✅ Subtitles embedded in video")
             else:
                 final_video = video_with_audio
+                print(f"   ⚠️ No subtitles added")
+
+            # Store SRT path for later use
+            if srt_path:
+                self.last_srt_path = srt_path
             
             # Step 7: Save final video with dynamic naming
             lesson_name = lesson_data.get('title', 'video').replace(' ', '_').replace(':', '').replace('?', '').replace('!', '')
@@ -445,7 +524,15 @@ $synth.Dispose()
 
             storage_path = os.path.join(storage_today_dir, output_filename)
             shutil.copy2(output_path, storage_path)
-            print(f"   📁 Copied to: {storage_path}")
+
+            # Also copy SRT file to storage for team access
+            if hasattr(self, 'last_srt_path') and self.last_srt_path and os.path.exists(self.last_srt_path):
+                srt_filename = output_filename.replace('.mp4', '.srt')
+                storage_srt_path = os.path.join(storage_today_dir, srt_filename)
+                shutil.copy2(self.last_srt_path, storage_srt_path)
+                print(f"   📝 Subtitles copied to: {storage_srt_path}")
+
+            print(f"   📁 Video copied to: {storage_path}")
             print(f"   🤝 Ready for Rishabh's team access!")
 
             # Cleanup
@@ -495,6 +582,97 @@ $synth.Dispose()
         """Clean up temporary files"""
         if self.temp_dir and os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def _extract_scene_contexts(self, lesson_data: dict) -> List[str]:
+        """Extract scene contexts from lesson data for cinematic flow"""
+
+        try:
+            # Check if prompts contain scene information
+            prompts = lesson_data.get('prompts', [])
+            scenes = []
+
+            # Scene detection keywords
+            scene_keywords = {
+                'temple': ['temple', 'shrine', 'sacred', 'prayer', 'worship', 'divine'],
+                'forest': ['forest', 'tree', 'nature', 'woods', 'jungle', 'green'],
+                'cosmic': ['cosmic', 'universe', 'space', 'stars', 'celestial', 'ethereal'],
+                'mountain': ['mountain', 'peak', 'summit', 'hill', 'cliff', 'high'],
+                'river': ['river', 'water', 'stream', 'flow', 'lake', 'ocean'],
+                'palace': ['palace', 'royal', 'grand', 'majestic', 'golden', 'throne']
+            }
+
+            for prompt in prompts:
+                prompt_lower = prompt.lower()
+                detected_scene = 'temple'  # Default
+
+                # Find best matching scene
+                max_matches = 0
+                for scene, keywords in scene_keywords.items():
+                    matches = sum(1 for keyword in keywords if keyword in prompt_lower)
+                    if matches > max_matches:
+                        max_matches = matches
+                        detected_scene = scene
+
+                scenes.append(detected_scene)
+
+            # If no prompts, use metadata or defaults
+            if not scenes:
+                metadata = lesson_data.get('metadata', {})
+                segments = metadata.get('segments', [])
+
+                for segment in segments:
+                    scene = segment.get('scene', 'temple')
+                    scenes.append(scene)
+
+            # Ensure we have at least one scene
+            if not scenes:
+                scenes = ['temple']
+
+            print(f"   🎭 Detected scenes: {scenes}")
+            return scenes
+
+        except Exception as e:
+            print(f"   ⚠️ Scene extraction failed: {e}")
+            return ['temple']  # Safe default
+
+    def _generate_flow_instructions(self, lesson_data: dict, num_clips: int) -> List[Dict]:
+        """Generate cinematic flow instructions for each clip"""
+
+        try:
+            # Base flow patterns for educational content
+            flow_patterns = [
+                {'movement': 'pan_right', 'intensity': 0.3, 'description': 'Gentle introduction'},
+                {'movement': 'zoom_in', 'intensity': 0.4, 'description': 'Focus attention'},
+                {'movement': 'orbit', 'intensity': 0.3, 'description': 'Dynamic perspective'},
+                {'movement': 'dolly', 'intensity': 0.2, 'description': 'Depth movement'},
+                {'movement': 'pan_left', 'intensity': 0.3, 'description': 'Smooth transition'},
+                {'movement': 'tilt_up', 'intensity': 0.2, 'description': 'Uplifting motion'},
+                {'movement': 'zoom_out', 'intensity': 0.3, 'description': 'Revealing view'},
+                {'movement': 'pan_right', 'intensity': 0.2, 'description': 'Concluding sweep'}
+            ]
+
+            # Generate instructions for each clip
+            instructions = []
+            for i in range(num_clips):
+                pattern = flow_patterns[i % len(flow_patterns)]
+
+                # Adjust intensity based on clip position
+                if i == 0:
+                    # First clip - gentle introduction
+                    pattern['intensity'] = min(pattern['intensity'], 0.2)
+                elif i == num_clips - 1:
+                    # Last clip - strong conclusion
+                    pattern['intensity'] = max(pattern['intensity'], 0.4)
+
+                instructions.append(pattern.copy())
+
+            print(f"   🎬 Generated flow instructions: {[inst['movement'] for inst in instructions]}")
+            return instructions
+
+        except Exception as e:
+            print(f"   ⚠️ Flow instruction generation failed: {e}")
+            # Safe default
+            return [{'movement': 'pan_right', 'intensity': 0.2}] * num_clips
 
 def main():
     """SIMPLIFIED: Single lesson file input, always generates complete video with audio+subtitles"""
