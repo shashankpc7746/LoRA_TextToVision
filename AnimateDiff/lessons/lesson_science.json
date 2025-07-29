@@ -1,13 +1,59 @@
 {
   "title": "Introduction to Simple Machines",
   "level": "Elementary",
-  "text": "A young scientist demonstrates how a lever works by lifting a heavy rock. She places a long wooden board on a small stone to create a simple lever. The scientist pushes down on one end of the lever to lift the heavy rock on the other end. Next, she shows how a pulley works by hanging a rope over a wheel. The scientist pulls down on the rope to lift a bucket of water upward. She explains how pulleys make work easier by changing the direction of force.",
-  "quiz": [
+  "duration": "40-50 seconds",
+  "tts_enabled": true,
+  "scenes": [
     {
-      "question": "What simple machines were demonstrated?",
-      "options": ["Lever and pulley", "Wheel and axle", "Inclined plane", "Screw and wedge"],
-      "correct": 0
+      "text": "A young scientist demonstrates how a lever works by lifting a heavy rock.",
+      "duration": 6.8
+    },
+    {
+      "text": "She places a long wooden board on a small stone to create a simple lever.",
+      "duration": 6.5
+    },
+    {
+      "text": "The scientist pushes down on one end of the lever to lift the heavy rock on the other end.",
+      "duration": 7.2
+    },
+    {
+      "text": "Next, she shows how a pulley works by hanging a rope over a wheel.",
+      "duration": 6.3
+    },
+    {
+      "text": "The scientist pulls down on the rope to lift a bucket of water upward.",
+      "duration": 6.0
+    },
+    {
+      "text": "She explains how pulleys make work easier by changing the direction of force.",
+      "duration": 7.0
     }
   ],
-  "tts": true
+  "prompts": [
+    "A young scientist demonstrates how a lever works by lifting a heavy rock, science demonstration, lever mechanism, heavy rock lifting",
+    "She places a long wooden board on a small stone to create a simple lever, wooden board setup, stone fulcrum, lever construction",
+    "The scientist pushes down on one end of the lever to lift the heavy rock on the other end, lever in action, force demonstration, rock lifting",
+    "Next, she shows how a pulley works by hanging a rope over a wheel, pulley demonstration, rope and wheel, simple machine setup",
+    "The scientist pulls down on the rope to lift a bucket of water upward, pulley in action, water bucket lifting, force direction change",
+    "She explains how pulleys make work easier by changing the direction of force, scientific explanation, force direction, work efficiency"
+  ],
+  "text": "A young scientist demonstrates how a lever works by lifting a heavy rock. She places a long wooden board on a small stone to create a simple lever. The scientist pushes down on one end of the lever to lift the heavy rock on the other end. Next, she shows how a pulley works by hanging a rope over a wheel. The scientist pulls down on the rope to lift a bucket of water upward. She explains how pulleys make work easier by changing the direction of force.",
+  "metadata": {
+    "theme": "simple machines and physics principles",
+    "setting": "outdoor science demonstration area",
+    "character": "young female scientist",
+    "lesson": "understanding levers and pulleys",
+    "mood": "educational and demonstrative",
+    "visual_style": "hands-on science education",
+    "duration_target": "39.8 seconds",
+    "created": "2025-07-29",
+    "story_type": "physics_demonstration",
+    "quiz": [
+      {
+        "question": "What simple machines were demonstrated?",
+        "options": ["Lever and pulley", "Wheel and axle", "Inclined plane", "Screw and wedge"],
+        "correct": 0
+      }
+    ]
+  }
 }

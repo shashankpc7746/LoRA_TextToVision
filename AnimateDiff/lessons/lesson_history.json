@@ -1,13 +1,59 @@
 {
-  "title": "Ancient Indian Mathematics",
-  "level": "Intermediate", 
-  "text": "An ancient Indian mathematician sits under a tree writing numbers on palm leaves. He discovers the concept of zero and draws a circle to represent nothing. The mathematician shows how zero makes calculations much easier and more accurate. He teaches his students about place value using the decimal system. The students practice writing large numbers using the new zero symbol. The mathematician explains how this discovery will help future generations solve complex problems.",
-  "quiz": [
+  "title": "Ancient Indian Mathematics Discovery",
+  "level": "Intermediate",
+  "duration": "40-50 seconds",
+  "tts_enabled": true,
+  "scenes": [
     {
-      "question": "What important mathematical concept was discovered?",
-      "options": ["Algebra", "Zero", "Geometry", "Calculus"],
-      "correct": 1
+      "text": "An ancient Indian mathematician sits under a tree writing numbers on palm leaves.",
+      "duration": 6.8
+    },
+    {
+      "text": "He discovers the concept of zero and draws a circle to represent nothing.",
+      "duration": 6.5
+    },
+    {
+      "text": "The mathematician shows how zero makes calculations much easier and more accurate.",
+      "duration": 7.2
+    },
+    {
+      "text": "He teaches his students about place value using the decimal system.",
+      "duration": 6.3
+    },
+    {
+      "text": "The students practice writing large numbers using the new zero symbol.",
+      "duration": 6.0
+    },
+    {
+      "text": "The mathematician explains how this discovery will help future generations solve complex problems.",
+      "duration": 7.8
     }
   ],
-  "tts": true
+  "prompts": [
+    "An ancient Indian mathematician sits under a tree writing numbers on palm leaves, ancient India historical setting, scholar under banyan tree, palm leaf manuscripts",
+    "He discovers the concept of zero and draws a circle to represent nothing, mathematical breakthrough, zero symbol creation, historical discovery",
+    "The mathematician shows how zero makes calculations much easier and more accurate, mathematical demonstration, calculation improvement, teaching breakthrough",
+    "He teaches his students about place value using the decimal system, historical teaching scene, students learning, decimal system explanation",
+    "The students practice writing large numbers using the new zero symbol, students practicing, historical number writing, zero symbol usage",
+    "The mathematician explains how this discovery will help future generations solve complex problems, wisdom sharing, historical legacy, mathematical impact"
+  ],
+  "text": "An ancient Indian mathematician sits under a tree writing numbers on palm leaves. He discovers the concept of zero and draws a circle to represent nothing. The mathematician shows how zero makes calculations much easier and more accurate. He teaches his students about place value using the decimal system. The students practice writing large numbers using the new zero symbol. The mathematician explains how this discovery will help future generations solve complex problems.",
+  "metadata": {
+    "theme": "historical mathematical discovery",
+    "setting": "ancient India, under a banyan tree",
+    "character": "ancient Indian mathematician",
+    "lesson": "historical discovery of zero and its impact",
+    "mood": "scholarly and historically significant",
+    "visual_style": "ancient Indian historical setting",
+    "duration_target": "40.6 seconds",
+    "created": "2025-07-29",
+    "story_type": "historical_mathematical_discovery",
+    "quiz": [
+      {
+        "question": "What important mathematical concept was discovered?",
+        "options": ["Algebra", "Zero", "Geometry", "Calculus"],
+        "correct": 1
+      }
+    ]
+  }
 }

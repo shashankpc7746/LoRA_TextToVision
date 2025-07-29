@@ -1,13 +1,69 @@
 {
   "title": "Forest of Ancient Wisdom",
   "level": "Advanced",
-  "text": "A young seeker enters the mystical forest seeking ancient wisdom. She meets an old sage meditating beside a crystal clear stream. The sage shares stories of courage and compassion from ages past. Ancient trees whisper secrets of balance and harmony to those who listen. The seeker learns to find peace within herself through mindful breathing. She discovers that true strength comes from understanding and kindness. The forest spirits bless her journey with inner light and clarity. She returns to the world transformed with wisdom to share with others.",
-  "quiz": [
+  "duration": "50-60 seconds",
+  "tts_enabled": true,
+  "scenes": [
     {
-      "question": "What did the seeker learn in the forest?",
-      "options": ["Magic spells", "Inner peace and wisdom", "Treasure location", "Fighting techniques"],
-      "correct": 1
+      "text": "A young seeker enters the mystical forest seeking ancient wisdom.",
+      "duration": 6.0
+    },
+    {
+      "text": "She meets an old sage meditating beside a crystal clear stream.",
+      "duration": 6.2
+    },
+    {
+      "text": "The sage shares stories of courage and compassion from ages past.",
+      "duration": 6.8
+    },
+    {
+      "text": "Ancient trees whisper secrets of balance and harmony to those who listen.",
+      "duration": 7.0
+    },
+    {
+      "text": "The seeker learns to find peace within herself through mindful breathing.",
+      "duration": 6.5
+    },
+    {
+      "text": "She discovers that true strength comes from understanding and kindness.",
+      "duration": 6.8
+    },
+    {
+      "text": "The forest spirits bless her journey with inner light and clarity.",
+      "duration": 6.3
+    },
+    {
+      "text": "She returns to the world transformed with wisdom to share with others.",
+      "duration": 6.5
     }
   ],
-  "tts": true
+  "prompts": [
+    "A young seeker enters the mystical forest seeking ancient wisdom, mystical forest entrance, spiritual seeker, ancient woodland",
+    "She meets an old sage meditating beside a crystal clear stream, wise sage meditation, crystal stream, peaceful meeting",
+    "The sage shares stories of courage and compassion from ages past, storytelling scene, ancient wisdom, sage teaching",
+    "Ancient trees whisper secrets of balance and harmony to those who listen, whispering trees, forest secrets, natural harmony",
+    "The seeker learns to find peace within herself through mindful breathing, meditation practice, inner peace, mindful breathing",
+    "She discovers that true strength comes from understanding and kindness, wisdom realization, inner strength, compassionate understanding",
+    "The forest spirits bless her journey with inner light and clarity, forest spirits, blessing light, spiritual illumination",
+    "She returns to the world transformed with wisdom to share with others, transformation complete, wisdom sharing, enlightened return"
+  ],
+  "text": "A young seeker enters the mystical forest seeking ancient wisdom. She meets an old sage meditating beside a crystal clear stream. The sage shares stories of courage and compassion from ages past. Ancient trees whisper secrets of balance and harmony to those who listen. The seeker learns to find peace within herself through mindful breathing. She discovers that true strength comes from understanding and kindness. The forest spirits bless her journey with inner light and clarity. She returns to the world transformed with wisdom to share with others.",
+  "metadata": {
+    "theme": "spiritual wisdom and forest teachings",
+    "setting": "mystical forest with crystal stream",
+    "character": "young female spiritual seeker",
+    "lesson": "inner peace and wisdom through nature",
+    "mood": "mystical and transformative",
+    "visual_style": "mystical forest cinematography",
+    "duration_target": "52.1 seconds",
+    "created": "2025-07-29",
+    "story_type": "spiritual_wisdom_journey",
+    "quiz": [
+      {
+        "question": "What did the seeker learn in the forest?",
+        "options": ["Magic spells", "Inner peace and wisdom", "Treasure location", "Fighting techniques"],
+        "correct": 1
+      }
+    ]
+  }
 }
