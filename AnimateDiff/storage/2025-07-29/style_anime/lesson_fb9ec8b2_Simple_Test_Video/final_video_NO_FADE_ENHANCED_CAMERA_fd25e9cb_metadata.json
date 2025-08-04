@@ -1,0 +1,20 @@
+{
+  "title": "Simple Test Video",
+  "level": "Test",
+  "style": "anime",
+  "text": "A young boy walks in a beautiful garden. He picks a colorful flower and smiles. The boy waves goodbye and walks away.",
+  "subject": "Text-to-Video Generation",
+  "topic": "Simple Test Video",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 16,
+    "steps": 20,
+    "clips_count": 3,
+    "total_duration": 6.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "High-quality anime style with character consistency and motion"
+  },
+  "timestamp": "2025-07-29T17:53:59.053583",
+  "lesson_id": "fb9ec8b2"
+}

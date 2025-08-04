@@ -1,0 +1,24 @@
+{
+  "title": "Style Improvement Test - Character Consistency and Background Clarity",
+  "level": "Test",
+  "text": "A beautiful young woman walks through a peaceful mountain landscape. She pauses to admire the majestic Himalayan peaks in the distance. The woman continues her journey through the serene forest path, surrounded by tall ancient trees. She reaches a sacred temple where she sits in meditation, finding inner peace in the tranquil spiritual setting.",
+  "scenes": [
+    {
+      "description": "A beautiful young woman walks through a peaceful mountain landscape",
+      "duration": 4.0
+    },
+    {
+      "description": "She pauses to admire the majestic Himalayan peaks in the distance",
+      "duration": 4.0
+    },
+    {
+      "description": "The woman continues her journey through the serene forest path, surrounded by tall ancient trees",
+      "duration": 4.0
+    },
+    {
+      "description": "She reaches a sacred temple where she sits in meditation, finding inner peace in the tranquil spiritual setting",
+      "duration": 4.0
+    }
+  ],
+  "tts": true
+}

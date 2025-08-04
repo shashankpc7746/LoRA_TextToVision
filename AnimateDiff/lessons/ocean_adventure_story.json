@@ -1,0 +1,38 @@
+{
+  "title": "Underwater Ocean Adventure",
+  "level": "Beginner",
+  "description": "A young diver explores the wonders of the deep ocean",
+  "duration": "10-12 seconds",
+  "tts_enabled": false,
+  "scenes": [
+    {
+      "text": "A young diver with scuba gear swims through a vibrant coral reef with tropical fish.",
+      "duration": 3.3
+    },
+    {
+      "text": "She discovers a sunken pirate ship covered in seaweed and treasure chests.",
+      "duration": 3.5
+    },
+    {
+      "text": "A wise old sea turtle guides her back to the surface through rays of sunlight.",
+      "duration": 3.4
+    }
+  ],
+  "prompts": [
+    "A young diver with scuba gear swims through a vibrant coral reef with tropical fish, anime style, underwater scene",
+    "She discovers a sunken pirate ship covered in seaweed and treasure chests, anime style, underwater treasure, pirate ship",
+    "A wise old sea turtle guides her back to the surface through rays of sunlight, anime style, sea turtle, underwater sunlight"
+  ],
+  "text": "A young diver with scuba gear swims through a vibrant coral reef with tropical fish. She discovers a sunken pirate ship covered in seaweed and treasure chests. A wise old sea turtle guides her back to the surface through rays of sunlight.",
+  "metadata": {
+    "theme": "underwater exploration",
+    "setting": "ocean depths",
+    "character": "young female diver",
+    "lesson": "ocean conservation and adventure",
+    "mood": "peaceful and adventurous",
+    "visual_style": "anime style",
+    "duration_target": "10 seconds",
+    "created": "2025-07-31",
+    "story_type": "ocean_adventure"
+  }
+}

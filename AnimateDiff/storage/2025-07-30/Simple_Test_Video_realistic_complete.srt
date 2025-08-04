@@ -1,0 +1,11 @@
+1
+00:00:00,000 --> 00:00:03,069
+A young boy walks in a beautiful garden.
+
+2
+00:00:03,069 --> 00:00:06,290
+He picks a colorful flower and smiles.
+
+3
+00:00:06,290 --> 00:00:09,230
+The boy waves goodbye and walks away.

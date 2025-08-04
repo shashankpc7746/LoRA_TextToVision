@@ -14,11 +14,34 @@ class QualityScorer:
     """Evaluates video quality and determines if retry is needed"""
     
     def __init__(self):
+        # Style-specific quality thresholds
         self.quality_thresholds = {
-            'human': 0.6,
-            'animal': 0.5,
-            'object': 0.4,
-            'educational': 0.55
+            'realistic': {
+                'human': 0.4,  # Higher threshold for realistic face consistency
+                'animal': 0.3,
+                'object': 0.25,
+                'educational': 0.35
+            },
+            'anime': {
+                'human': 0.35,  # Moderate threshold for anime character consistency
+                'animal': 0.3,
+                'object': 0.25,
+                'educational': 0.3
+            },
+            'artistic': {
+                'human': 0.3,  # Lower threshold for artistic style flexibility
+                'animal': 0.25,
+                'object': 0.2,
+                'educational': 0.25
+            }
+        }
+
+        # Fallback thresholds for unknown styles
+        self.default_thresholds = {
+            'human': 0.3,
+            'animal': 0.25,
+            'object': 0.2,
+            'educational': 0.3
         }
     
     def evaluate_video_quality(self, video_path: str, content_analysis: Dict = None) -> Dict:

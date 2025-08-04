@@ -1,0 +1,20 @@
+{
+  "title": "Style Improvement Test - Character Consistency and Background Clarity",
+  "level": "Test",
+  "style": "anime",
+  "text": "A beautiful young woman walks through a peaceful mountain landscape. She pauses to admire the majestic Himalayan peaks in the distance. The woman continues her journey through the serene forest path, surrounded by tall ancient trees. She reaches a sacred temple where she sits in meditation, finding inner peace in the tranquil spiritual setting.",
+  "subject": "Text-to-Video Generation",
+  "topic": "Style Improvement Test - Character Consistency and Background Clarity",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 22,
+    "steps": 40,
+    "clips_count": 4,
+    "total_duration": 8.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "ANIME-SPECIFIC: Enhanced anime with vibrant backgrounds and consistent characters"
+  },
+  "timestamp": "2025-08-02T11:08:05.805683",
+  "lesson_id": "abea3b70"
+}

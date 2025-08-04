@@ -11,7 +11,7 @@ import hashlib
 from moviepy.editor import VideoFileClip, concatenate_videoclips, vfx, TextClip, CompositeVideoClip
 from moviepy.video.fx.all import crop
 # Re-added vfx and crop for dynamic camera effects (but no fade effects)
-from animate_gurukul import generate_clip, fps
+from animate_gurukul import generate_clip, fps, initialize_animatediff_pipeline
 from utils.controlnet_utils import (
     generate_multi_control_guidance,
     generate_adaptive_multi_control_guidance,
@@ -263,31 +263,58 @@ def add_subtitles_to_video_clips(video_path: str, sentences: list, output_path: 
 
 # ----------- MULTIPLE RENDER STYLES SYSTEM -----------
 
+# ENHANCED STYLE CONFIGURATIONS - OPTIMIZED FOR QUALITY AND CONSISTENCY
+ANIME_STYLE_CONFIG = {
+    'name': 'anime',
+    'model': 'xyn-ai/anything-v4.0',
+    'description': 'ANIME-SPECIFIC: Enhanced anime with character presence, movement, and consistent backgrounds',
+    'prompt_suffix': ', anime style, visible anime character, dynamic character motion, detailed background setting, no color rays, no artifacts, consistent anime environment, animated character movement, clear anime landscape',
+    'guidance_scale': 20,  # Reduced for better character stability
+    'steps': 45,  # Increased for better character generation
+    'character_consistency_weight': 0.95,  # Increased for better character presence
+    'background_emphasis_weight': 0.9,  # Increased for consistent backgrounds
+    'motion_smoothness': 0.9  # Increased for better movement
+}
+
+REALISTIC_STYLE_CONFIG = {
+    'name': 'realistic',
+    'model': 'SG161222/Realistic_Vision_V5.1_noVAE',
+    'description': 'REALISTIC-SPECIFIC: Enhanced photorealistic with dynamic movement and full body framing',
+    'prompt_suffix': ', photorealistic, full body shot, natural walking motion, expressive gestures, dynamic body language, realistic movement, professional photography, natural skin texture, realistic lighting, fluid motion',
+    'guidance_scale': 16,  # Maintained for good framing control
+    'steps': 38,  # Increased for better movement quality
+    'character_consistency_weight': 0.95,  # Higher for realistic face consistency
+    'background_emphasis_weight': 0.85,
+    'motion_smoothness': 0.95  # Increased for enhanced movement
+}
+
+ARTISTIC_STYLE_CONFIG = {
+    'name': 'artistic',
+    'model': 'runwayml/stable-diffusion-v1-5',  # Changed to better artistic model
+    'description': 'ARTISTIC-SPECIFIC: Enhanced artistic with facial consistency and detailed backgrounds',
+    'prompt_suffix': ', artistic masterpiece, consistent artistic face, same facial features, stable character design, detailed artistic background, facial continuity, no blank backgrounds, consistent environment art, artistic landscape setting',
+    'guidance_scale': 18,  # Reduced for better facial stability
+    'steps': 42,  # Increased for better facial consistency
+    'character_consistency_weight': 0.92,  # Increased for better facial consistency
+    'background_emphasis_weight': 0.95,  # Increased for consistent backgrounds
+    'motion_smoothness': 0.92  # Maintained for smooth motion
+}
+
+def get_isolated_style_config(style):
+    """Get completely isolated style configuration"""
+    if style == "anime":
+        return ANIME_STYLE_CONFIG
+    elif style == "realistic":
+        return REALISTIC_STYLE_CONFIG
+    elif style == "artistic":
+        return ARTISTIC_STYLE_CONFIG
+    else:
+        return REALISTIC_STYLE_CONFIG  # Default fallback
+
 RENDER_STYLES = {
-    'realistic': {
-        'name': 'Realistic Style',
-        'model': 'SG161222/Realistic_Vision_V5.1_noVAE',
-        'description': 'Photorealistic characters and environments',
-        'prompt_suffix': ', photorealistic, detailed, high quality, realistic lighting',
-        'guidance_scale': 15,
-        'steps': 25  # Restored to 25 for better realistic quality
-    },
-    'anime': {
-        'name': 'Anime Style',
-        'model': 'xyn-ai/anything-v4.0',
-        'description': 'Traditional anime art style',
-        'prompt_suffix': ', anime style, detailed anime art, vibrant colors',
-        'guidance_scale': 18,
-        'steps': 18  # Reduced from 30 to 18 for faster generation
-    },
-    'artistic': {
-        'name': 'Artistic/Painterly Style',
-        'model': 'runwayml/stable-diffusion-v1-5',
-        'description': 'Watercolor and oil painting effects',
-        'prompt_suffix': ', watercolor painting, artistic, painterly style, soft brushstrokes',
-        'guidance_scale': 12,
-        'steps': 20  # Reduced from 35 to 20 for faster generation
-    }
+    'realistic': REALISTIC_STYLE_CONFIG,
+    'anime': ANIME_STYLE_CONFIG,
+    'artistic': ARTISTIC_STYLE_CONFIG
 }
 
 def select_render_style(style_name: str = 'realistic') -> dict:
@@ -414,12 +441,12 @@ paragraph, lesson_data = process_lesson_queue()
 if paragraph is None:
     print(f"📝 Using default simple story")
     paragraph = """
-A young anime boy walks through a peaceful village in the morning.
-He stops at a small flower shop and buys a red rose.
-The boy walks to a nearby park with cherry blossom trees.
-He sits on a wooden bench and reads a book quietly.
-A friendly cat approaches and sits beside him on the bench.
-The boy pets the cat gently and shares his lunch with it.
+A young person begins a journey of discovery in a peaceful setting.
+They explore a beautiful natural environment with flowers and trees.
+The person finds a quiet place to rest and reflect.
+They sit peacefully and observe the world around them.
+A friendly animal approaches and sits nearby.
+The person gently interacts with the animal in a moment of connection.
 """
 
 
@@ -500,56 +527,251 @@ def find_best_continuity_frame(video_path, num_frames_to_check=8):
     print(f"   🎯 Selected frame {best_frame_idx}/{total_frames-1} (score: {best_score:.2f})")
     return best_frame
 
-def enhance_prompt_for_consistency(original_prompt, clip_index, character_info=None):
-    """Add consistency keywords to prompts"""
+def enhance_anime_prompt_isolated(original_prompt, clip_index, character_info=None):
+    """ANIME-SPECIFIC prompt enhancement - CRITICAL FIXES FOR CLARITY & CONSISTENCY"""
 
-    # SPECIAL CASE: Enhance dog visibility in dog prompt
-    if "dog" in original_prompt.lower() and "runs past" in original_prompt.lower():
-        # Make dog much more prominent and visible
-        dog_enhancements = [
-            "LARGE PROMINENT DOG IN FOREGROUND",
-            "dog taking up 50% of the frame",
-            "dog as main focus",
-            "detailed dog features",
-            "dog clearly visible",
-            "dog in center of frame",
-            "close-up of dog",
-            "dog splashing water dramatically"
-        ]
-        original_prompt = original_prompt + ", " + ", ".join(dog_enhancements)
-        print(f"🐕 ENHANCED DOG VISIBILITY: Added special dog prominence keywords")
+    prompt_lower = original_prompt.lower()
 
-    # Extract character information from prompt
-    character_keywords = []
+    # CORE ANIME ENHANCEMENT TERMS (prioritized for token efficiency)
+    character_terms = []
+    background_terms = []
+    quality_terms = []
+    movement_terms = []
+    story_terms = []
 
-    # Look for character descriptions
-    if "woman" in original_prompt.lower() or "girl" in original_prompt.lower():
-        character_keywords.extend(["same woman", "consistent female character"])
-    elif "man" in original_prompt.lower() or "boy" in original_prompt.lower():
-        character_keywords.extend(["same man", "consistent male character"])
+    # ENHANCED CHARACTER CONSISTENCY & CLEAR MOVEMENT (highest priority)
+    if 'she' in prompt_lower or 'her' in prompt_lower or 'woman' in prompt_lower or 'girl' in prompt_lower:
+        character_terms = ["same anime girl", "consistent anime character", "identical anime person", "stable character design"]
+        movement_terms = ["clear character action", "obvious movement", "visible activity", "understandable motion"]
+    elif 'he' in prompt_lower or 'his' in prompt_lower or 'man' in prompt_lower or 'boy' in prompt_lower or 'guru' in prompt_lower:
+        character_terms = ["same anime boy", "consistent anime character", "identical anime person", "stable character design"]
+        movement_terms = ["clear character action", "obvious movement", "visible activity", "understandable motion"]
     else:
-        character_keywords.append("same person")
+        character_terms = ["same anime girl", "consistent anime character", "identical anime person", "stable character design"]
+        movement_terms = ["clear character action", "obvious movement", "visible activity", "understandable motion"]
 
-    # Look for clothing descriptions
-    clothing_matches = re.findall(r'\b(?:wearing|in)\s+(?:a\s+)?([^,.\n]+(?:hoodie|jacket|shirt|dress|coat))', original_prompt.lower())
-    for clothing in clothing_matches:
-        character_keywords.append(f"wearing {clothing}")
+    # STORY FOLLOWING & PROMPT ADHERENCE (critical priority)
+    if 'journey' in prompt_lower or 'begins' in prompt_lower:
+        story_terms = ["spiritual journey scene", "beginning adventure", "starting path"]
+    elif 'walks' in prompt_lower or 'forest' in prompt_lower:
+        story_terms = ["walking through forest", "forest journey", "moving between trees"]
+    elif 'temple' in prompt_lower or 'meets' in prompt_lower:
+        story_terms = ["temple meeting scene", "guru encounter", "sacred place"]
+    elif 'meditation' in prompt_lower or 'quiet' in prompt_lower:
+        story_terms = ["meditation scene", "peaceful sitting", "inner reflection"]
+    else:
+        story_terms = ["following story prompt", "scene matching description", "accurate story depiction"]
 
-    # Add general consistency terms
-    consistency_terms = [
-        "consistent character",
-        "identical appearance",
-        "maintaining identity",
-        "same facial features"
+    # MANDATORY BACKGROUND PRESENCE (critical priority)
+    if 'himalaya' in prompt_lower or 'mountain' in prompt_lower:
+        background_terms = ["visible anime mountains", "clear mountain background", "himalayan landscape", "mountain scenery always visible"]
+    elif 'forest' in prompt_lower or 'tree' in prompt_lower:
+        background_terms = ["visible anime forest", "clear forest background", "trees always visible", "woodland scenery"]
+    elif 'temple' in prompt_lower or 'shrine' in prompt_lower:
+        background_terms = ["visible anime temple", "clear temple background", "temple architecture", "sacred building always visible"]
+    elif 'meditation' in prompt_lower or 'peaceful' in prompt_lower:
+        background_terms = ["visible peaceful setting", "clear meditation background", "serene environment", "tranquil scenery always visible"]
+    else:
+        background_terms = ["visible anime background", "clear environment", "detailed scenery", "background always present"]
+
+    # ANTI-BLANK QUALITY TERMS
+    quality_terms = ["never blank background", "always visible scenery", "clear anime environment", "detailed anime scene"]
+
+    # COMBINE ALL ENHANCEMENTS FOR CRITICAL FIXES
+    all_enhancements = character_terms + story_terms + movement_terms + background_terms + quality_terms
+
+    # Create enhanced prompt
+    enhanced_prompt = f"{original_prompt}, {', '.join(all_enhancements)}"
+
+    # Optimize for CLIP token limits
+    optimized_prompt = optimize_prompt_for_clip_model(enhanced_prompt, max_tokens=75)
+
+    print(f"🎯 ANIME Enhanced & Optimized (Critical Clarity Fixes): {len(optimized_prompt)} chars (was {len(enhanced_prompt)})")
+    return optimized_prompt
+
+def optimize_prompt_for_clip_model(prompt, max_tokens=75):
+    """Smart prompt optimization that respects CLIP's 77-token limit while preserving story"""
+    import re
+
+    # Rough estimation: 1 token ≈ 4 characters (conservative estimate)
+    max_chars = max_tokens * 4
+
+    if len(prompt) <= max_chars:
+        return prompt
+
+    # Split into original story and enhancements
+    parts = prompt.split(', ')
+    original_story = parts[0]  # Always preserve the original story
+    enhancements = parts[1:] if len(parts) > 1 else []
+
+    # Priority order for enhancements (most important first)
+    priority_keywords = [
+        'consistent', 'same', 'identical', 'stable', 'clear', 'detailed',
+        'beautiful', 'realistic', 'high definition', 'sharp', 'natural'
     ]
 
-    # Combine with original prompt
-    if clip_index > 1:  # Add consistency terms from clip 2 onwards
-        enhanced_prompt = f"{original_prompt}, {', '.join(character_keywords + consistency_terms[:2])}"
-    else:
-        enhanced_prompt = original_prompt
+    # Sort enhancements by priority
+    prioritized_enhancements = []
+    remaining_enhancements = []
 
-    return enhanced_prompt
+    for enhancement in enhancements:
+        if any(keyword in enhancement.lower() for keyword in priority_keywords):
+            prioritized_enhancements.append(enhancement)
+        else:
+            remaining_enhancements.append(enhancement)
+
+    # Build optimized prompt
+    optimized_prompt = original_story
+    current_length = len(optimized_prompt)
+
+    # Add prioritized enhancements first
+    for enhancement in prioritized_enhancements:
+        test_prompt = f"{optimized_prompt}, {enhancement}"
+        if len(test_prompt) <= max_chars:
+            optimized_prompt = test_prompt
+            current_length = len(optimized_prompt)
+        else:
+            break
+
+    # Add remaining enhancements if space allows
+    for enhancement in remaining_enhancements:
+        test_prompt = f"{optimized_prompt}, {enhancement}"
+        if len(test_prompt) <= max_chars:
+            optimized_prompt = test_prompt
+            current_length = len(optimized_prompt)
+        else:
+            break
+
+    return optimized_prompt
+
+def enhance_realistic_prompt_isolated(original_prompt, clip_index, character_info=None):
+    """REALISTIC-SPECIFIC prompt enhancement - FIXED FACIAL DISTORTIONS"""
+
+    prompt_lower = original_prompt.lower()
+
+    # CORE ENHANCEMENT TERMS (prioritized for token efficiency)
+    character_terms = []
+    background_terms = []
+    quality_terms = []
+    framing_terms = []
+    movement_terms = []
+    facial_terms = []
+
+    # Character consistency with FACIAL QUALITY FIX & ENHANCED MOVEMENT (highest priority)
+    if 'she' in prompt_lower or 'her' in prompt_lower or 'woman' in prompt_lower or 'girl' in prompt_lower:
+        character_terms = ["consistent female character", "same woman", "identical face"]
+        framing_terms = ["full body shot", "wide angle view", "complete figure visible", "medium distance shot"]
+        movement_terms = ["natural walking motion", "expressive gestures", "dynamic body language", "realistic movement"]
+        facial_terms = ["perfect eyes", "symmetrical face", "clear facial features", "natural nose", "well-formed mouth", "realistic facial anatomy"]
+    elif 'he' in prompt_lower or 'his' in prompt_lower or 'man' in prompt_lower or 'boy' in prompt_lower or 'guru' in prompt_lower:
+        character_terms = ["consistent male character", "same man", "identical face"]
+        framing_terms = ["full body shot", "wide angle view", "complete figure visible", "medium distance shot"]
+        movement_terms = ["natural walking motion", "expressive gestures", "dynamic body language", "realistic movement"]
+        facial_terms = ["perfect eyes", "symmetrical face", "clear facial features", "natural nose", "well-formed mouth", "realistic facial anatomy"]
+    else:
+        character_terms = ["consistent female character", "same woman", "identical face"]
+        framing_terms = ["full body shot", "wide angle view", "complete figure visible", "medium distance shot"]
+        movement_terms = ["natural walking motion", "expressive gestures", "dynamic body language", "realistic movement"]
+        facial_terms = ["perfect eyes", "symmetrical face", "clear facial features", "natural nose", "well-formed mouth", "realistic facial anatomy"]
+
+    # Background clarity (medium priority)
+    if 'himalaya' in prompt_lower or 'mountain' in prompt_lower:
+        background_terms = ["clear mountain landscape", "detailed peaks"]
+    elif 'forest' in prompt_lower or 'tree' in prompt_lower:
+        background_terms = ["clear forest path", "detailed trees"]
+    elif 'temple' in prompt_lower or 'shrine' in prompt_lower:
+        background_terms = ["detailed temple", "clear architecture"]
+    elif 'meditation' in prompt_lower or 'peaceful' in prompt_lower:
+        background_terms = ["peaceful setting", "clear environment"]
+    else:
+        background_terms = ["clear background", "detailed environment"]
+
+    # Quality terms with facial enhancement
+    quality_terms = ["photorealistic", "high definition", "natural lighting", "fluid motion", "anatomically correct"]
+
+    # COMBINE ALL ENHANCEMENTS WITH FACIAL QUALITY FIX
+    all_enhancements = character_terms + framing_terms + facial_terms + movement_terms + background_terms + quality_terms
+
+    # Create enhanced prompt
+    enhanced_prompt = f"{original_prompt}, {', '.join(all_enhancements)}"
+
+    # Optimize for CLIP token limits
+    optimized_prompt = optimize_prompt_for_clip_model(enhanced_prompt, max_tokens=75)
+
+    print(f"🎯 REALISTIC Enhanced & Optimized (Fixed Facial Distortions): {len(optimized_prompt)} chars (was {len(enhanced_prompt)})")
+    return optimized_prompt
+
+
+
+def enhance_artistic_prompt_isolated(original_prompt, clip_index, character_info=None):
+    """ARTISTIC-SPECIFIC prompt enhancement - ENHANCED CHARACTER & BACKGROUND CONSISTENCY"""
+
+    prompt_lower = original_prompt.lower()
+
+    # CORE ARTISTIC ENHANCEMENT TERMS (prioritized for token efficiency)
+    character_terms = []
+    background_terms = []
+    quality_terms = []
+    smoothness_terms = []
+    facial_terms = []
+    consistency_terms = []
+
+    # ENHANCED CHARACTER CONSISTENCY ACROSS ALL CLIPS (highest priority)
+    if 'she' in prompt_lower or 'her' in prompt_lower or 'woman' in prompt_lower or 'girl' in prompt_lower:
+        character_terms = ["same artistic woman", "identical artistic character", "consistent artistic person", "stable artistic design"]
+        facial_terms = ["same face every clip", "identical facial structure", "consistent artistic features", "unchanging character appearance"]
+        consistency_terms = ["character continuity", "same person throughout video", "identical appearance", "consistent identity"]
+    elif 'he' in prompt_lower or 'his' in prompt_lower or 'man' in prompt_lower or 'boy' in prompt_lower or 'guru' in prompt_lower:
+        character_terms = ["same artistic man", "identical artistic character", "consistent artistic person", "stable artistic design"]
+        facial_terms = ["same face every clip", "identical facial structure", "consistent artistic features", "unchanging character appearance"]
+        consistency_terms = ["character continuity", "same person throughout video", "identical appearance", "consistent identity"]
+    else:
+        character_terms = ["same artistic woman", "identical artistic character", "consistent artistic person", "stable artistic design"]
+        facial_terms = ["same face every clip", "identical facial structure", "consistent artistic features", "unchanging character appearance"]
+        consistency_terms = ["character continuity", "same person throughout video", "identical appearance", "consistent identity"]
+
+    # MANDATORY BACKGROUND PRESENCE AS PER LESSON (critical priority)
+    if 'himalaya' in prompt_lower or 'mountain' in prompt_lower:
+        background_terms = ["himalayan mountains always visible", "mountain landscape background", "detailed mountain scenery", "mountain environment always present"]
+    elif 'forest' in prompt_lower or 'tree' in prompt_lower:
+        background_terms = ["forest always visible", "tree landscape background", "detailed forest scenery", "woodland environment always present"]
+    elif 'temple' in prompt_lower or 'shrine' in prompt_lower:
+        background_terms = ["temple always visible", "temple architecture background", "detailed temple scenery", "sacred building always present"]
+    elif 'meditation' in prompt_lower or 'peaceful' in prompt_lower:
+        background_terms = ["peaceful setting always visible", "meditation environment background", "serene landscape scenery", "tranquil setting always present"]
+    else:
+        background_terms = ["background always visible", "environment always present", "detailed scenery background", "landscape always shown"]
+
+    # SMOOTHNESS AND QUALITY ENHANCEMENT
+    smoothness_terms = ["smooth artistic motion", "fluid artistic style", "seamless artistic flow"]
+    quality_terms = ["artistic masterpiece", "clear artistic composition", "never blank background", "background always present"]
+
+    # COMBINE ALL ENHANCEMENTS FOR MAXIMUM CONSISTENCY
+    all_enhancements = character_terms + facial_terms + consistency_terms + smoothness_terms + background_terms + quality_terms
+
+    # Create enhanced prompt
+    enhanced_prompt = f"{original_prompt}, {', '.join(all_enhancements)}"
+
+    # Optimize for CLIP token limits
+    optimized_prompt = optimize_prompt_for_clip_model(enhanced_prompt, max_tokens=75)
+
+    print(f"🎯 ARTISTIC Enhanced & Optimized (Enhanced Consistency): {len(optimized_prompt)} chars (was {len(enhanced_prompt)})")
+    return optimized_prompt
+
+def enhance_prompt_for_consistency(original_prompt, clip_index, character_info=None, style='anime'):
+    """Route to style-specific isolated enhancement functions"""
+
+    # Route to completely isolated style-specific functions
+    if style == "anime":
+        return enhance_anime_prompt_isolated(original_prompt, clip_index, character_info)
+    elif style == "realistic":
+        return enhance_realistic_prompt_isolated(original_prompt, clip_index, character_info)
+    else:  # artistic
+        return enhance_artistic_prompt_isolated(original_prompt, clip_index, character_info)
+
+
+
+
 
 # ------------- STEP 1: Split Paragraph into Sub-Prompts -------------
 def split_paragraph(text):
@@ -605,11 +827,19 @@ print(f"   • Retry threshold: {consistency_strategy['retry_threshold']}")
 # ----------- RENDER STYLE SELECTION -----------
 # Parse command line arguments for style selection
 import sys
-style_arg = 'anime'  # Default
-if len(sys.argv) > 1 and sys.argv[1] in RENDER_STYLES:
-    style_arg = sys.argv[1]
-    print(f"🎨 Command line style selected: {style_arg}")
+style_arg = 'realistic'  # Default - Dynamic style selection
 
+# Handle new parameter order: lesson_file.json style
+if len(sys.argv) > 1:
+    first_arg = sys.argv[1]
+    if first_arg.endswith('.json'):
+        # New format: lesson_file.json style
+        style_arg = sys.argv[2] if len(sys.argv) > 2 else 'realistic'
+    elif first_arg in RENDER_STYLES:
+        # Old format: style only
+        style_arg = first_arg
+
+print(f"🎨 Command line style selected: {style_arg}")
 selected_style = select_render_style(style_arg)
 
 # Override optimal config with style-specific settings
@@ -656,7 +886,7 @@ for idx, prompt in enumerate(clip_prompts):
     print(f"📝 Original Prompt: {prompt}")
 
     # PHASE 1 IMPROVEMENT: Enhance prompt for consistency
-    enhanced_prompt = enhance_prompt_for_consistency(prompt, idx + 1)
+    enhanced_prompt = enhance_prompt_for_consistency(prompt, idx + 1, None, selected_style['name'])
 
     # PHASE 2 IMPROVEMENT: Enhance with character features
     if character_features is not None:
@@ -725,7 +955,8 @@ for idx, prompt in enumerate(clip_prompts):
                 output_path=output_video,
                 pose_path=pose_path,
                 init_image_path=last_frame_path,
-                seed=config.get('seed', random.randint(100000, 999999999))  # Completely random seed for each clip
+                seed=config.get('seed', random.randint(100000, 999999999)),  # Completely random seed for each clip
+                style=selected_style['name']  # Pass style for proper model selection
             )
             return {'success': True, 'output_path': output_video}
         except Exception as e:
@@ -1131,7 +1362,7 @@ if __name__ == "__main__":
 
     # Handle new parameter order: lesson_file.json style
     # or old parameter order: style
-    selected_style = 'realistic'  # default
+    selected_style = 'realistic'  # default - Dynamic style selection
 
     if len(sys.argv) > 1:
         first_arg = sys.argv[1]

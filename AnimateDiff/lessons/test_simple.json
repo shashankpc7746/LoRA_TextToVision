@@ -1,0 +1,37 @@
+{
+  "title": "Simple Test Video",
+  "level": "Test",
+  "duration": "15-20 seconds",
+  "tts_enabled": true,
+  "scenes": [
+    {
+      "text": "A young boy walks in a beautiful garden.",
+      "duration": 5.0
+    },
+    {
+      "text": "He picks a colorful flower and smiles.",
+      "duration": 5.0
+    },
+    {
+      "text": "The boy waves goodbye and walks away.",
+      "duration": 5.0
+    }
+  ],
+  "prompts": [
+    "A young boy walks in a beautiful garden, anime style, beautiful garden setting",
+    "Boy picks a colorful flower and smiles, anime style, happy expression, colorful flowers",
+    "The boy waves goodbye and walks away, anime style, waving gesture, garden path"
+  ],
+  "text": "A young boy walks in a beautiful garden. He picks a colorful flower and smiles. The boy waves goodbye and walks away.",
+  "metadata": {
+    "theme": "simple garden walk",
+    "setting": "beautiful garden",
+    "character": "young boy",
+    "lesson": "simple test video",
+    "mood": "happy and peaceful",
+    "visual_style": "anime style",
+    "duration_target": "15 seconds",
+    "created": "2025-07-29",
+    "story_type": "simple_test"
+  }
+}

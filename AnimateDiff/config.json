@@ -19,25 +19,107 @@
     "realistic": {
       "base_model": "SG161222/Realistic_Vision_V5.1_noVAE",
       "vae_model": "stabilityai/sd-vae-ft-mse",
-      "motion_adapter": "guoyww/animatediff-motion-adapter-v1-5-2"
+      "motion_adapter": "guoyww/animatediff-motion-adapter-v1-5-2",
+      "motion_module": "models/Motion_Module/mm_sd_v15_v2.ckpt",
+      "domain_adapter": "models/DreamBooth_LoRA/v3_sd15_adapter.ckpt",
+      "motion_lora": {
+        "zoom_in": "models/MotionLoRA/v2_lora_ZoomIn.ckpt",
+        "zoom_out": "models/MotionLoRA/v2_lora_ZoomOut.ckpt",
+        "pan_left": "models/MotionLoRA/v2_lora_PanLeft.ckpt",
+        "pan_right": "models/MotionLoRA/v2_lora_PanRight.ckpt"
+      }
     },
     "anime": {
       "base_model": "xyn-ai/anything-v4.0",
       "vae_model": "stabilityai/sd-vae-ft-mse",
-      "motion_adapter": "guoyww/animatediff-motion-adapter-v1-5-2"
+      "motion_adapter": "guoyww/animatediff-motion-adapter-v1-5-2",
+      "motion_module": "models/Motion_Module/v3_sd15_mm.ckpt",
+      "domain_adapter": "models/DreamBooth_LoRA/v3_sd15_adapter.ckpt",
+      "motion_lora": {
+        "zoom_in": "models/MotionLoRA/v2_lora_ZoomIn.ckpt",
+        "zoom_out": "models/MotionLoRA/v2_lora_ZoomOut.ckpt",
+        "pan_left": "models/MotionLoRA/v2_lora_PanLeft.ckpt",
+        "pan_right": "models/MotionLoRA/v2_lora_PanRight.ckpt"
+      }
     },
     "artistic": {
       "base_model": "runwayml/stable-diffusion-v1-5",
       "vae_model": "stabilityai/sd-vae-ft-mse",
-      "motion_adapter": "guoyww/animatediff-motion-adapter-v1-5-2"
+      "motion_adapter": "guoyww/animatediff-motion-adapter-v1-5-2",
+      "motion_module": "models/Motion_Module/mm_sd_v15_v2.ckpt",
+      "domain_adapter": "models/DreamBooth_LoRA/v3_sd15_adapter.ckpt",
+      "motion_lora": {
+        "zoom_in": "models/MotionLoRA/v2_lora_ZoomIn.ckpt",
+        "zoom_out": "models/MotionLoRA/v2_lora_ZoomOut.ckpt",
+        "pan_left": "models/MotionLoRA/v2_lora_PanLeft.ckpt",
+        "pan_right": "models/MotionLoRA/v2_lora_PanRight.ckpt"
+      }
     }
   },
   "generation": {
     "num_frames": 32,
-    "num_inference_steps": 25,
-    "guidance_scale": 15,
     "clip_duration": 4.0,
-    "max_clips": 8
+    "max_clips": 8,
+    "style_specific_settings": {
+      "realistic": {
+        "num_inference_steps": 35,
+        "guidance_scale": 18,
+        "character_consistency_weight": 0.95,
+        "background_emphasis_weight": 0.85,
+        "motion_smoothness": 0.9
+      },
+      "anime": {
+        "num_inference_steps": 40,
+        "guidance_scale": 22,
+        "character_consistency_weight": 0.9,
+        "background_emphasis_weight": 0.8,
+        "motion_smoothness": 0.85
+      },
+      "artistic": {
+        "num_inference_steps": 38,
+        "guidance_scale": 20,
+        "character_consistency_weight": 0.85,
+        "background_emphasis_weight": 0.9,
+        "motion_smoothness": 0.8
+      }
+    },
+    "character_consistency": {
+      "enabled": true,
+      "reference_weight": 0.8,
+      "temporal_attention": true,
+      "identity_preservation": true,
+      "face_consistency_enhanced": true,
+      "consistency_prompts": [
+        "consistent character throughout video",
+        "same person in every frame",
+        "stable facial identity",
+        "coherent character appearance",
+        "identical facial features",
+        "same eye shape and color",
+        "consistent nose and lips",
+        "uniform clothing and style",
+        "continuous character design",
+        "maintain character identity"
+      ],
+      "negative_prompts": [
+        "inconsistent character",
+        "face change between frames",
+        "character morphing",
+        "identity shift",
+        "different person",
+        "changing facial features",
+        "face distortion",
+        "character inconsistency"
+      ]
+    },
+    "motion_control": {
+      "enabled": true,
+      "camera_effects": ["zoom_in", "zoom_out", "pan_left", "pan_right"],
+      "motion_strength": 0.7,
+      "temporal_coherence": 0.9,
+      "use_motion_lora": true,
+      "smooth_transitions": true
+    }
   },
   "audio": {
     "tts_enabled": true,

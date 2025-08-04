@@ -1,0 +1,38 @@
+{
+  "title": "Space Explorer Mission",
+  "level": "Advanced",
+  "description": "An astronaut discovers alien life on a distant planet",
+  "duration": "10-12 seconds",
+  "tts_enabled": false,
+  "scenes": [
+    {
+      "text": "A brave astronaut in a white spacesuit lands on a colorful alien planet with purple mountains.",
+      "duration": 3.6
+    },
+    {
+      "text": "She meets friendly blue alien creatures with big eyes in a field of glowing flowers.",
+      "duration": 3.4
+    },
+    {
+      "text": "The astronaut and aliens work together to build a beautiful crystal city.",
+      "duration": 3.7
+    }
+  ],
+  "prompts": [
+    "A brave astronaut in a white spacesuit lands on a colorful alien planet with purple mountains, anime style, sci-fi setting",
+    "She meets friendly blue alien creatures with big eyes in a field of glowing flowers, anime style, alien encounter, glowing flowers",
+    "The astronaut and aliens work together to build a beautiful crystal city, anime style, cooperation scene, crystal architecture"
+  ],
+  "text": "A brave astronaut in a white spacesuit lands on a colorful alien planet with purple mountains. She meets friendly blue alien creatures with big eyes in a field of glowing flowers. The astronaut and aliens work together to build a beautiful crystal city.",
+  "metadata": {
+    "theme": "space exploration",
+    "setting": "alien planet",
+    "character": "female astronaut",
+    "lesson": "cooperation and discovery",
+    "mood": "adventurous and peaceful",
+    "visual_style": "anime style",
+    "duration_target": "11 seconds",
+    "created": "2025-07-31",
+    "story_type": "sci_fi_adventure"
+  }
+}

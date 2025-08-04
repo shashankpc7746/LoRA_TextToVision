@@ -225,22 +225,46 @@ class FaceIdentityPreserver:
         
         return False
     
-    def enhance_prompt_for_identity(self, prompt: str, identity_verification: Dict) -> str:
-        """Enhance prompt based on identity verification results"""
-        
+    def enhance_prompt_for_identity(self, prompt: str, identity_verification: Dict, style: str = "realistic") -> str:
+        """Enhance prompt based on identity verification results and style"""
+
         if not identity_verification['is_consistent']:
-            # Add stronger identity preservation terms
-            identity_terms = [
-                "same person",
-                "identical facial features",
-                "consistent identity",
-                "preserve face",
-                f"maintain character appearance"
-            ]
-            
+            # Style-specific identity preservation terms
+            if style == "realistic":
+                identity_terms = [
+                    "same person throughout video",
+                    "identical facial features",
+                    "consistent face structure",
+                    "preserve facial identity",
+                    "maintain same eye shape",
+                    "same nose and lips",
+                    "stable facial characteristics"
+                ]
+            elif style == "anime":
+                identity_terms = [
+                    "same anime character throughout",
+                    "consistent anime face",
+                    "identical anime features",
+                    "preserve anime character design",
+                    "maintain anime character identity",
+                    "same anime eye style",
+                    "consistent anime character appearance"
+                ]
+            else:  # artistic
+                identity_terms = [
+                    "same artistic character throughout",
+                    "consistent artistic portrait",
+                    "identical artistic features",
+                    "preserve artistic character design",
+                    "maintain artistic character identity",
+                    "same artistic style features",
+                    "consistent artistic character appearance"
+                ]
+
+            # Add all identity terms - NO TRUNCATION TO PRESERVE STORY
             enhanced_prompt = f"{prompt}, {', '.join(identity_terms)}"
             return enhanced_prompt
-        
+
         return prompt
     
     def get_identity_consistency_score(self, video_frames: List[str], identity_name: str = "main_character") -> Dict:
