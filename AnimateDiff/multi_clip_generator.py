@@ -528,7 +528,7 @@ def find_best_continuity_frame(video_path, num_frames_to_check=8):
     return best_frame
 
 def enhance_anime_prompt_isolated(original_prompt, clip_index, character_info=None):
-    """ANIME-SPECIFIC prompt enhancement - CRITICAL FIXES FOR CLARITY & CONSISTENCY"""
+    """ANIME-SPECIFIC prompt enhancement - FORCED BACKGROUND GENERATION"""
 
     prompt_lower = original_prompt.lower()
 
@@ -538,47 +538,40 @@ def enhance_anime_prompt_isolated(original_prompt, clip_index, character_info=No
     quality_terms = []
     movement_terms = []
     story_terms = []
+    face_terms = []
 
-    # ENHANCED CHARACTER CONSISTENCY & CLEAR MOVEMENT (highest priority)
+    # SINGLE CHARACTER FACE CONSISTENCY (highest priority)
     if 'she' in prompt_lower or 'her' in prompt_lower or 'woman' in prompt_lower or 'girl' in prompt_lower:
-        character_terms = ["same anime girl", "consistent anime character", "identical anime person", "stable character design"]
-        movement_terms = ["clear character action", "obvious movement", "visible activity", "understandable motion"]
+        character_terms = ["single anime girl", "one anime character", "solo anime person"]
+        face_terms = ["single face", "one face only", "consistent single face"]
+        movement_terms = ["clear character action", "obvious movement"]
     elif 'he' in prompt_lower or 'his' in prompt_lower or 'man' in prompt_lower or 'boy' in prompt_lower or 'guru' in prompt_lower:
-        character_terms = ["same anime boy", "consistent anime character", "identical anime person", "stable character design"]
-        movement_terms = ["clear character action", "obvious movement", "visible activity", "understandable motion"]
+        character_terms = ["single anime boy", "one anime character", "solo anime person"]
+        face_terms = ["single face", "one face only", "consistent single face"]
+        movement_terms = ["clear character action", "obvious movement"]
     else:
-        character_terms = ["same anime girl", "consistent anime character", "identical anime person", "stable character design"]
-        movement_terms = ["clear character action", "obvious movement", "visible activity", "understandable motion"]
+        character_terms = ["single anime girl", "one anime character", "solo anime person"]
+        face_terms = ["single face", "one face only", "consistent single face"]
+        movement_terms = ["clear character action", "obvious movement"]
 
-    # STORY FOLLOWING & PROMPT ADHERENCE (critical priority)
-    if 'journey' in prompt_lower or 'begins' in prompt_lower:
-        story_terms = ["spiritual journey scene", "beginning adventure", "starting path"]
-    elif 'walks' in prompt_lower or 'forest' in prompt_lower:
-        story_terms = ["walking through forest", "forest journey", "moving between trees"]
-    elif 'temple' in prompt_lower or 'meets' in prompt_lower:
-        story_terms = ["temple meeting scene", "guru encounter", "sacred place"]
-    elif 'meditation' in prompt_lower or 'quiet' in prompt_lower:
-        story_terms = ["meditation scene", "peaceful sitting", "inner reflection"]
-    else:
-        story_terms = ["following story prompt", "scene matching description", "accurate story depiction"]
-
-    # MANDATORY BACKGROUND PRESENCE (critical priority)
+    # FORCED BACKGROUND GENERATION (critical priority)
     if 'himalaya' in prompt_lower or 'mountain' in prompt_lower:
-        background_terms = ["visible anime mountains", "clear mountain background", "himalayan landscape", "mountain scenery always visible"]
+        background_terms = ["anime mountains background", "mountain landscape", "himalayan peaks", "rocky mountains", "mountain range", "outdoor mountain scene"]
     elif 'forest' in prompt_lower or 'tree' in prompt_lower:
-        background_terms = ["visible anime forest", "clear forest background", "trees always visible", "woodland scenery"]
-    elif 'temple' in prompt_lower or 'shrine' in prompt_lower:
-        background_terms = ["visible anime temple", "clear temple background", "temple architecture", "sacred building always visible"]
-    elif 'meditation' in prompt_lower or 'peaceful' in prompt_lower:
-        background_terms = ["visible peaceful setting", "clear meditation background", "serene environment", "tranquil scenery always visible"]
+        background_terms = ["anime forest background", "forest landscape", "trees and woods", "woodland setting", "forest path", "outdoor forest scene"]
+    elif 'temple' in prompt_lower or 'meets' in prompt_lower or 'guru' in prompt_lower:
+        background_terms = ["anime temple background", "temple building", "sacred temple", "temple architecture", "temple courtyard", "outdoor temple scene"]
+    elif 'meditation' in prompt_lower or 'quiet' in prompt_lower or 'peaceful' in prompt_lower:
+        background_terms = ["anime meditation background", "peaceful landscape", "serene setting", "tranquil environment", "meditation garden", "outdoor peaceful scene"]
     else:
-        background_terms = ["visible anime background", "clear environment", "detailed scenery", "background always present"]
+        # Default to mountain background for spiritual journey
+        background_terms = ["anime mountains background", "mountain landscape", "himalayan peaks", "outdoor mountain scene", "natural landscape", "scenic background"]
 
     # ANTI-BLANK QUALITY TERMS
-    quality_terms = ["never blank background", "always visible scenery", "clear anime environment", "detailed anime scene"]
+    quality_terms = ["detailed background", "visible scenery", "outdoor setting", "landscape background", "environmental details", "no blank background"]
 
-    # COMBINE ALL ENHANCEMENTS FOR CRITICAL FIXES
-    all_enhancements = character_terms + story_terms + movement_terms + background_terms + quality_terms
+    # COMBINE ALL ENHANCEMENTS FOR FORCED BACKGROUND
+    all_enhancements = character_terms + face_terms + movement_terms + background_terms + quality_terms
 
     # Create enhanced prompt
     enhanced_prompt = f"{original_prompt}, {', '.join(all_enhancements)}"
@@ -586,7 +579,7 @@ def enhance_anime_prompt_isolated(original_prompt, clip_index, character_info=No
     # Optimize for CLIP token limits
     optimized_prompt = optimize_prompt_for_clip_model(enhanced_prompt, max_tokens=75)
 
-    print(f"🎯 ANIME Enhanced & Optimized (Critical Clarity Fixes): {len(optimized_prompt)} chars (was {len(enhanced_prompt)})")
+    print(f"🎯 ANIME Enhanced & Optimized (Forced Background): {len(optimized_prompt)} chars (was {len(enhanced_prompt)})")
     return optimized_prompt
 
 def optimize_prompt_for_clip_model(prompt, max_tokens=75):
@@ -704,7 +697,7 @@ def enhance_realistic_prompt_isolated(original_prompt, clip_index, character_inf
 
 
 def enhance_artistic_prompt_isolated(original_prompt, clip_index, character_info=None):
-    """ARTISTIC-SPECIFIC prompt enhancement - ENHANCED CHARACTER & BACKGROUND CONSISTENCY"""
+    """ARTISTIC-SPECIFIC prompt enhancement - FORCED BACKGROUND GENERATION"""
 
     prompt_lower = original_prompt.lower()
 
@@ -718,36 +711,37 @@ def enhance_artistic_prompt_isolated(original_prompt, clip_index, character_info
 
     # ENHANCED CHARACTER CONSISTENCY ACROSS ALL CLIPS (highest priority)
     if 'she' in prompt_lower or 'her' in prompt_lower or 'woman' in prompt_lower or 'girl' in prompt_lower:
-        character_terms = ["same artistic woman", "identical artistic character", "consistent artistic person", "stable artistic design"]
-        facial_terms = ["same face every clip", "identical facial structure", "consistent artistic features", "unchanging character appearance"]
-        consistency_terms = ["character continuity", "same person throughout video", "identical appearance", "consistent identity"]
+        character_terms = ["same artistic woman", "identical artistic character", "consistent artistic person"]
+        facial_terms = ["same face every clip", "identical facial structure", "consistent artistic features"]
+        consistency_terms = ["character continuity", "same person throughout video"]
     elif 'he' in prompt_lower or 'his' in prompt_lower or 'man' in prompt_lower or 'boy' in prompt_lower or 'guru' in prompt_lower:
-        character_terms = ["same artistic man", "identical artistic character", "consistent artistic person", "stable artistic design"]
-        facial_terms = ["same face every clip", "identical facial structure", "consistent artistic features", "unchanging character appearance"]
-        consistency_terms = ["character continuity", "same person throughout video", "identical appearance", "consistent identity"]
+        character_terms = ["same artistic man", "identical artistic character", "consistent artistic person"]
+        facial_terms = ["same face every clip", "identical facial structure", "consistent artistic features"]
+        consistency_terms = ["character continuity", "same person throughout video"]
     else:
-        character_terms = ["same artistic woman", "identical artistic character", "consistent artistic person", "stable artistic design"]
-        facial_terms = ["same face every clip", "identical facial structure", "consistent artistic features", "unchanging character appearance"]
-        consistency_terms = ["character continuity", "same person throughout video", "identical appearance", "consistent identity"]
+        character_terms = ["same artistic woman", "identical artistic character", "consistent artistic person"]
+        facial_terms = ["same face every clip", "identical facial structure", "consistent artistic features"]
+        consistency_terms = ["character continuity", "same person throughout video"]
 
-    # MANDATORY BACKGROUND PRESENCE AS PER LESSON (critical priority)
+    # FORCED BACKGROUND GENERATION (critical priority)
     if 'himalaya' in prompt_lower or 'mountain' in prompt_lower:
-        background_terms = ["himalayan mountains always visible", "mountain landscape background", "detailed mountain scenery", "mountain environment always present"]
+        background_terms = ["artistic mountains background", "mountain landscape", "himalayan peaks", "rocky mountains", "mountain range", "outdoor mountain scene"]
     elif 'forest' in prompt_lower or 'tree' in prompt_lower:
-        background_terms = ["forest always visible", "tree landscape background", "detailed forest scenery", "woodland environment always present"]
-    elif 'temple' in prompt_lower or 'shrine' in prompt_lower:
-        background_terms = ["temple always visible", "temple architecture background", "detailed temple scenery", "sacred building always present"]
-    elif 'meditation' in prompt_lower or 'peaceful' in prompt_lower:
-        background_terms = ["peaceful setting always visible", "meditation environment background", "serene landscape scenery", "tranquil setting always present"]
+        background_terms = ["artistic forest background", "forest landscape", "trees and woods", "woodland setting", "forest path", "outdoor forest scene"]
+    elif 'temple' in prompt_lower or 'meets' in prompt_lower or 'guru' in prompt_lower:
+        background_terms = ["artistic temple background", "temple building", "sacred temple", "temple architecture", "temple courtyard", "outdoor temple scene"]
+    elif 'meditation' in prompt_lower or 'quiet' in prompt_lower or 'peaceful' in prompt_lower:
+        background_terms = ["artistic meditation background", "peaceful landscape", "serene setting", "tranquil environment", "meditation garden", "outdoor peaceful scene"]
     else:
-        background_terms = ["background always visible", "environment always present", "detailed scenery background", "landscape always shown"]
+        # Default to mountain background for spiritual journey
+        background_terms = ["artistic mountains background", "mountain landscape", "himalayan peaks", "outdoor mountain scene", "natural landscape", "scenic background"]
 
     # SMOOTHNESS AND QUALITY ENHANCEMENT
-    smoothness_terms = ["smooth artistic motion", "fluid artistic style", "seamless artistic flow"]
-    quality_terms = ["artistic masterpiece", "clear artistic composition", "never blank background", "background always present"]
+    smoothness_terms = ["smooth artistic motion", "fluid artistic style"]
+    quality_terms = ["detailed background", "visible scenery", "outdoor setting", "landscape background", "environmental details", "no blank background"]
 
-    # COMBINE ALL ENHANCEMENTS FOR MAXIMUM CONSISTENCY
-    all_enhancements = character_terms + facial_terms + consistency_terms + smoothness_terms + background_terms + quality_terms
+    # COMBINE ALL ENHANCEMENTS FOR FORCED BACKGROUND
+    all_enhancements = character_terms + facial_terms + consistency_terms + background_terms + smoothness_terms + quality_terms
 
     # Create enhanced prompt
     enhanced_prompt = f"{original_prompt}, {', '.join(all_enhancements)}"
@@ -755,7 +749,7 @@ def enhance_artistic_prompt_isolated(original_prompt, clip_index, character_info
     # Optimize for CLIP token limits
     optimized_prompt = optimize_prompt_for_clip_model(enhanced_prompt, max_tokens=75)
 
-    print(f"🎯 ARTISTIC Enhanced & Optimized (Enhanced Consistency): {len(optimized_prompt)} chars (was {len(enhanced_prompt)})")
+    print(f"🎯 ARTISTIC Enhanced & Optimized (Forced Background): {len(optimized_prompt)} chars (was {len(enhanced_prompt)})")
     return optimized_prompt
 
 def enhance_prompt_for_consistency(original_prompt, clip_index, character_info=None, style='anime'):

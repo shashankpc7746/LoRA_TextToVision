@@ -1,0 +1,44 @@
+{
+  "title": "history: who was Akbar in history",
+  "level": "Advanced",
+  "duration": "24-32 seconds",
+  "tts_enabled": true,
+  "scenes": [
+    {
+      "text": "In the ancient times, great stories unfolded that shaped our world",
+      "duration": 5.28
+    },
+    {
+      "text": "The tale of Akbar reveals profound wisdom and timeless lessons",
+      "duration": 4.96
+    },
+    {
+      "text": "Through the mists of time, we discover remarkable events and extraordinary people",
+      "duration": 6.48
+    },
+    {
+      "text": "Their legacy continues to inspire and guide us today",
+      "duration": 4.16
+    }
+  ],
+  "prompts": [
+    "In the ancient times, great stories unfolded that shaped our world, spiritual journey, educational content, meditation theme",
+    "The tale of Akbar reveals profound wisdom and timeless lessons, spiritual journey, educational content, meditation theme",
+    "Through the mists of time, we discover remarkable events and extraordinary people, spiritual journey, educational content, meditation theme",
+    "Their legacy continues to inspire and guide us today, spiritual journey, educational content, meditation theme"
+  ],
+  "text": "In the ancient times, great stories unfolded that shaped our world. The tale of Akbar reveals profound wisdom and timeless lessons. Through the mists of time, we discover remarkable events and extraordinary people. Their legacy continues to inspire and guide us today.",
+  "metadata": {
+    "theme": "spiritual journey and meditation",
+    "setting": "educational content",
+    "character": "spiritual seeker",
+    "lesson": "meditation and wisdom",
+    "mood": "profound and transformative",
+    "visual_style": "cinematic spiritual journey",
+    "duration_target": "28 seconds",
+    "created": "2025-08-04",
+    "story_type": "educational_lesson",
+    "production_generated": true
+  },
+  "tts": true
+}
