@@ -1,0 +1,20 @@
+{
+  "title": "The Forest Adventure",
+  "level": "Beginner",
+  "style": "anime",
+  "text": "A young girl walks through a beautiful forest with tall green trees and sunlight filtering through the leaves. She discovers a hidden temple surrounded by ancient stone pillars and flowering vines. At the temple she meets a wise old sage sitting peacefully in the mountain landscape. The sage teaches her about the harmony between nature and the peaceful mountain environment.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Forest Adventure",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 20,
+    "steps": 50,
+    "clips_count": 4,
+    "total_duration": 8.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "ANIME-SPECIFIC: Ultra-enhanced anime with maximum color saturation, razor-sharp details, and crystal-clear character visibility"
+  },
+  "timestamp": "2025-08-07T15:08:48.570526",
+  "lesson_id": "eecfecbf"
+}

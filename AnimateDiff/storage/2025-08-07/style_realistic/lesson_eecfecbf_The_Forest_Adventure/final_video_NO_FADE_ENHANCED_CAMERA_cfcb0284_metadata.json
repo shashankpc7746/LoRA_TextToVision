@@ -1,0 +1,20 @@
+{
+  "title": "The Forest Adventure",
+  "level": "Beginner",
+  "style": "realistic",
+  "text": "A young girl walks through a beautiful forest with tall green trees and sunlight filtering through the leaves. She discovers a hidden temple surrounded by ancient stone pillars and flowering vines. At the temple she meets a wise old sage sitting peacefully in the mountain landscape. The sage teaches her about the harmony between nature and the peaceful mountain environment.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Forest Adventure",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 16,
+    "steps": 38,
+    "clips_count": 4,
+    "total_duration": 8.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "REALISTIC-SPECIFIC: Enhanced photorealistic with dynamic movement and full body framing"
+  },
+  "timestamp": "2025-08-07T13:30:12.635639",
+  "lesson_id": "eecfecbf"
+}

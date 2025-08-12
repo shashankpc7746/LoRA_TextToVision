@@ -1,0 +1,20 @@
+{
+  "title": "The Warrior's Journey",
+  "level": "Intermediate",
+  "style": "realistic",
+  "text": "A brave young warrior stands at the edge of a vast mountain range, holding his sword and looking toward the distant peaks. He begins his journey through the dense forest, carefully navigating between tall trees and rocky paths. The warrior discovers an ancient temple hidden deep in the mountains, with stone pillars and mysterious carvings. Inside the temple, he meets a wise old master who teaches him the secrets of inner strength and courage.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Warrior's Journey",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 16,
+    "steps": 38,
+    "clips_count": 4,
+    "total_duration": 8.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "REALISTIC-SPECIFIC: Enhanced photorealistic with dynamic movement and full body framing"
+  },
+  "timestamp": "2025-08-08T16:45:41.835140",
+  "lesson_id": "729fe476"
+}
