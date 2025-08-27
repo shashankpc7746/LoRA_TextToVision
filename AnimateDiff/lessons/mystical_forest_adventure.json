@@ -1,0 +1,47 @@
+{
+  "title": "The Mystical Forest Adventure",
+  "level": "Intermediate",
+  "duration": "20-25 seconds",
+  "tts_enabled": true,
+  "scenes": [
+    {
+      "text": "A young explorer discovers a hidden path in an ancient mystical forest.",
+      "duration": 4.2
+    },
+    {
+      "text": "She walks through the enchanted woods where magical creatures dwell.",
+      "duration": 4.5
+    },
+    {
+      "text": "The forest spirits guide her deeper into the mysterious realm.",
+      "duration": 4.8
+    },
+    {
+      "text": "She discovers a glowing crystal that reveals ancient forest secrets.",
+      "duration": 4.6
+    },
+    {
+      "text": "The mystical energy transforms her understanding of nature's magic.",
+      "duration": 4.3
+    }
+  ],
+  "prompts": [
+    "A young explorer discovers a hidden path in an ancient mystical forest.",
+    "She walks through the enchanted woods where magical creatures dwell.",
+    "The forest spirits guide her deeper into the mysterious realm.",
+    "She discovers a glowing crystal that reveals ancient forest secrets.",
+    "The mystical energy transforms her understanding of nature's magic."
+  ],
+  "text": "A young explorer discovers a hidden path in an ancient mystical forest. She walks through the enchanted woods where magical creatures dwell. The forest spirits guide her deeper into the mysterious realm. She discovers a glowing crystal that reveals ancient forest secrets. The mystical energy transforms her understanding of nature's magic.",
+  "metadata": {
+    "theme": "mystical forest adventure",
+    "setting": "enchanted forest",
+    "character": "young female explorer",
+    "lesson": "discovery and transformation",
+    "mood": "mysterious and magical",
+    "visual_style": "mystical forest landscape",
+    "created": "2025-08-12",
+    "story_type": "adventure_fantasy",
+    "test_lesson": true
+  }
+}

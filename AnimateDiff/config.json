@@ -69,18 +69,18 @@
         "motion_smoothness": 0.9
       },
       "anime": {
-        "num_inference_steps": 40,
-        "guidance_scale": 22,
-        "character_consistency_weight": 0.9,
-        "background_emphasis_weight": 0.8,
-        "motion_smoothness": 0.85
+        "num_inference_steps": 50,
+        "guidance_scale": 16,
+        "character_consistency_weight": 0.95,
+        "background_emphasis_weight": 0.98,
+        "motion_smoothness": 0.98
       },
       "artistic": {
-        "num_inference_steps": 38,
-        "guidance_scale": 20,
-        "character_consistency_weight": 0.85,
-        "background_emphasis_weight": 0.9,
-        "motion_smoothness": 0.8
+        "num_inference_steps": 48,
+        "guidance_scale": 14,
+        "character_consistency_weight": 0.98,
+        "background_emphasis_weight": 0.95,
+        "motion_smoothness": 0.98
       }
     },
     "character_consistency": {
@@ -115,10 +115,12 @@
     "motion_control": {
       "enabled": true,
       "camera_effects": ["zoom_in", "zoom_out", "pan_left", "pan_right"],
-      "motion_strength": 0.7,
-      "temporal_coherence": 0.9,
+      "motion_strength": 0.8,
+      "temporal_coherence": 0.95,
       "use_motion_lora": true,
-      "smooth_transitions": true
+      "smooth_transitions": true,
+      "frame_interpolation": true,
+      "motion_blending": true
     }
   },
   "audio": {

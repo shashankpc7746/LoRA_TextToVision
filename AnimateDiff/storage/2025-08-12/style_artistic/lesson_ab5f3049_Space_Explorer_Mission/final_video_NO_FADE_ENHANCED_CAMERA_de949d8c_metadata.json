@@ -1,0 +1,20 @@
+{
+  "title": "Space Explorer Mission",
+  "level": "Advanced",
+  "style": "artistic",
+  "text": "A brave astronaut in a white spacesuit lands on a colorful alien planet with purple mountains. She meets friendly blue alien creatures with big eyes in a field of glowing flowers. The astronaut and aliens work together to build a beautiful crystal city.",
+  "subject": "Text-to-Video Generation",
+  "topic": "Space Explorer Mission",
+  "generation_params": {
+    "model": "runwayml/stable-diffusion-v1-5",
+    "guidance_scale": 18,
+    "steps": 42,
+    "clips_count": 3,
+    "total_duration": 6.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "ARTISTIC-SPECIFIC: Enhanced artistic with facial consistency and detailed backgrounds"
+  },
+  "timestamp": "2025-08-12T14:49:26.278638",
+  "lesson_id": "ab5f3049"
+}

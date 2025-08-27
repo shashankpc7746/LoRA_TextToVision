@@ -12,6 +12,7 @@ from moviepy.editor import VideoFileClip, concatenate_videoclips, vfx, TextClip,
 from moviepy.video.fx.all import crop
 # Re-added vfx and crop for dynamic camera effects (but no fade effects)
 from animate_gurukul import generate_clip, fps, initialize_animatediff_pipeline
+from moviepy.video.fx.all import colorx
 from utils.controlnet_utils import (
     generate_multi_control_guidance,
     generate_adaptive_multi_control_guidance,
@@ -268,12 +269,12 @@ ANIME_STYLE_CONFIG = {
     'name': 'anime',
     'model': 'xyn-ai/anything-v4.0',
     'description': 'ANIME-SPECIFIC: Enhanced anime with character presence, movement, and consistent backgrounds',
-    'prompt_suffix': ', anime style, visible anime character, dynamic character motion, detailed background setting, no color rays, no artifacts, consistent anime environment, animated character movement, clear anime landscape',
-    'guidance_scale': 20,  # Reduced for better character stability
-    'steps': 45,  # Increased for better character generation
+    'prompt_suffix': ', anime style, detailed anime background, clear landscape, visible scenery, outdoor setting, no blank background, studio-quality anime, clean line art, consistent environment, cinematic lighting, professional anime art, dynamic character motion, fluid animation, smooth character movement, clear character visibility, enhanced character details, vibrant anime colors, sharp character outlines, detailed facial features, expressive character animation, ultra-sharp details, crystal clear characters, high-definition anime, crisp character lines, vivid background colors, bright outdoor lighting, enhanced background visibility, sharp focus, no blur, no pixelation, high resolution quality, professional anime studio quality',
+    'guidance_scale': 16,  # Further reduced for better character clarity and reduced blur
+    'steps': 50,  # Increased for better quality and reduced pixelation
     'character_consistency_weight': 0.95,  # Increased for better character presence
-    'background_emphasis_weight': 0.9,  # Increased for consistent backgrounds
-    'motion_smoothness': 0.9  # Increased for better movement
+    'background_emphasis_weight': 0.98,  # Increased for better background highlighting
+    'motion_smoothness': 0.98  # Increased for smoother motion and transitions
 }
 
 REALISTIC_STYLE_CONFIG = {
@@ -292,12 +293,12 @@ ARTISTIC_STYLE_CONFIG = {
     'name': 'artistic',
     'model': 'runwayml/stable-diffusion-v1-5',  # Changed to better artistic model
     'description': 'ARTISTIC-SPECIFIC: Enhanced artistic with facial consistency and detailed backgrounds',
-    'prompt_suffix': ', artistic masterpiece, consistent artistic face, same facial features, stable character design, detailed artistic background, facial continuity, no blank backgrounds, consistent environment art, artistic landscape setting',
-    'guidance_scale': 18,  # Reduced for better facial stability
-    'steps': 42,  # Increased for better facial consistency
-    'character_consistency_weight': 0.92,  # Increased for better facial consistency
+    'prompt_suffix': ', artistic masterpiece, detailed artistic background, clear landscape, visible scenery, outdoor setting, no blank background, consistent artistic style, painterly textures, soft lighting, harmonious colors, professional artwork, non-realistic art style, artistic interpretation, creative illustration, stylized character design, smooth artistic transitions, fluid artistic motion, distortion-free characters, clean artistic lines, consistent artistic identity, artistic color palette, non-photorealistic, artistic expression, creative rendering, ultra-clear characters, sharp artistic details, smooth frame flow, crystal clear artistic style, high-definition artistic quality, crisp character outlines, vivid artistic colors, enhanced character visibility, smooth motion transitions, distortion-free rendering, artistic clarity, professional artistic quality, no pixelation, no distortion, smooth artistic flow',
+    'guidance_scale': 14,  # Further reduced for better artistic style and character clarity
+    'steps': 48,  # Increased for better character consistency and artistic quality
+    'character_consistency_weight': 0.98,  # Increased for better facial consistency
     'background_emphasis_weight': 0.95,  # Increased for consistent backgrounds
-    'motion_smoothness': 0.92  # Maintained for smooth motion
+    'motion_smoothness': 0.98  # Increased for smoother transitions and motion
 }
 
 def get_isolated_style_config(style):
@@ -536,6 +537,7 @@ def enhance_anime_prompt_isolated(original_prompt, clip_index, character_info=No
     character_terms = []
     background_terms = []
     quality_terms = []
+    color_terms = []
     movement_terms = []
     story_terms = []
     face_terms = []
@@ -554,24 +556,45 @@ def enhance_anime_prompt_isolated(original_prompt, clip_index, character_info=No
         face_terms = ["single face", "one face only", "consistent single face"]
         movement_terms = ["clear character action", "obvious movement"]
 
-    # FORCED BACKGROUND GENERATION (critical priority)
+    # FORCED BACKGROUND GENERATION (critical priority) - MORE AGGRESSIVE
     if 'himalaya' in prompt_lower or 'mountain' in prompt_lower:
-        background_terms = ["anime mountains background", "mountain landscape", "himalayan peaks", "rocky mountains", "mountain range", "outdoor mountain scene"]
+        background_terms = ["anime mountains background", "mountain landscape", "himalayan peaks", "rocky mountains", "mountain range", "outdoor mountain scene", "detailed mountain scenery", "visible mountain peaks", "clear mountain background"]
     elif 'forest' in prompt_lower or 'tree' in prompt_lower:
-        background_terms = ["anime forest background", "forest landscape", "trees and woods", "woodland setting", "forest path", "outdoor forest scene"]
+        background_terms = ["anime forest background", "forest landscape", "trees and woods", "woodland setting", "forest path", "outdoor forest scene", "detailed forest scenery", "visible trees", "clear forest background"]
     elif 'temple' in prompt_lower or 'meets' in prompt_lower or 'guru' in prompt_lower:
-        background_terms = ["anime temple background", "temple building", "sacred temple", "temple architecture", "temple courtyard", "outdoor temple scene"]
+        background_terms = ["anime temple background", "temple building", "sacred temple", "temple architecture", "temple courtyard", "outdoor temple scene", "detailed temple scenery", "visible temple structure", "clear temple background"]
     elif 'meditation' in prompt_lower or 'quiet' in prompt_lower or 'peaceful' in prompt_lower:
-        background_terms = ["anime meditation background", "peaceful landscape", "serene setting", "tranquil environment", "meditation garden", "outdoor peaceful scene"]
+        background_terms = ["anime meditation background", "meditation garden", "outdoor peaceful scene", "detailed garden scenery", "visible garden elements", "clear garden background"]
     else:
         # Default to mountain background for spiritual journey
-        background_terms = ["anime mountains background", "mountain landscape", "himalayan peaks", "outdoor mountain scene", "natural landscape", "scenic background"]
+        background_terms = ["anime mountains background", "mountain landscape", "himalayan peaks", "outdoor mountain scene", "natural landscape", "scenic background", "detailed mountain scenery", "visible landscape", "clear outdoor background"]
 
-    # ANTI-BLANK QUALITY TERMS
-    quality_terms = ["detailed background", "visible scenery", "outdoor setting", "landscape background", "environmental details", "no blank background"]
+    # ANTI-BLANK QUALITY TERMS - MORE AGGRESSIVE
+    quality_terms = [
+        "detailed background", "visible scenery", "outdoor setting", "landscape background",
+        "environmental details", "no blank background", "clean line art", "studio lighting",
+        "background must be visible", "no empty background", "scenery required", "environment visible"
+    ]
+
+    # COLOR HARMONY FOR ANIME
+    color_terms = [
+        "balanced vibrant colors", "pastel color palette", "color harmony", "cohesive palette",
+        "soft highlights", "gentle shadows"
+    ]
+
+    # ENHANCED MOTION AND CLARITY TERMS FOR ANIME
+    motion_clarity_terms = [
+        "dynamic character motion", "fluid animation", "smooth character movement", 
+        "clear character visibility", "enhanced character details", "vibrant anime colors",
+        "sharp character outlines", "detailed facial features", "expressive character animation",
+        "smooth frame transitions", "consistent character motion", "clear character action",
+        "ultra-sharp details", "crystal clear characters", "high-definition anime", "crisp character lines",
+        "vivid background colors", "bright outdoor lighting", "enhanced background visibility",
+        "sharp focus", "no blur", "no pixelation", "high resolution quality", "professional anime studio quality"
+    ]
 
     # COMBINE ALL ENHANCEMENTS FOR FORCED BACKGROUND
-    all_enhancements = character_terms + face_terms + movement_terms + background_terms + quality_terms
+    all_enhancements = character_terms + face_terms + movement_terms + background_terms + quality_terms + color_terms + motion_clarity_terms
 
     # Create enhanced prompt
     enhanced_prompt = f"{original_prompt}, {', '.join(all_enhancements)}"
@@ -705,6 +728,7 @@ def enhance_artistic_prompt_isolated(original_prompt, clip_index, character_info
     character_terms = []
     background_terms = []
     quality_terms = []
+    color_terms = []
     smoothness_terms = []
     facial_terms = []
     consistency_terms = []
@@ -723,25 +747,47 @@ def enhance_artistic_prompt_isolated(original_prompt, clip_index, character_info
         facial_terms = ["same face every clip", "identical facial structure", "consistent artistic features"]
         consistency_terms = ["character continuity", "same person throughout video"]
 
-    # FORCED BACKGROUND GENERATION (critical priority)
+    # FORCED BACKGROUND GENERATION (critical priority) - MORE AGGRESSIVE
     if 'himalaya' in prompt_lower or 'mountain' in prompt_lower:
-        background_terms = ["artistic mountains background", "mountain landscape", "himalayan peaks", "rocky mountains", "mountain range", "outdoor mountain scene"]
+        background_terms = ["artistic mountains background", "mountain landscape", "himalayan peaks", "rocky mountains", "mountain range", "outdoor mountain scene", "detailed mountain scenery", "visible mountain peaks", "clear mountain background"]
     elif 'forest' in prompt_lower or 'tree' in prompt_lower:
-        background_terms = ["artistic forest background", "forest landscape", "trees and woods", "woodland setting", "forest path", "outdoor forest scene"]
+        background_terms = ["artistic forest background", "forest landscape", "trees and woods", "woodland setting", "forest path", "outdoor forest scene", "detailed forest scenery", "visible trees", "clear forest background"]
     elif 'temple' in prompt_lower or 'meets' in prompt_lower or 'guru' in prompt_lower:
-        background_terms = ["artistic temple background", "temple building", "sacred temple", "temple architecture", "temple courtyard", "outdoor temple scene"]
+        background_terms = ["artistic temple background", "temple building", "sacred temple", "temple architecture", "temple courtyard", "outdoor temple scene", "detailed temple scenery", "visible temple structure", "clear temple background"]
     elif 'meditation' in prompt_lower or 'quiet' in prompt_lower or 'peaceful' in prompt_lower:
-        background_terms = ["artistic meditation background", "peaceful landscape", "serene setting", "tranquil environment", "meditation garden", "outdoor peaceful scene"]
+        background_terms = ["artistic meditation background", "meditation garden", "outdoor peaceful scene", "detailed garden scenery", "visible garden elements", "clear garden background"]
     else:
         # Default to mountain background for spiritual journey
-        background_terms = ["artistic mountains background", "mountain landscape", "himalayan peaks", "outdoor mountain scene", "natural landscape", "scenic background"]
+        background_terms = ["artistic mountains background", "mountain landscape", "himalayan peaks", "outdoor mountain scene", "natural landscape", "scenic background", "detailed mountain scenery", "visible landscape", "clear outdoor background"]
 
-    # SMOOTHNESS AND QUALITY ENHANCEMENT
+    # SMOOTHNESS AND QUALITY ENHANCEMENT - MORE AGGRESSIVE
     smoothness_terms = ["smooth artistic motion", "fluid artistic style"]
-    quality_terms = ["detailed background", "visible scenery", "outdoor setting", "landscape background", "environmental details", "no blank background"]
+    quality_terms = [
+        "detailed background", "visible scenery", "outdoor setting", "landscape background",
+        "environmental details", "no blank background", "painterly texture", "soft brush strokes",
+        "background must be visible", "no empty background", "scenery required", "environment visible"
+    ]
+    # COLOR HARMONY FOR ARTISTIC
+    color_terms = [
+        "harmonious color palette", "muted tones", "warm highlights", "teal and orange grade",
+        "soft diffused lighting", "subtle vignette"
+    ]
+
+    # ENHANCED ARTISTIC STYLE AND TRANSITION TERMS
+    artistic_style_terms = [
+        "non-realistic art style", "artistic interpretation", "creative illustration", 
+        "stylized character design", "smooth artistic transitions", "fluid artistic motion",
+        "distortion-free characters", "clean artistic lines", "consistent artistic identity",
+        "artistic color palette", "non-photorealistic", "artistic expression", "creative rendering",
+        "smooth frame flow", "artistic continuity", "creative character design",
+        "ultra-clear characters", "sharp artistic details", "smooth frame flow", "crystal clear artistic style",
+        "high-definition artistic quality", "crisp character outlines", "vivid artistic colors",
+        "enhanced character visibility", "smooth motion transitions", "distortion-free rendering",
+        "artistic clarity", "professional artistic quality", "no pixelation", "no distortion", "smooth artistic flow"
+    ]
 
     # COMBINE ALL ENHANCEMENTS FOR FORCED BACKGROUND
-    all_enhancements = character_terms + facial_terms + consistency_terms + background_terms + smoothness_terms + quality_terms
+    all_enhancements = character_terms + facial_terms + consistency_terms + background_terms + smoothness_terms + quality_terms + color_terms + artistic_style_terms
 
     # Create enhanced prompt
     enhanced_prompt = f"{original_prompt}, {', '.join(all_enhancements)}"
@@ -1083,6 +1129,11 @@ for idx, clip_path in enumerate(generated_clips):
             y_offset = int(radius * math.sin(angle) * 0.6) + 15  # Elliptical for 3D effect
             return frame[y_offset:frame.shape[0]-y_offset, x_offset:frame.shape[1]-x_offset]
         clip = clip.fl(smooth_3d_pan)
+        # Subtle anime/artistic color grading
+        if selected_style['name'] == 'anime':
+            clip = clip.fx(colorx, 1.05)
+        elif selected_style['name'] == 'artistic':
+            clip = clip.fx(colorx, 0.98)
 
     elif movement_type == 1:
         # 🌀 SMOOTH 3D ORBITAL MOTION - No zoom, pure orbital movement
@@ -1097,6 +1148,10 @@ for idx, clip_path in enumerate(generated_clips):
             y_orbit = int(orbit_radius * math.sin(angle) * 0.7) + 20  # Flattened for 3D perspective
             return frame[y_orbit:frame.shape[0]-y_orbit, x_orbit:frame.shape[1]-x_orbit]
         clip = clip.fl(smooth_3d_orbital)
+        if selected_style['name'] == 'anime':
+            clip = clip.fx(colorx, 1.08)
+        elif selected_style['name'] == 'artistic':
+            clip = clip.fx(colorx, 1.02)
 
     elif movement_type == 2:
         # 📹 CINEMATIC 3D TRACKING - No zoom, pure tracking motion
@@ -1109,6 +1164,10 @@ for idx, clip_path in enumerate(generated_clips):
             y_track = int(15 * progress) + 10  # Gentle vertical rise
             return frame[y_track:frame.shape[0]-y_track, x_track:frame.shape[1]-x_track]
         clip = clip.fl(cinematic_3d_tracking)
+        if selected_style['name'] == 'anime':
+            clip = clip.fx(colorx, 1.06)
+        elif selected_style['name'] == 'artistic':
+            clip = clip.fx(colorx, 0.99)
 
     elif movement_type == 3:
         # 🎬 3D PENDULUM MOTION - No zoom, smooth pendulum-like movement
@@ -1122,6 +1181,10 @@ for idx, clip_path in enumerate(generated_clips):
             y_swing = int(abs(swing_angle) * 0.3) + 15  # Slight vertical movement
             return frame[y_swing:frame.shape[0]-y_swing, x_swing:frame.shape[1]-x_swing]
         clip = clip.fl(pendulum_3d_motion)
+        if selected_style['name'] == 'anime':
+            clip = clip.fx(colorx, 1.05)
+        elif selected_style['name'] == 'artistic':
+            clip = clip.fx(colorx, 1.01)
 
     elif movement_type == 4:
         # 🎯 3D TILT & DRIFT - No zoom, pure tilt with drift motion
@@ -1134,6 +1197,10 @@ for idx, clip_path in enumerate(generated_clips):
             x_drift = int(20 * progress) + 15  # Gentle horizontal drift
             return frame[y_tilt:frame.shape[0]-y_tilt, x_drift:frame.shape[1]-x_drift]
         clip = clip.fl(tilt_3d_drift)
+        if selected_style['name'] == 'anime':
+            clip = clip.fx(colorx, 1.04)
+        elif selected_style['name'] == 'artistic':
+            clip = clip.fx(colorx, 1.03)
 
     else:  # movement_type == 5
         # 🌊 3D WAVE FLOW - No zoom, pure organic wave motion
@@ -1149,6 +1216,10 @@ for idx, clip_path in enumerate(generated_clips):
             y_start = max(0, min(y_wave, frame.shape[0] - 100))
             return frame[y_start:frame.shape[0]-y_start, x_start:frame.shape[1]-x_start]
         clip = clip.fl(wave_3d_flow)
+        if selected_style['name'] == 'anime':
+            clip = clip.fx(colorx, 1.07)
+        elif selected_style['name'] == 'artistic':
+            clip = clip.fx(colorx, 1.00)
 
     clips.append(clip)
 
@@ -1157,8 +1228,17 @@ if clips:
     final_video = concatenate_videoclips(clips, method="compose", padding=0)
     final_path = os.path.join(base_output_dir, "final_video_NO_FADE_ENHANCED_CAMERA.mp4")
 
-    # Enhanced encoding for smooth playback
-    final_video.write_videofile(
+    # Enhanced encoding for smooth playback + subtle overall color grade per style
+    graded_final = final_video
+    try:
+        if selected_style['name'] == 'anime':
+            graded_final = final_video.fx(colorx, 1.05)
+        elif selected_style['name'] == 'artistic':
+            graded_final = final_video.fx(colorx, 1.02)
+    except Exception:
+        graded_final = final_video
+
+    graded_final.write_videofile(
         final_path,
         codec='libx264',
         audio=False,
@@ -1340,6 +1420,7 @@ if clips:
     print(f"   💡 To change style, modify the 'selected_style' variable and run again")
 
     # Close video objects
+    graded_final.close()
     final_video.close()
 
 else:
