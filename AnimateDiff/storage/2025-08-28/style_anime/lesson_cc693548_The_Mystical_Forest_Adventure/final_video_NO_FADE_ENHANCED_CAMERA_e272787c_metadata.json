@@ -1,0 +1,20 @@
+{
+  "title": "The Mystical Forest Adventure",
+  "level": "Intermediate",
+  "style": "anime",
+  "text": "A young explorer discovers a hidden path in an ancient mystical forest. She walks through the enchanted woods where magical creatures dwell. The forest spirits guide her deeper into the mysterious realm. She discovers a glowing crystal that reveals ancient forest secrets. The mystical energy transforms her understanding of nature's magic.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Mystical Forest Adventure",
+  "generation_params": {
+    "model": "xyn-ai/anything-v4.0",
+    "guidance_scale": 16,
+    "steps": 50,
+    "clips_count": 5,
+    "total_duration": 10.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "ANIME-SPECIFIC: Enhanced anime with character presence, movement, and consistent backgrounds"
+  },
+  "timestamp": "2025-08-28T12:39:57.376852",
+  "lesson_id": "cc693548"
+}

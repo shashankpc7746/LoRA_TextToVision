@@ -1,0 +1,11 @@
+1
+00:00:00,000 --> 00:00:03,500
+This is the first subtitle segment.
+
+2
+00:00:03,500 --> 00:00:07,700
+Here comes the second segment with more text.
+
+3
+00:00:07,700 --> 00:00:11,500
+And finally the third segment to complete the test.

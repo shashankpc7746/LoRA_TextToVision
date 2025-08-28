@@ -39,16 +39,22 @@ if sys.platform == "win32":
         except:
             pass
 
-    # Reconfigure stdout/stderr with UTF-8
+    # Reconfigure stdout/stderr with UTF-8 (safe approach)
     try:
-        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
-    except:
-        # Fallback for older Python versions
+        # Check if reconfigure method exists and is callable (Python 3.7+)
+        if hasattr(sys.stdout, 'reconfigure') and callable(getattr(sys.stdout, 'reconfigure', None)):
+            sys.stdout.reconfigure(encoding='utf-8', errors='replace')  # type: ignore
+        if hasattr(sys.stderr, 'reconfigure') and callable(getattr(sys.stderr, 'reconfigure', None)):
+            sys.stderr.reconfigure(encoding='utf-8', errors='replace')  # type: ignore
+    except (AttributeError, OSError, TypeError):
+        # If reconfigure fails, try alternative approach
         try:
-            sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
-            sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())
-        except:
+            if hasattr(sys.stdout, 'detach') and callable(getattr(sys.stdout, 'detach', None)):
+                sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())  # type: ignore
+            if hasattr(sys.stderr, 'detach') and callable(getattr(sys.stderr, 'detach', None)):
+                sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())  # type: ignore
+        except (AttributeError, OSError, TypeError):
+            # Final fallback - just continue without reconfiguration
             pass
 
 def main():
@@ -86,7 +92,6 @@ def main():
     # Import and run the unified generator
     try:
         # Set environment variables for Unicode handling
-        import os
         os.environ['PYTHONIOENCODING'] = 'utf-8'
 
         # Import with Unicode safety

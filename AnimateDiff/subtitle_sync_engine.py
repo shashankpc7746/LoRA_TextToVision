@@ -9,12 +9,16 @@ import os
 import json
 import re
 from datetime import datetime, timedelta
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Protocol, Sequence
 import subprocess
 from moviepy.editor import VideoFileClip, AudioFileClip, TextClip, CompositeVideoClip
 import logging
 
 logger = logging.getLogger(__name__)
+
+class AudioClipProtocol(Protocol):
+    """Protocol for audio clips that have duration attribute"""
+    duration: float
 
 class SubtitleSyncEngine:
     """Advanced subtitle engine with TTS timing synchronization"""
@@ -27,7 +31,7 @@ class SubtitleSyncEngine:
             'sanskrit': 'Sanskrit Text'
         }
         
-    def generate_precise_subtitles(self, audio_clips: List[AudioFileClip], 
+    def generate_precise_subtitles(self, audio_clips: Sequence[AudioClipProtocol], 
                                  text_segments: List[str], 
                                  output_path: str,
                                  language: str = 'english') -> str:
@@ -378,8 +382,8 @@ if __name__ == "__main__":
     
     # Mock audio clips for testing
     class MockAudioClip:
-        def __init__(self, duration):
-            self.duration = duration
+        def __init__(self, duration: float) -> None:
+            self.duration: float = duration
     
     test_audio_clips = [
         MockAudioClip(3.5),
