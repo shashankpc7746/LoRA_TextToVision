@@ -16,8 +16,17 @@ sys.path.insert(0, ANIMATEDIFF_PATH)
 
 # Import text optimizer and fallback system
 sys.path.append(ANIMATEDIFF_PATH)
-from text_optimizer import TextOptimizer
-from fallback_generator import FallbackGenerator
+try:
+    from text_optimizer import TextOptimizer  # type: ignore
+except ImportError:
+    print("Warning: text_optimizer module not found, text optimization will be skipped")
+    TextOptimizer = None
+
+try:
+    from fallback_generator import FallbackGenerator  # type: ignore
+except ImportError:
+    print("Warning: fallback_generator module not found, fallback generation will be skipped")
+    FallbackGenerator = None
 
 def generate_video(prompt, negative_prompt=None, num_frames=32, steps=25, guidance_scale=15, seed=333, fps=12, style="realistic"):
     """
@@ -49,20 +58,23 @@ def generate_video(prompt, negative_prompt=None, num_frames=32, steps=25, guidan
 
         print(f"🎬 Created temporary lesson: {temp_lesson_filename}")
 
-        # OPTIMIZE THE TEXT using Gemini API
-        print(f"🧠 Optimizing text with Gemini API...")
-        optimizer = TextOptimizer()
-        optimized_lesson_filename = f"api_lesson_{timestamp}_optimized.json"
-        optimized_lesson_path = os.path.join(ANIMATEDIFF_PATH, "lessons", optimized_lesson_filename)
+        # OPTIMIZE THE TEXT using Gemini API (if available)
+        if TextOptimizer is not None:
+            print(f"🧠 Optimizing text with Gemini API...")
+            optimizer = TextOptimizer()
+            optimized_lesson_filename = f"api_lesson_{timestamp}_optimized.json"
+            optimized_lesson_path = os.path.join(ANIMATEDIFF_PATH, "lessons", optimized_lesson_filename)
 
-        optimized_result = optimizer.create_optimized_lesson(temp_lesson_path, optimized_lesson_path)
+            optimized_result = optimizer.create_optimized_lesson(temp_lesson_path, optimized_lesson_path)
 
-        if optimized_result:
-            print(f"✅ Text optimization successful!")
-            # Use the optimized lesson instead
-            temp_lesson_filename = optimized_lesson_filename
+            if optimized_result:
+                print(f"✅ Text optimization successful!")
+                # Use the optimized lesson instead
+                temp_lesson_filename = optimized_lesson_filename
+            else:
+                print(f"⚠️ Text optimization failed, using original lesson")
         else:
-            print(f"⚠️ Text optimization failed, using original lesson")
+            print(f"ℹ️ Text optimizer not available, using original lesson")
 
         # Run the unified video generator using Unicode-safe version
         cmd = [
@@ -120,44 +132,48 @@ def generate_video(prompt, negative_prompt=None, num_frames=32, steps=25, guidan
             error_msg = f"Video generation failed: {result.stderr}"
             print(f"❌ {error_msg}")
 
-            # Try fallback video generation
-            print(f"🔄 Attempting fallback video generation...")
-            try:
-                fallback_generator = FallbackGenerator()
-                fallback_filename = f"fallback_{timestamp}.mp4"
+            # Try fallback video generation (if available)
+            if FallbackGenerator is not None:
+                print(f"🔄 Attempting fallback video generation...")
+                try:
+                    fallback_generator = FallbackGenerator()
+                    fallback_filename = f"fallback_{timestamp}.mp4"
 
-                # Load the lesson data for fallback
-                with open(temp_lesson_path, 'r') as f:
-                    lesson_data = json.load(f)
+                    # Load the lesson data for fallback
+                    with open(temp_lesson_path, 'r') as f:
+                        lesson_data = json.load(f)
 
-                fallback_path = fallback_generator.create_fallback_video(
-                    lesson_data,
-                    fallback_filename,
-                    duration=20
-                )
+                    fallback_path = fallback_generator.create_fallback_video(
+                        lesson_data,
+                        fallback_filename,
+                        duration=20
+                    )
 
-                if fallback_path:
-                    # Copy to API outputs folder
-                    api_output_filename = f"animation_{timestamp}.mp4"
-                    api_output_path = os.path.join("outputs", api_output_filename)
+                    if fallback_path:
+                        # Copy to API outputs folder
+                        api_output_filename = f"animation_{timestamp}.mp4"
+                        api_output_path = os.path.join("outputs", api_output_filename)
 
-                    import shutil
-                    shutil.copy2(fallback_path, api_output_path)
+                        import shutil
+                        shutil.copy2(fallback_path, api_output_path)
 
-                    print(f"✅ Fallback video generated: {api_output_path}")
+                        print(f"✅ Fallback video generated: {api_output_path}")
 
-                    # Cleanup temporary lesson file
-                    try:
-                        os.remove(temp_lesson_path)
-                    except:
-                        pass
+                        # Cleanup temporary lesson file
+                        try:
+                            os.remove(temp_lesson_path)
+                        except:
+                            pass
 
-                    return api_output_path
-                else:
-                    raise Exception("Fallback video generation also failed")
+                        return api_output_path
+                    else:
+                        raise Exception("Fallback video generation also failed")
 
-            except Exception as fallback_error:
-                print(f"❌ Fallback generation failed: {fallback_error}")
+                except Exception as fallback_error:
+                    print(f"❌ Fallback generation failed: {fallback_error}")
+                    raise Exception(error_msg)
+            else:
+                print(f"ℹ️ Fallback generator not available")
                 raise Exception(error_msg)
 
     except Exception as e:

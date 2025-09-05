@@ -13,6 +13,10 @@ from datetime import datetime
 from pathlib import Path
 
 # Import adaptive engine modules
+# Add AnimateDiff path to sys.path for adaptive_engine imports
+animatediff_path = Path(__file__).parent.parent / "AnimateDiff"
+sys.path.insert(0, str(animatediff_path))
+
 try:
     from adaptive_engine import (  # type: ignore
         get_device_capabilities,  # type: ignore
@@ -23,10 +27,18 @@ try:
         device_probe,  # type: ignore
         budget_planner,  # type: ignore
         tier_router,  # type: ignore
-        workload_analyzer  # type: ignore
+        workload_analyzer,  # type: ignore
+        # Day 2 Components
+        get_cache_manager,  # type: ignore
+        get_rl_policy,  # type: ignore
+        get_compression_engine,  # type: ignore
+        get_quality_assessor,  # type: ignore
+        get_adaptive_pipeline,  # type: ignore
+        process_adaptive_request  # type: ignore
     )
 except ImportError as e:
     print(f"[ERROR] Failed to import adaptive_engine package: {e}")
+    print(f"[INFO] AnimateDiff path: {animatediff_path}")
     print("[INFO] Please ensure adaptive_engine package is properly installed")
     raise
 
@@ -223,7 +235,7 @@ class AdaptiveAPIManager:
 api_manager = AdaptiveAPIManager()
 
 # FastAPI app for adaptive endpoints
-adaptive_app = FastAPI(title="Adaptive Video Generation API", version="1.0.0")
+adaptive_app = FastAPI(title="Adaptive Video Generation API", version="2.0.0")
 
 
 @adaptive_app.post("/ttv/generate", response_model=AdaptiveVideoResponse)
@@ -293,9 +305,154 @@ async def analyze_prompt(
     }
 
 
+# Day 2 Endpoints: Caching, RL, Compression, Quality Assessment
+
+@adaptive_app.get("/ttv/cache/stats")
+async def get_cache_stats():
+    """Get cache statistics"""
+    cache = get_cache_manager()
+    return cache.get_stats()
+
+
+@adaptive_app.post("/ttv/cache/clear")
+async def clear_cache(cache_type: str = "all"):
+    """Clear cache entries"""
+    cache = get_cache_manager()
+    if cache_type == "all":
+        cache.clear_cache()
+    else:
+        cache.clear_cache(cache_type)
+    return {"message": f"Cleared {cache_type} cache"}
+
+
+@adaptive_app.get("/ttv/rl/stats")
+async def get_rl_stats():
+    """Get RL policy statistics"""
+    rl = get_rl_policy()
+    return rl.get_policy_stats()
+
+
+@adaptive_app.post("/ttv/rl/reset")
+async def reset_rl_policy():
+    """Reset RL policy"""
+    rl = get_rl_policy()
+    rl.reset_policy()
+    return {"message": "RL policy reset"}
+
+
+@adaptive_app.get("/ttv/compression/presets")
+async def get_compression_presets():
+    """Get available compression presets"""
+    compressor = get_compression_engine()
+    return {
+        "presets": list(compressor.presets.keys()),
+        "details": {name: {
+            "codec": preset.codec,
+            "crf": preset.crf,
+            "target_vmaf": preset.target_vmaf,
+            "description": preset.description
+        } for name, preset in compressor.presets.items()}
+    }
+
+
+@adaptive_app.post("/ttv/compress")
+async def compress_video(
+    input_path: str,
+    output_path: str,
+    preset: str = "desktop_standard"
+):
+    """Compress a video file"""
+    compressor = get_compression_engine()
+    result = compressor.compress_video(input_path, output_path, preset)
+    return result
+
+
+@adaptive_app.post("/ttv/quality/assess")
+async def assess_video_quality(
+    video_path: str,
+    reference_path: str = None,
+    sample_rate: float = 0.1
+):
+    """Assess video quality using VMAF"""
+    assessor = get_quality_assessor()
+    try:
+        metrics = assessor.assess_quality(video_path, reference_path or video_path, sample_rate)
+        return {
+            "vmaf_score": metrics.vmaf_score,
+            "psnr_score": metrics.psnr_score,
+            "ssim_score": metrics.ssim_score,
+            "bitrate_kbps": metrics.bitrate_kbps,
+            "compression_ratio": metrics.compression_ratio,
+            "file_size_mb": metrics.file_size_mb,
+            "meets_threshold_70": assessor.meets_quality_threshold(metrics, 70.0),
+            "meets_threshold_80": assessor.meets_quality_threshold(metrics, 80.0),
+            "recommendation": assessor.get_quality_recommendation(metrics)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Quality assessment failed: {str(e)}")
+
+
+@adaptive_app.post("/ttv/pipeline/process")
+async def process_pipeline_request(request: Dict[str, Any]):
+    """Process request through complete Day 2 adaptive pipeline"""
+    try:
+        result = process_adaptive_request(request)
+        return {
+            "success": result.success,
+            "video_path": result.video_path,
+            "total_time_seconds": result.total_time_seconds,
+            "total_cost_usd": result.total_cost_usd,
+            "tier_used": result.tier_used,
+            "cache_hits": result.cache_hits,
+            "rl_decisions": result.rl_decisions,
+            "quality_metrics": result.quality_metrics.__dict__ if result.quality_metrics else None,
+            "compression_info": result.compression_info,
+            "metadata": result.metadata
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Pipeline processing failed: {str(e)}")
+
+
+@adaptive_app.get("/ttv/pipeline/stats")
+async def get_pipeline_stats():
+    """Get comprehensive pipeline statistics"""
+    pipeline = get_adaptive_pipeline()
+    return pipeline.get_pipeline_stats()
+
+
+@adaptive_app.get("/ttv/day2/status")
+async def get_day2_status():
+    """Get Day 2 system status"""
+    cache = get_cache_manager()
+    rl = get_rl_policy()
+    compressor = get_compression_engine()
+    assessor = get_quality_assessor()
+    pipeline = get_adaptive_pipeline()
+
+    return {
+        "cache": {
+            "entries": cache.get_stats()["total_entries"],
+            "size_mb": cache.get_stats()["total_size_mb"]
+        },
+        "rl_policy": {
+            "experiences": rl.get_policy_stats()["total_experiences"],
+            "avg_reward": rl.get_policy_stats()["average_reward"]
+        },
+        "compression": {
+            "presets_available": len(compressor.presets)
+        },
+        "pipeline": {
+            "version": "2.0.0",
+            "components": ["cache", "rl", "compression", "quality", "adaptive_pipeline"]
+        },
+        "timestamp": int(time.time())
+    }
+
+
 if __name__ == "__main__":
     print("[INFO] Starting Adaptive Video Generation API...")
-    print("[INFO] Task-4 Day-1: Device Probe + Budget Planner + Tier Router + Workload Analyzer")
+    print("[INFO] Task-4 Day-2: Caching + RL Policy + Compression + Quality Assessment")
+    print("[INFO] Enhanced with intelligent caching, reinforcement learning, and quality optimization")
     print("[INFO] API will be available at http://localhost:8001")
     print("[INFO] Docs at http://localhost:8001/docs")
 

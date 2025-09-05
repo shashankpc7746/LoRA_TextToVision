@@ -1,0 +1,60 @@
+{
+  "background_cee3d96faa87e4d7": {
+    "key": "background_cee3d96faa87e4d7",
+    "data": {
+      "scene": "banyan_tree",
+      "style": "realistic"
+    },
+    "timestamp": 1757061342.5614643,
+    "hits": 1,
+    "size_bytes": 58,
+    "metadata": {
+      "type": "background",
+      "scene_type": "banyan",
+      "style": "realistic"
+    }
+  },
+  "pose_f39c2e6cd57149bb": {
+    "key": "pose_f39c2e6cd57149bb",
+    "data": {
+      "gesture": "teaching",
+      "confidence": 0.95
+    },
+    "timestamp": 1757061342.5629845,
+    "hits": 0,
+    "size_bytes": 59,
+    "metadata": {
+      "type": "pose",
+      "pose_name": "teaching_gesture"
+    }
+  },
+  "seed_802b707925876711": {
+    "key": "seed_802b707925876711",
+    "data": {
+      "prompt": "teacher explaining dharma",
+      "seed": 42,
+      "features": [
+        0.1,
+        0.2,
+        0.3
+      ]
+    },
+    "timestamp": 1757061342.5639837,
+    "hits": 0,
+    "size_bytes": 104,
+    "metadata": {
+      "type": "seed",
+      "prompt_hash": "test_prompt_hash"
+    }
+  },
+  "integration_test": {
+    "key": "integration_test",
+    "data": "integration_test_data",
+    "timestamp": 1757061343.3579133,
+    "hits": 1,
+    "size_bytes": 36,
+    "metadata": {
+      "type": "test"
+    }
+  }
+}

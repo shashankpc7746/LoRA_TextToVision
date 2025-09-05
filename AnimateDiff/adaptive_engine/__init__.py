@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Adaptive Engine Package - Task-4 Day-1
-Intelligent video generation system with device-aware processing
+Adaptive Engine Package - Task-4 Day-1 + Day-2
+Intelligent video generation system with device-aware processing, caching, and quality optimization
 """
 
 from .device_probe import (  # type: ignore
@@ -32,7 +32,41 @@ from .workload_analyzer import (  # type: ignore
     workload_analyzer  # type: ignore
 )
 
-__version__ = "1.0.0"
+# Day 2 Components
+from .cache_manager import (  # type: ignore
+    get_cache_manager,  # type: ignore
+    CacheManager,  # type: ignore
+    CacheEntry  # type: ignore
+)
+
+from .rl_policy import (  # type: ignore
+    get_rl_policy,  # type: ignore
+    RLPolicy,  # type: ignore
+    Action,  # type: ignore
+    State,  # type: ignore
+    Experience  # type: ignore
+)
+
+from .compression_engine import (  # type: ignore
+    get_compression_engine,  # type: ignore
+    CompressionEngine,  # type: ignore
+    CompressionPreset  # type: ignore
+)
+
+from .quality_assessor import (  # type: ignore
+    get_quality_assessor,  # type: ignore
+    QualityAssessor,  # type: ignore
+    QualityMetrics  # type: ignore
+)
+
+from .adaptive_pipeline import (  # type: ignore
+    get_adaptive_pipeline,  # type: ignore
+    process_adaptive_request,  # type: ignore
+    AdaptivePipeline,  # type: ignore
+    PipelineResult  # type: ignore
+)
+
+__version__ = "2.0.0"
 __all__ = [
     # Device Probe
     "get_device_capabilities",
@@ -56,5 +90,33 @@ __all__ = [
     "analyze_generation_task",
     "WorkloadAnalyzer",
     "TaskAnalysis",
-    "workload_analyzer"
+    "workload_analyzer",
+
+    # Day 2: Caching System
+    "get_cache_manager",
+    "CacheManager",
+    "CacheEntry",
+
+    # Day 2: RL Policy
+    "get_rl_policy",
+    "RLPolicy",
+    "Action",
+    "State",
+    "Experience",
+
+    # Day 2: Compression Engine
+    "get_compression_engine",
+    "CompressionEngine",
+    "CompressionPreset",
+
+    # Day 2: Quality Assessor
+    "get_quality_assessor",
+    "QualityAssessor",
+    "QualityMetrics",
+
+    # Day 2: Adaptive Pipeline
+    "get_adaptive_pipeline",
+    "process_adaptive_request",
+    "AdaptivePipeline",
+    "PipelineResult"
 ]
