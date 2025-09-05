@@ -34,13 +34,29 @@ try:
         get_compression_engine,  # type: ignore
         get_quality_assessor,  # type: ignore
         get_adaptive_pipeline,  # type: ignore
-        process_adaptive_request  # type: ignore
+        process_adaptive_request,  # type: ignore
+        # Day 3 Components
+        get_nas_storage,  # type: ignore
+        get_gpu_queue,  # type: ignore
+        get_mixed_precision,  # type: ignore
+        get_lip_sync  # type: ignore
     )
 except ImportError as e:
     print(f"[ERROR] Failed to import adaptive_engine package: {e}")
     print(f"[INFO] AnimateDiff path: {animatediff_path}")
     print("[INFO] Please ensure adaptive_engine package is properly installed")
-    raise
+    # Define fallback functions to avoid undefined variable errors
+    def get_nas_storage():
+        raise ImportError("NAS storage not available")
+
+    def get_gpu_queue():
+        raise ImportError("GPU queue not available")
+
+    def get_mixed_precision():
+        raise ImportError("Mixed precision not available")
+
+    def get_lip_sync():
+        raise ImportError("Lip sync not available")
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
@@ -445,6 +461,168 @@ async def get_day2_status():
             "version": "2.0.0",
             "components": ["cache", "rl", "compression", "quality", "adaptive_pipeline"]
         },
+        "timestamp": int(time.time())
+    }
+
+
+# Day 3 Endpoints: NAS Storage, GPU Queue, Mixed Precision, Lip-Sync
+
+@adaptive_app.post("/ttv/nas/write")
+async def write_to_nas(filename: str, local_path: str, metadata: Optional[Dict[str, Any]] = None):
+    """Write file to NAS storage"""
+    nas = get_nas_storage()
+    result = nas.write_file(local_path, filename, metadata)
+    return result
+
+
+@adaptive_app.get("/ttv/nas/read/{filename}")
+async def read_from_nas(filename: str, local_destination: Optional[str] = None):
+    """Read file from NAS storage"""
+    nas = get_nas_storage()
+    result = nas.read_file(filename, local_destination)
+    return result
+
+
+@adaptive_app.get("/ttv/nas/signed-url/{filename}")
+async def get_signed_url(filename: str, expiry_hours: int = 1):
+    """Get signed URL for NAS file access"""
+    nas = get_nas_storage()
+    signed_url = nas.generate_signed_url(filename, expiry_hours * 3600)
+    return {"signed_url": signed_url, "expires_in_hours": expiry_hours}
+
+
+@adaptive_app.get("/ttv/nas/list")
+async def list_nas_files(pattern: str = "*"):
+    """List files in NAS storage"""
+    nas = get_nas_storage()
+    files = nas.list_files(pattern)
+    return {"files": files, "count": len(files)}
+
+
+@adaptive_app.get("/ttv/nas/stats")
+async def get_nas_stats():
+    """Get NAS storage statistics"""
+    nas = get_nas_storage()
+    return nas.get_storage_stats()
+
+
+@adaptive_app.post("/ttv/gpu/submit")
+async def submit_gpu_job(prompt: str, priority: str = "normal", estimated_time_sec: int = 180):
+    """Submit job to GPU queue"""
+    gpu_queue = get_gpu_queue()
+
+    # Convert priority string to enum
+    try:
+        from adaptive_engine.gpu_queue import JobPriority  # type: ignore
+        priority_enum = getattr(JobPriority, priority.upper(), JobPriority.NORMAL)
+    except ImportError:
+        # Fallback priority if import fails
+        priority_enum = 2  # NORMAL priority as int
+
+    job_id = gpu_queue.submit_job(prompt, priority_enum, estimated_time_sec)
+    return {"job_id": job_id, "status": "submitted"}
+
+
+@adaptive_app.get("/ttv/gpu/status/{job_id}")
+async def get_gpu_job_status(job_id: str):
+    """Get GPU job status"""
+    gpu_queue = get_gpu_queue()
+    job = gpu_queue.get_job_status(job_id)
+
+    if job:
+        return {
+            "job_id": job.job_id,
+            "status": job.status.value,
+            "progress": job.progress,
+            "assigned_gpu": job.assigned_gpu,
+            "created_at": job.created_at,
+            "started_at": job.started_at,
+            "completed_at": job.completed_at
+        }
+    else:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+
+@adaptive_app.delete("/ttv/gpu/cancel/{job_id}")
+async def cancel_gpu_job(job_id: str):
+    """Cancel GPU job"""
+    gpu_queue = get_gpu_queue()
+    success = gpu_queue.cancel_job(job_id)
+    return {"cancelled": success}
+
+
+@adaptive_app.get("/ttv/gpu/queue")
+async def get_gpu_queue_stats():
+    """Get GPU queue statistics"""
+    gpu_queue = get_gpu_queue()
+    return gpu_queue.get_queue_stats()
+
+
+@adaptive_app.get("/ttv/gpu/status")
+async def get_gpu_status():
+    """Get GPU status"""
+    gpu_queue = get_gpu_queue()
+    return gpu_queue.get_gpu_stats()
+
+
+@adaptive_app.get("/ttv/precision/config")
+async def get_precision_config(device_class: str = "auto", memory_pressure: str = "normal"):
+    """Get optimal precision configuration"""
+    precision = get_mixed_precision()
+    config = precision.get_optimal_config(device_class, memory_pressure)
+    tips = precision.get_memory_optimization_tips(config)
+
+    return {
+        "config": config.__dict__,
+        "memory_tips": tips,
+        "device_capabilities": precision.device_capabilities
+    }
+
+
+@adaptive_app.get("/ttv/precision/stats")
+async def get_precision_stats():
+    """Get precision system statistics"""
+    precision = get_mixed_precision()
+    return precision.get_precision_stats()
+
+
+@adaptive_app.post("/ttv/lipsync/process")
+async def process_lip_sync(video_path: str, audio_path: str, output_path: Optional[str] = None):
+    """Process lip-sync for video and audio"""
+    lip_sync = get_lip_sync()
+    result = lip_sync.process_lip_sync(video_path, audio_path, output_path)
+
+    return {
+        "success": result.success,
+        "output_path": result.output_path,
+        "processing_time": result.processing_time,
+        "confidence_score": result.confidence_score,
+        "model_used": result.model_used,
+        "error_message": result.error_message
+    }
+
+
+@adaptive_app.get("/ttv/lipsync/status")
+async def get_lip_sync_status():
+    """Get lip-sync system status"""
+    lip_sync = get_lip_sync()
+    return lip_sync.get_model_status()
+
+
+@adaptive_app.get("/ttv/day3/status")
+async def get_day3_status():
+    """Get Day 3 system status"""
+    nas = get_nas_storage()
+    gpu_queue = get_gpu_queue()
+    precision = get_mixed_precision()
+    lip_sync = get_lip_sync()
+
+    return {
+        "nas_storage": nas.get_storage_stats(),
+        "gpu_queue": gpu_queue.get_queue_stats(),
+        "gpu_status": gpu_queue.get_gpu_stats(),
+        "mixed_precision": precision.get_precision_stats(),
+        "lip_sync": lip_sync.get_model_status(),
         "timestamp": int(time.time())
     }
 

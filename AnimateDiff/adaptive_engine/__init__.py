@@ -66,6 +66,35 @@ from .adaptive_pipeline import (  # type: ignore
     PipelineResult  # type: ignore
 )
 
+# Day 3 Components
+from .nas_storage import (  # type: ignore
+    get_nas_storage,  # type: ignore
+    NASStorageManager  # type: ignore
+)
+
+from .gpu_queue import (  # type: ignore
+    get_gpu_queue,  # type: ignore
+    GPUQueueManager,  # type: ignore
+    GPUJob,  # type: ignore
+    JobStatus,  # type: ignore
+    JobPriority  # type: ignore
+)
+
+from .mixed_precision import (  # type: ignore
+    get_mixed_precision,  # type: ignore
+    MixedPrecisionManager,  # type: ignore
+    PrecisionConfig,  # type: ignore
+    PrecisionMode,  # type: ignore
+    DeviceType  # type: ignore
+)
+
+from .lip_sync import (  # type: ignore
+    get_lip_sync,  # type: ignore
+    LipSyncManager,  # type: ignore
+    LipSyncConfig,  # type: ignore
+    LipSyncResult  # type: ignore
+)
+
 __version__ = "2.0.0"
 __all__ = [
     # Device Probe
@@ -118,5 +147,29 @@ __all__ = [
     "get_adaptive_pipeline",
     "process_adaptive_request",
     "AdaptivePipeline",
-    "PipelineResult"
+    "PipelineResult",
+
+    # Day 3: NAS Storage
+    "get_nas_storage",
+    "NASStorageManager",
+
+    # Day 3: GPU Queue
+    "get_gpu_queue",
+    "GPUQueueManager",
+    "GPUJob",
+    "JobStatus",
+    "JobPriority",
+
+    # Day 3: Mixed Precision
+    "get_mixed_precision",
+    "MixedPrecisionManager",
+    "PrecisionConfig",
+    "PrecisionMode",
+    "DeviceType",
+
+    # Day 3: Lip Sync
+    "get_lip_sync",
+    "LipSyncManager",
+    "LipSyncConfig",
+    "LipSyncResult"
 ]
