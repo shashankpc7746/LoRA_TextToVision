@@ -95,6 +95,25 @@ from .lip_sync import (  # type: ignore
     LipSyncResult  # type: ignore
 )
 
+# Day 4 Components
+from .load_tester import (  # type: ignore
+    get_load_tester,  # type: ignore
+    get_degradation_manager,  # type: ignore
+    LoadTester,  # type: ignore
+    GracefulDegradationManager,  # type: ignore
+    LoadTestResult,  # type: ignore
+    SimulatedUser  # type: ignore
+)
+
+from .analytics import (  # type: ignore
+    get_analytics,  # type: ignore
+    AnalyticsManager,  # type: ignore
+    RequestMetrics,  # type: ignore
+    SystemMetrics,  # type: ignore
+    CostReport,  # type: ignore
+    LatencyReport  # type: ignore
+)
+
 __version__ = "2.0.0"
 __all__ = [
     # Device Probe
@@ -171,5 +190,21 @@ __all__ = [
     "get_lip_sync",
     "LipSyncManager",
     "LipSyncConfig",
-    "LipSyncResult"
+    "LipSyncResult",
+
+    # Day 4: Load Testing & Scaling
+    "get_load_tester",
+    "get_degradation_manager",
+    "LoadTester",
+    "GracefulDegradationManager",
+    "LoadTestResult",
+    "SimulatedUser",
+
+    # Day 4: Analytics & Reporting
+    "get_analytics",
+    "AnalyticsManager",
+    "RequestMetrics",
+    "SystemMetrics",
+    "CostReport",
+    "LatencyReport"
 ]
