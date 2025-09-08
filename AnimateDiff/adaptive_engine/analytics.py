@@ -80,6 +80,10 @@ class AnalyticsManager:
         # File paths
         self.requests_file = self.data_dir / "requests.jsonl"
         self.snapshots_file = self.data_dir / "snapshots.jsonl"
+        self.telemetry_file = self.data_dir / "telemetry.jsonl"
+
+        # Telemetry storage for Task-5
+        self.telemetry_log: List[Dict[str, Any]] = []
 
         # Load existing data
         self._load_data()
@@ -404,6 +408,106 @@ class AnalyticsManager:
             "average_latency_seconds": avg_latency,
             "requests_per_minute": len(recent_requests),
             "active_users": recent_snapshots[-1].active_users if recent_snapshots else 0
+        }
+
+    def log_telemetry(self, request_id: str, tier: str, latency_ms: float,
+                     resolution: str, fps: int, cost_usd: float,
+                     quality_preset: str, device_class: str) -> None:
+        """Log detailed telemetry for Task-5 requirements"""
+        telemetry_entry = {
+            "request_id": request_id,
+            "timestamp": time.time(),
+            "tier": tier,
+            "latency_ms": latency_ms,
+            "resolution": resolution,
+            "fps": fps,
+            "cost_usd": cost_usd,
+            "quality_preset": quality_preset,
+            "device_class": device_class,
+            "efficiency_score": self._calculate_efficiency_score(latency_ms, cost_usd, tier)
+        }
+
+        self.telemetry_log.append(telemetry_entry)
+
+        # Keep only last 1000 entries
+        if len(self.telemetry_log) > 1000:
+            self.telemetry_log = self.telemetry_log[-1000:]
+
+        # Save to file
+        try:
+            with open(self.telemetry_file, 'a') as f:
+                json.dump(telemetry_entry, f)
+                f.write('\n')
+        except Exception as e:
+            print(f"Warning: Failed to save telemetry: {e}")
+
+        # Also log to request metrics for cost analysis
+        self.record_request(RequestMetrics(
+            request_id=request_id,
+            timestamp=telemetry_entry["timestamp"],
+            user_id=f"user_{request_id.split('_')[-1]}",
+            tier_used=tier,
+            response_time_seconds=latency_ms / 1000,
+            cost_usd=cost_usd,
+            success=True,
+            metadata={
+                "resolution": resolution,
+                "fps": fps,
+                "quality_preset": quality_preset,
+                "device_class": device_class,
+                "efficiency_score": telemetry_entry["efficiency_score"]
+            }
+        ))
+
+    def _calculate_efficiency_score(self, latency_ms: float, cost_usd: float, tier: str) -> float:
+        """Calculate efficiency score based on Task-5 requirements"""
+        # Base score from latency (lower latency = higher score)
+        latency_score = max(0, min(100, 100 - (latency_ms / 30)))  # 30s max
+
+        # Cost efficiency (lower cost = higher score)
+        cost_score = max(0, min(100, 100 - (cost_usd * 1000)))
+
+        # Tier efficiency bonus
+        tier_bonus = {"local": 20, "office_gpu": 10, "yotta": 0}
+
+        total_score = (latency_score + cost_score) / 2 + tier_bonus.get(tier, 0)
+        return min(100, total_score)
+
+    def get_telemetry_summary(self, hours: int = 24) -> Dict[str, Any]:
+        """Get telemetry summary for Task-5 reporting"""
+        cutoff_time = time.time() - (hours * 60 * 60)
+
+        recent_telemetry = [t for t in self.telemetry_log if t["timestamp"] > cutoff_time]
+
+        if not recent_telemetry:
+            return {"message": "No telemetry data available"}
+
+        # Calculate averages
+        avg_latency = sum(t["latency_ms"] for t in recent_telemetry) / len(recent_telemetry)
+        avg_cost = sum(t["cost_usd"] for t in recent_telemetry) / len(recent_telemetry)
+        avg_efficiency = sum(t["efficiency_score"] for t in recent_telemetry) / len(recent_telemetry)
+
+        # Tier distribution
+        tier_counts = {}
+        for t in recent_telemetry:
+            tier = t["tier"]
+            tier_counts[tier] = tier_counts.get(tier, 0) + 1
+
+        # Quality preset distribution
+        preset_counts = {}
+        for t in recent_telemetry:
+            preset = t["quality_preset"]
+            preset_counts[preset] = preset_counts.get(preset, 0) + 1
+
+        return {
+            "period_hours": hours,
+            "total_requests": len(recent_telemetry),
+            "average_latency_ms": round(avg_latency, 2),
+            "average_cost_usd": round(avg_cost, 3),
+            "average_efficiency_score": round(avg_efficiency, 1),
+            "tier_distribution": tier_counts,
+            "quality_preset_distribution": preset_counts,
+            "requests_per_hour": round(len(recent_telemetry) / hours, 2)
         }
 
 

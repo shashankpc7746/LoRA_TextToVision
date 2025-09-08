@@ -60,6 +60,16 @@ class BudgetPlanner:
                 estimated_time_sec=90,
                 estimated_cost_usd=0.015
             ),
+            "mobile_480p": QualitySettings(
+                resolution="854x480",
+                num_frames=20,
+                fps=12,
+                steps=20,
+                guidance_scale=13.0,
+                estimated_vram_gb=3.5,
+                estimated_time_sec=120,
+                estimated_cost_usd=0.018
+            ),
             "balanced": QualitySettings(
                 resolution="512x512",
                 num_frames=24,
@@ -69,6 +79,16 @@ class BudgetPlanner:
                 estimated_vram_gb=4.0,
                 estimated_time_sec=180,
                 estimated_cost_usd=0.025
+            ),
+            "desktop_720p": QualitySettings(
+                resolution="1280x720",
+                num_frames=24,
+                fps=12,
+                steps=30,
+                guidance_scale=15.0,
+                estimated_vram_gb=6.0,
+                estimated_time_sec=240,
+                estimated_cost_usd=0.035
             ),
             "quality": QualitySettings(
                 resolution="512x512",
@@ -116,16 +136,32 @@ class BudgetPlanner:
         thermal_status = device_capabilities.get("thermal_status", "normal")
         battery_level = device_capabilities.get("battery_level")
 
+        # Adjust for device class (mobile vs desktop)
+        device_class = device_capabilities.get("device_class", "desktop")
+
+        if device_class == "mobile":
+            # Mobile devices prefer 480p resolution
+            if target_quality == "balanced":
+                target_quality = "mobile_480p"
+            elif target_quality == "fast":
+                target_quality = "mobile_480p"
+        elif device_class == "desktop":
+            # Desktop devices can handle 720p
+            if target_quality == "balanced":
+                target_quality = "desktop_720p"
+            elif target_quality == "quality":
+                target_quality = "desktop_720p"
+
         # Adjust for device limitations
         if not can_handle_heavy:
             # Device can't handle heavy loads, reduce quality
-            if target_quality in ["ultra_quality", "quality"]:
+            if target_quality in ["ultra_quality", "quality", "desktop_720p"]:
                 target_quality = "balanced"
             elif target_quality == "balanced":
                 target_quality = "fast"
 
         # Adjust for VRAM constraints
-        if available_vram < 6.0 and target_quality == "ultra_quality":
+        if available_vram < 6.0 and target_quality in ["ultra_quality", "desktop_720p"]:
             target_quality = "quality"
         if available_vram < 4.0 and target_quality in ["quality", "balanced"]:
             target_quality = "fast"

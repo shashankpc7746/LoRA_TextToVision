@@ -6,6 +6,7 @@ Clean API for AnimateDiff - No heavy imports
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional, List, Dict, Any
 import os
 import json
 import subprocess
@@ -31,17 +32,17 @@ class VideoRequest(BaseModel):
 
 # Production team's format
 class ProductionVideoRequest(BaseModel):
-    explanation: str = None
+    explanation: Optional[str] = None
     title: str = "Generated Video"
     level: str = "Advanced"
-    duration: str = None
+    duration: Optional[str] = None
     tts_enabled: bool = True
-    scenes: list = None
-    prompts: list = None
-    text: str = None
+    scenes: Optional[List[Dict[str, Any]]] = None
+    prompts: Optional[List[str]] = None
+    text: Optional[str] = None
     video_style: str = "realistic"
-    style_modifiers: dict = None
-    metadata: dict = None
+    style_modifiers: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 # Root endpoint
 @app.get("/")
