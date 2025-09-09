@@ -223,7 +223,7 @@ class RLPolicy:
         self.q_table.clear()
         self.experience_buffer.clear()
 
-    def set_thresholds(self, vmaf_threshold: float = None, cost_budget: float = None, latency_budget: int = None):
+    def set_thresholds(self, vmaf_threshold: Optional[float] = None, cost_budget: Optional[float] = None, latency_budget: Optional[int] = None):
         """Update policy thresholds"""
         if vmaf_threshold is not None:
             self.vmaf_threshold = vmaf_threshold

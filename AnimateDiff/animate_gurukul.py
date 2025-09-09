@@ -47,8 +47,14 @@ def patch_tqdm():
             else:
                 return f"{prefix}: {n} items"
 
-        # Apply the patch
-        tqdm.std.tqdm.format_meter = safe_format_meter
+        # Apply the patch safely
+        try:
+            tqdm.std.tqdm.format_meter = safe_format_meter
+        except Exception as e:
+            print(f"Warning: Could not patch tqdm format_meter: {e}")
+            # Fallback to disabling tqdm
+            import os
+            os.environ['TQDM_DISABLE'] = '1'
 
     except Exception as e:
         # Fallback to disabling tqdm if patch fails
@@ -59,11 +65,29 @@ def patch_tqdm():
 patch_tqdm()
 
 # Use enhanced diffusers AnimateDiff with better configuration
-from diffusers import AnimateDiffPipeline, MotionAdapter, EulerDiscreteScheduler, AutoencoderKL
-ANIMATEDIFF_AVAILABLE = False  # Use enhanced diffusers for now
-print("🚀 Using Enhanced Diffusers AnimateDiff with Character Consistency")
-
-from diffusers.utils import export_to_video
+try:
+    from diffusers import AnimateDiffPipeline, MotionAdapter, EulerDiscreteScheduler, AutoencoderKL
+    from diffusers.utils import export_to_video
+    ANIMATEDIFF_AVAILABLE = True
+    print("🚀 Using Enhanced Diffusers AnimateDiff with Character Consistency")
+except ImportError:
+    # Fallback imports for newer diffusers versions
+    try:
+        from diffusers.pipelines.animatediff.pipeline_animatediff import AnimateDiffPipeline
+        from diffusers.models.unets.unet_motion_model import MotionAdapter
+        from diffusers.schedulers.scheduling_euler_discrete import EulerDiscreteScheduler
+        from diffusers.models.autoencoders.autoencoder_kl import AutoencoderKL
+        from diffusers.utils.export_utils import export_to_video
+        ANIMATEDIFF_AVAILABLE = True
+        print("🚀 Using Enhanced Diffusers AnimateDiff (fallback imports)")
+    except ImportError:
+        print("⚠️ Warning: Could not import diffusers components. Some features may not work.")
+        AnimateDiffPipeline = None
+        MotionAdapter = None
+        EulerDiscreteScheduler = None
+        AutoencoderKL = None
+        export_to_video = None
+        ANIMATEDIFF_AVAILABLE = False
 from PIL import Image
 import diffusers.utils.logging
 import re
