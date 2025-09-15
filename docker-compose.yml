@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  adaptive-ttv:
+    build: .
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./AnimateDiff:/app/AnimateDiff
+      - ./assets:/app/assets
+      - ./logs:/app/logs
+      # Mount NAS if available
+      - /mnt/nas:/mnt/nas
+    environment:
+      - PYTHONPATH=/app/AnimateDiff
+      - NAS_PATH=/mnt/nas
+      - BHIV_ENDPOINT=http://192.168.0.121:8001
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - adaptive-network
+
+  # Optional: Add a reverse proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/ssl/certs:ro
+    depends_on:
+      - adaptive-ttv
+    networks:
+      - adaptive-network
+    restart: unless-stopped
+
+networks:
+  adaptive-network:
+    driver: bridge
+
+volumes:
+  nas-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/nas

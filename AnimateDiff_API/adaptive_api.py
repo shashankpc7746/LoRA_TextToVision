@@ -40,6 +40,8 @@ try:
         get_gpu_queue,  # type: ignore
         get_mixed_precision,  # type: ignore
         get_lip_sync,  # type: ignore
+        # Task-6 Components
+        get_bgm_manager,  # type: ignore
         # Analytics for Task-5
         get_analytics  # type: ignore
     )
@@ -59,6 +61,9 @@ except ImportError as e:
 
     def get_lip_sync():
         raise ImportError("Lip sync not available")
+
+    def get_bgm_manager():
+        raise ImportError("BGM manager not available")
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
@@ -175,6 +180,36 @@ class AdaptiveAPIManager:
                 request_id, routing_decision.tier, quality_settings
             )
 
+            # Step 6: Apply BGM mixing if requested (Task-6)
+            if original_request.additional_params and original_request.additional_params.get("with_bgm", False):
+                print(f"[ADAPTIVE] Step 6: Applying background music mixing...")
+                try:
+                    bgm_manager = get_bgm_manager()
+
+                    # Extract audio from generated video for mixing
+                    temp_audio_path = f"/tmp/{request_id}_extracted_audio.mp3"
+                    self._extract_audio_from_video(video_url, temp_audio_path)
+
+                    # Mix with background music
+                    mixed_audio_path = f"/tmp/{request_id}_mixed_audio.mp3"
+                    bgm_result = bgm_manager.mix_bgm(
+                        voice_path=temp_audio_path,
+                        output_path=mixed_audio_path
+                    )
+
+                    if bgm_result["success"]:
+                        # Replace audio in video
+                        final_video_path = f"/tmp/{request_id}_final_with_bgm.mp4"
+                        self._replace_audio_in_video(video_url, mixed_audio_path, final_video_path)
+                        video_url = final_video_path
+                        print(f"[ADAPTIVE] ✅ BGM mixing completed successfully")
+                    else:
+                        print(f"[ADAPTIVE] ⚠️ BGM mixing failed: {bgm_result.get('error', 'Unknown error')}")
+
+                except Exception as e:
+                    print(f"[ADAPTIVE] ❌ BGM integration error: {e}")
+                    # Continue without BGM - don't fail the entire request
+
             # Calculate actual processing time
             processing_time_sec = time.time() - request_data["created_at"].timestamp()
             actual_latency_ms = processing_time_sec * 1000
@@ -253,6 +288,61 @@ class AdaptiveAPIManager:
         # For now, return a placeholder URL
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         return f"/videos/adaptive_{request_id}_{timestamp}.mp4"
+
+    def _extract_audio_from_video(self, video_path: str, audio_path: str) -> bool:
+        """Extract audio from video file"""
+        try:
+            cmd = [
+                "ffmpeg",
+                "-i", video_path,
+                "-vn",  # No video
+                "-acodec", "mp3",  # MP3 format
+                "-ab", "128k",  # Bitrate
+                "-y",  # Overwrite
+                audio_path
+            ]
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+
+            return result.returncode == 0 and Path(audio_path).exists()
+
+        except Exception as e:
+            print(f"[ADAPTIVE] Audio extraction failed: {e}")
+            return False
+
+    def _replace_audio_in_video(self, video_path: str, audio_path: str, output_path: str) -> bool:
+        """Replace audio in video file"""
+        try:
+            cmd = [
+                "ffmpeg",
+                "-i", video_path,
+                "-i", audio_path,
+                "-c:v", "copy",  # Copy video codec
+                "-c:a", "aac",   # Convert audio to AAC
+                "-map", "0:v:0", # Use video from first input
+                "-map", "1:a:0", # Use audio from second input
+                "-shortest",     # End when shortest input ends
+                "-y",           # Overwrite
+                output_path
+            ]
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=120
+            )
+
+            return result.returncode == 0 and Path(output_path).exists()
+
+        except Exception as e:
+            print(f"[ADAPTIVE] Audio replacement failed: {e}")
+            return False
 
     def get_request_status(self, request_id: str) -> Dict[str, Any]:
         """Get status of a request"""
@@ -629,6 +719,72 @@ async def get_lip_sync_status():
     """Get lip-sync system status"""
     lip_sync = get_lip_sync()
     return lip_sync.get_model_status()
+
+
+@adaptive_app.post("/ttv/lipsync/test")
+async def test_lip_sync_validation(video_path: str, audio_path: str):
+    """Test lip-sync validation with confidence scoring (Task-6)"""
+    try:
+        lip_sync = get_lip_sync()
+
+        # Run lip-sync processing
+        result = lip_sync.process_lip_sync(video_path, audio_path)
+
+        # Return standardized test results
+        return {
+            "success": result.success,
+            "confidence": result.confidence_score,
+            "processing_time": result.processing_time,
+            "model_used": result.model_used,
+            "error_message": result.error_message,
+            "lip_sync_delta_ms": None,  # Could be added if timing analysis is implemented
+            "validation_passed": result.success and result.confidence_score >= 0.7
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lip-sync test failed: {str(e)}")
+
+
+# Task-6 BGM Endpoints
+
+@adaptive_app.post("/ttv/bgm/mix")
+async def mix_audio_with_bgm(voice_path: str, bgm_path: Optional[str] = None,
+                           output_path: Optional[str] = None, volume_bgm: Optional[float] = None):
+    """Mix voice audio with background music (Task-6)"""
+    try:
+        bgm_manager = get_bgm_manager()
+        result = bgm_manager.mix_bgm(
+            voice_path=voice_path,
+            bgm_path=bgm_path,
+            output_path=output_path,
+            volume_bgm=volume_bgm
+        )
+        return result
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"BGM mixing failed: {str(e)}")
+
+
+@adaptive_app.get("/ttv/bgm/available")
+async def get_available_bgm():
+    """Get list of available background music files"""
+    try:
+        bgm_manager = get_bgm_manager()
+        return bgm_manager.get_available_bgm()
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get BGM list: {str(e)}")
+
+
+@adaptive_app.post("/ttv/bgm/validate")
+async def validate_bgm_file(bgm_path: str):
+    """Validate a background music file"""
+    try:
+        bgm_manager = get_bgm_manager()
+        return bgm_manager.validate_bgm_file(bgm_path)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"BGM validation failed: {str(e)}")
 
 
 @adaptive_app.get("/ttv/day3/status")

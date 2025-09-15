@@ -95,6 +95,13 @@ from .lip_sync import (  # type: ignore
     LipSyncResult  # type: ignore
 )
 
+# Task-6 Components
+from .bgm_manager import (  # type: ignore
+    get_bgm_manager,  # type: ignore
+    BGMManager,  # type: ignore
+    BGMConfig  # type: ignore
+)
+
 # Day 4 Components
 from .load_tester import (  # type: ignore
     get_load_tester,  # type: ignore
@@ -191,6 +198,11 @@ __all__ = [
     "LipSyncManager",
     "LipSyncConfig",
     "LipSyncResult",
+
+    # Task-6: BGM Manager
+    "get_bgm_manager",
+    "BGMManager",
+    "BGMConfig",
 
     # Day 4: Load Testing & Scaling
     "get_load_tester",
