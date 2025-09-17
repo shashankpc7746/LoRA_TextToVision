@@ -81,6 +81,7 @@ class AdaptiveVideoRequest(BaseModel):
     prefer_local: Optional[bool] = True
     user_device_info: Optional[Dict[str, Any]] = None
     additional_params: Optional[Dict[str, Any]] = None
+    force_tier: Optional[str] = None  # Task-6: Force specific tier for testing
 
 
 class AdaptiveVideoResponse(BaseModel):
@@ -159,18 +160,25 @@ class AdaptiveAPIManager:
                 }
             )
 
-            # Step 4: Route to optimal tier
+            # Step 4: Route to optimal tier (or force specific tier for testing)
             print(f"[ADAPTIVE] Step 4: Routing to optimal tier...")
-            routing_decision = route_generation_task(
-                device_capabilities=device_caps,
-                quality_settings=quality_settings.__dict__,
-                task_complexity=task_analysis.complexity,
-                user_preferences={
-                    "prefer_local": original_request.prefer_local,
-                    "max_cost_usd": original_request.max_cost_usd or 0.10,
-                    "max_latency_sec": original_request.max_latency_sec or 300
-                }
-            )
+            if original_request.force_tier:
+                # Task-6: Force specific tier for testing/validation
+                print(f"[ADAPTIVE] Forcing tier: {original_request.force_tier}")
+                routing_decision = self._create_forced_routing_decision(
+                    original_request.force_tier, quality_settings
+                )
+            else:
+                routing_decision = route_generation_task(
+                    device_capabilities=device_caps,
+                    quality_settings=quality_settings.__dict__,
+                    task_complexity=task_analysis.complexity,
+                    user_preferences={
+                        "prefer_local": original_request.prefer_local,
+                        "max_cost_usd": original_request.max_cost_usd or 0.10,
+                        "max_latency_sec": original_request.max_latency_sec or 300
+                    }
+                )
 
             # Step 5: Generate video (simplified for demo)
             print(f"[ADAPTIVE] Step 5: Generating video on {routing_decision.tier} tier...")
@@ -343,6 +351,28 @@ class AdaptiveAPIManager:
         except Exception as e:
             print(f"[ADAPTIVE] Audio replacement failed: {e}")
             return False
+
+    def _create_forced_routing_decision(self, forced_tier: str, quality_settings) -> Any:
+        """Create a forced routing decision for testing (Task-6)"""
+        from adaptive_engine.tier_router import RoutingDecision
+
+        # Get tier configuration
+        tier_router = __import__('adaptive_engine.tier_router', fromlist=['tier_router']).tier_router
+        tier_config = tier_router.tiers.get(forced_tier, tier_router.tiers["local"])
+
+        # Calculate cost and latency
+        estimated_time = quality_settings.estimated_time_sec
+        cost = tier_config["cost_per_minute"] * (estimated_time / 60.0)
+        latency = tier_config["base_latency_ms"] + (estimated_time * 1000)
+
+        return RoutingDecision(
+            tier=forced_tier,
+            reason=f"Forced routing to {forced_tier} tier for testing/validation",
+            estimated_cost=cost,
+            estimated_latency=int(latency),
+            confidence=0.95,
+            fallback_options=["local", "office_gpu", "yotta"]  # All options as fallback
+        )
 
     def get_request_status(self, request_id: str) -> Dict[str, Any]:
         """Get status of a request"""
