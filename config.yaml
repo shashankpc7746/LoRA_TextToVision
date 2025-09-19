@@ -1,0 +1,115 @@
+# Task-6 Production Configuration
+# YAML configuration file for production deployment
+
+# API Configuration
+api:
+  host: ${API_HOST:-0.0.0.0}
+  port: ${API_PORT:-8001}
+  workers: ${API_WORKERS:-4}
+  timeout: ${API_TIMEOUT:-300}
+  log_level: ${LOG_LEVEL:-INFO}
+
+# BHIV Integration
+bhiv:
+  endpoint: ${BHIV_ENDPOINT:-http://192.168.0.121:8001}
+  api_key: ${BHIV_API_KEY:-shashank_ka_vision786}
+  timeout: 30
+  retry_attempts: 3
+
+# NAS Storage
+nas:
+  path: ${NAS_PATH:-/mnt/nas}
+  base_url: ${NAS_BASE_URL:-https://nas.example.com}
+  signed_url_expiry: 3600  # 1 hour
+  max_file_size: 1073741824  # 1GB
+
+# GPU Configuration
+gpu:
+  memory_threshold: ${GPU_MEMORY_THRESHOLD:-0.8}
+  temperature_threshold: ${GPU_TEMPERATURE_THRESHOLD:-80}
+  polling_interval: 5
+
+# Quality Settings
+quality:
+  presets:
+    ultra_fast:
+      resolution: "360x360"
+      fps: 8
+      steps: 20
+      cost: 0.008
+    fast:
+      resolution: "480x480"
+      fps: 12
+      steps: 30
+      cost: 0.015
+    balanced:
+      resolution: "512x512"
+      fps: 12
+      steps: 40
+      cost: 0.025
+    quality:
+      resolution: "512x512"
+      fps: 24
+      steps: 50
+      cost: 0.045
+    ultra_quality:
+      resolution: "640x640"
+      fps: 24
+      steps: 70
+      cost: 0.08
+
+# BGM Configuration
+bgm:
+  default_track: "assets/bgm/default_bed.mp3"
+  volume: 0.25
+  fade_duration: 2.0
+  supported_formats: ["mp3", "wav", "aac"]
+
+# Lip-sync Configuration
+lipsync:
+  confidence_threshold: 0.7
+  processing_timeout: 60
+  models:
+    primary: "Wav2Lip"
+    fallback: "SadTalker"
+
+# Stress Test Configuration
+stress_test:
+  gradual_scaling: true
+  levels:
+    - users: 10
+      concurrency: 10
+      duration: 30
+    - users: 25
+      concurrency: 25
+      duration: 30
+    - users: 50
+      concurrency: 50
+      duration: 30
+  requirements:
+    success_rate_threshold: 95.0
+    avg_response_time_threshold: 10.0
+
+# Monitoring
+monitoring:
+  enabled: true
+  metrics_interval: 60
+  health_check_interval: 30
+  prometheus_port: ${PROMETHEUS_PORT:-9090}
+
+# Security
+security:
+  secret_key: ${SECRET_KEY:-your-production-secret-key-here}
+  jwt_secret: ${JWT_SECRET:-your-jwt-secret-here}
+  cors_origins: ["*"]  # Configure for production
+
+# Database (future use)
+# database:
+#   url: ${DATABASE_URL}
+#   pool_size: 10
+#   max_overflow: 20
+
+# Redis (future use)
+# redis:
+#   url: ${REDIS_URL}
+#   ttl: 3600
