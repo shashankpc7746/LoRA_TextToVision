@@ -215,33 +215,105 @@ class StressTester:
         print("="*60)
 
 
+async def run_gradual_stress_test():
+    """Run stress test with gradual scaling to prevent GPU crashes"""
+    print("[StressTest] Task-6 Production Hardening - Gradual Stress Test")
+    print("[StressTest] Testing with gradual scaling: 10 → 25 → 50 users")
+
+    test_levels = [
+        {"users": 10, "concurrency": 10, "name": "Level 1 (10 users)"},
+        {"users": 25, "concurrency": 25, "name": "Level 2 (25 users)"},
+        {"users": 50, "concurrency": 50, "name": "Level 3 (50 users)"}
+    ]
+
+    all_results = []
+    overall_success = True
+
+    for level in test_levels:
+        print(f"\n{'='*60}")
+        print(f"[StressTest] {level['name']}")
+        print('='*60)
+
+        # Configure test for this level
+        config = StressTestConfig()
+        config.num_users = level["users"]
+        config.concurrency = level["concurrency"]
+        config.test_duration_seconds = 30
+
+        # Run test
+        tester = StressTester(config)
+        summary = await tester.run_stress_test(use_preview=True)
+
+        # Print results
+        tester.print_summary()
+
+        # Store results
+        all_results.append({
+            "level": level["name"],
+            "config": level,
+            "summary": summary,
+            "detailed_results": tester.results
+        })
+
+        # Check if this level passed
+        if not summary.get("test_passed", False):
+            print(f"[StressTest] ⚠️  {level['name']} failed requirements")
+            overall_success = False
+        else:
+            print(f"[StressTest] ✅ {level['name']} passed")
+
+        # Small delay between tests
+        await asyncio.sleep(2)
+
+    return all_results, overall_success
+
 async def main():
-    """Main stress test execution"""
+    """Main stress test execution with gradual scaling"""
     print("[StressTest] Task-6 Production Hardening - Stress Test Harness")
-    print("[StressTest] Testing 50 concurrent users on preview endpoint")
+    print("[StressTest] GPU-safe gradual scaling: 10 → 25 → 50 concurrent users")
 
-    # Configure test
-    config = StressTestConfig()
-    config.num_users = 50
-    config.concurrency = 50
-    config.test_duration_seconds = 30
+    # Run gradual stress test
+    all_results, overall_success = await run_gradual_stress_test()
 
-    # Run test
-    tester = StressTester(config)
-    summary = await tester.run_stress_test(use_preview=True)
+    # Save comprehensive results
+    output = {
+        "test_type": "gradual_stress_test",
+        "levels_tested": len(all_results),
+        "overall_success": overall_success,
+        "results": all_results,
+        "timestamp": datetime.now().isoformat(),
+        "gpu_safety_note": "Gradual scaling prevents GPU memory crashes"
+    }
 
-    # Print results
-    tester.print_summary()
+    with open("gradual_stress_test_results.json", "w") as f:
+        json.dump(output, f, indent=2, default=str)
 
-    # Save detailed results
-    tester.save_results()
+    print(f"\n[StressTest] 📊 Comprehensive results saved to gradual_stress_test_results.json")
+
+    # Final summary
+    print("\n" + "="*60)
+    print("GRADUAL STRESS TEST FINAL RESULTS")
+    print("="*60)
+
+    for result in all_results:
+        level_name = result["level"]
+        summary = result["summary"]
+        success_rate = summary.get("success_rate", 0)
+        avg_time = summary.get("average_response_time", 0)
+        passed = summary.get("test_passed", False)
+
+        status_icon = "✅" if passed else "❌"
+        print(".1f")
+
+    overall_status = "✅ ALL LEVELS PASSED" if overall_success else "❌ SOME LEVELS FAILED"
+    print(f"\nOverall Result: {overall_status}")
 
     # Exit with appropriate code
-    if summary.get("test_passed", False):
-        print("[StressTest] ✅ Test PASSED - System ready for production")
+    if overall_success:
+        print("[StressTest] ✅ Gradual stress test PASSED - System ready for production")
         return 0
     else:
-        print("[StressTest] ❌ Test FAILED - Performance issues detected")
+        print("[StressTest] ❌ Gradual stress test FAILED - Performance issues detected")
         return 1
 
 
