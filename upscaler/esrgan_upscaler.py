@@ -14,9 +14,9 @@ import json
 from datetime import datetime
 
 try:
-    from basicsr.archs.rrdbnet_arch import RRDBNet
-    from basicsr.utils import imwrite, img2tensor, tensor2img
-    from basicsr.utils.realesrgan_utils import RealESRGANer
+    from basicsr.archs.rrdbnet_arch import RRDBNet  # type: ignore
+    from basicsr.utils import imwrite, img2tensor, tensor2img  # type: ignore
+    from basicsr.utils.realesrgan_utils import RealESRGANer  # type: ignore
     BASICS_AVAILABLE = True
 except ImportError:
     RRDBNet = None
