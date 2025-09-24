@@ -3,14 +3,14 @@ Audio Manager for Task-7 Quality Leap
 Enhanced SadTalker/VASA-1 with micro-expressions
 """
 
-from .enhanced_sadtalker import EnhancedSadTalker
-from .vasa_integrator import VASAIntegrator
-from .micro_expression import MicroExpressionEngine
-from .audio_pipeline import AudioPipeline
+from .enhanced_sadtalker import (EnhancedSadTalker, VASAIntegrator, AudioPipeline,
+                                 get_enhanced_sadtalker, get_vasa_integrator, get_audio_pipeline)
 
 __all__ = [
     'EnhancedSadTalker',
     'VASAIntegrator',
-    'MicroExpressionEngine',
-    'AudioPipeline'
+    'AudioPipeline',
+    'get_enhanced_sadtalker',
+    'get_vasa_integrator',
+    'get_audio_pipeline'
 ]
