@@ -56,6 +56,11 @@ class ComprehensiveTestSuite:
             health_result = await self._test_component_health()
             self.test_results["tests"]["component_health"] = health_result
 
+        except Exception as e:
+            print(f"❌ Test suite failed: {e}")
+            self.test_results["error"] = str(e)
+            return self.test_results
+
             # Test 2: Single Request Performance
             print("\n2️⃣ Single Request Performance Test...")
             single_result = await self._test_single_request_performance()
@@ -86,8 +91,8 @@ class ComprehensiveTestSuite:
 
             self.test_results["end_time"] = datetime.now().isoformat()
 
-            print("
-✅ Test Suite Complete!"            print(f"📊 Overall Success: {self.test_results['summary']['overall_success']}")
+            print("\n✅ Test Suite Complete!")
+            print(f"📊 Overall Success: {self.test_results['summary']['overall_success']}")
             print(f"🎯 Quality Score: {self.test_results['summary']['average_quality']:.2f}")
             print(f"⚡ Performance Score: {self.test_results['summary']['performance_score']:.2f}")
 
