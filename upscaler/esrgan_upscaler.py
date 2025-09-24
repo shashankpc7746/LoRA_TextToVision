@@ -13,9 +13,18 @@ from PIL import Image
 import json
 from datetime import datetime
 
-from basicsr.archs.rrdbnet_arch import RRDBNet
-from basicsr.utils import imwrite, img2tensor, tensor2img
-from basicsr.utils.realesrgan_utils import RealESRGANer
+try:
+    from basicsr.archs.rrdbnet_arch import RRDBNet
+    from basicsr.utils import imwrite, img2tensor, tensor2img
+    from basicsr.utils.realesrgan_utils import RealESRGANer
+    BASICS_AVAILABLE = True
+except ImportError:
+    RRDBNet = None
+    imwrite = None
+    img2tensor = None
+    tensor2img = None
+    RealESRGANer = None
+    BASICS_AVAILABLE = False
 
 
 class ESRGANUpscaler:
