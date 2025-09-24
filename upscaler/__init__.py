@@ -3,14 +3,15 @@ Video Upscaler for Task-7 Quality Leap
 Real-ESRGAN/StableSR wrapper for 1080p cinematic output
 """
 
-from .esrgan_upscaler import ESRGANUpscaler
-from .stablesr_upscaler import StableSRUpscaler
-from .tile_processor import TileProcessor
-from .upscale_pipeline import UpscalePipeline
+from .esrgan_upscaler import ESRGANUpscaler, get_esrgan_upscaler, get_tile_processor
+from .upscale_pipeline import UpscalePipeline, DenoiseEngine, CinematicPolisher, get_upscale_pipeline
 
 __all__ = [
     'ESRGANUpscaler',
-    'StableSRUpscaler',
-    'TileProcessor',
-    'UpscalePipeline'
+    'get_esrgan_upscaler',
+    'get_tile_processor',
+    'UpscalePipeline',
+    'DenoiseEngine',
+    'CinematicPolisher',
+    'get_upscale_pipeline'
 ]
