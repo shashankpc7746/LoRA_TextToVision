@@ -6,6 +6,7 @@ End-to-end testing of the complete video generation pipeline
 import asyncio
 import time
 import json
+import random
 from pathlib import Path
 from typing import Dict, Any, List
 import concurrent.futures

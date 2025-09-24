@@ -13,6 +13,11 @@ import json
 from tqdm import tqdm
 import os
 
+try:
+    from peft import PeftModel
+except ImportError:
+    PeftModel = None
+
 from .lora_adapter import LoRAAdapter
 
 
