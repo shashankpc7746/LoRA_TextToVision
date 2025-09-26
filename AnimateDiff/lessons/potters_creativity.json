@@ -1,0 +1,54 @@
+{
+  "title": "The Potter's Creative Journey",
+  "level": "Intermediate",
+  "duration": "60-75 seconds",
+  "tts_enabled": true,
+  "scenes": [
+    {
+      "text": "In a sunlit workshop a young potter sits at her wheel ready to create something beautiful.",
+      "duration": 6.8
+    },
+    {
+      "text": "She centers a lump of clay on the spinning wheel with careful steady hands.",
+      "duration": 6.9
+    },
+    {
+      "text": "With gentle pressure from her fingers she begins to shape the clay into a graceful form.",
+      "duration": 7.1
+    },
+    {
+      "text": "She opens the clay with her thumbs creating space for the vessel to take shape.",
+      "duration": 7.0
+    },
+    {
+      "text": "Pulling and shaping with rhythmic motions she builds the walls higher and more elegant.",
+      "duration": 7.2
+    },
+    {
+      "text": "Finally she adds delicate decorative patterns with careful carving tools.",
+      "duration": 6.9
+    }
+  ],
+  "prompts": [
+    "In a sunlit workshop a young potter sits at her wheel ready to create something beautiful, pottery studio, young female potter, creative workspace, natural light",
+    "She centers a lump of clay on the spinning wheel with careful steady hands, potter's wheel, clay centering, focused concentration, skilled hands",
+    "With gentle pressure from her fingers she begins to shape the clay into a graceful form, clay shaping, finger techniques, emerging pottery form, artistic process",
+    "She opens the clay with her thumbs creating space for the vessel to take shape, clay opening, thumb technique, vessel formation, pottery craftsmanship",
+    "Pulling and shaping with rhythmic motions she builds the walls higher and more elegant, wall pulling, rhythmic shaping, elegant curves, skilled artistry",
+    "Finally she adds delicate decorative patterns with careful carving tools, decorative carving, pottery finishing, intricate patterns, artistic completion"
+  ],
+  "text": "In a sunlit workshop a young potter sits at her wheel ready to create something beautiful. She centers a lump of clay on the spinning wheel with careful steady hands. With gentle pressure from her fingers she begins to shape the clay into a graceful form. She opens the clay with her thumbs creating space for the vessel to take shape. Pulling and shaping with rhythmic motions she builds the walls higher and more elegant. Finally she adds delicate decorative patterns with careful carving tools.",
+  "metadata": {
+    "theme": "creativity and craftsmanship",
+    "setting": "sunlit pottery workshop",
+    "character": "young female potter",
+    "lesson": "patience, skill, and artistic creation",
+    "mood": "focused and creative",
+    "visual_style": "artistic workshop scenes with close-up hand movements",
+    "duration_target": "68 seconds",
+    "created": "2025-09-26",
+    "story_type": "hands_on_artistry_lesson",
+    "test_video": false,
+    "educational_focus": "art and craftsmanship"
+  }
+}
