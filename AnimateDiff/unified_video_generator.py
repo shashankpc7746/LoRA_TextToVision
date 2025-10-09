@@ -718,6 +718,14 @@ def main():
             print(f"📍 {result}")
             print(f"✅ Includes: Video + Audio + Subtitles")
             print(f"✅ Ready for team sharing!")
+            
+            # Save performance metrics
+            try:
+                from performance_tracker import performance_tracker
+                metrics_file = performance_tracker.save_metrics()
+                print(f"📊 Performance metrics saved: {metrics_file}")
+            except Exception as e:
+                print(f"⚠️ Could not save metrics: {e}")
         else:
             print(f"\n❌ Video generation failed")
 
