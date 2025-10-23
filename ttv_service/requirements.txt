@@ -1,0 +1,48 @@
+# TTV Service Requirements
+# Production-ready dependencies for Task 8 integration
+
+# Core FastAPI stack
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# Async and background task processing
+celery==5.3.4
+redis==5.0.1
+aiofiles==23.2.1
+
+# Database and storage
+sqlmodel==0.0.14
+psycopg2-binary==2.9.9
+supabase==2.0.3
+
+# Security and authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Monitoring and observability
+sentry-sdk[fastapi]==1.38.0
+prometheus-client==0.19.0
+structlog==23.2.0
+
+# HTTP clients and utilities
+httpx==0.25.2
+requests==2.31.0
+
+# Image and video processing (our existing system dependencies)
+torch>=2.0.0
+torchvision>=0.15.0
+transformers>=4.35.0
+diffusers>=0.24.0
+accelerate>=0.24.0
+
+# Video and audio processing
+moviepy>=1.0.3
+opencv-python>=4.8.0
+librosa>=0.10.0
+
+# Additional utilities
+python-dotenv==1.0.0
+click==8.1.7
+rich==13.7.0

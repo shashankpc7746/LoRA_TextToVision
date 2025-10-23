@@ -1,0 +1,25 @@
+# CPU-only Docker Compose Override
+# Used when GPU support is not available
+
+version: '3.8'
+
+services:
+  ttv_api:
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  ttv_worker:
+    command: celery -A ttv_service.job_manager.celery_app worker --loglevel=info --queues=default --concurrency=4
+    environment:
+      - GPU_MEMORY_LIMIT=0
+      - MAX_CONCURRENT_JOBS=4
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G

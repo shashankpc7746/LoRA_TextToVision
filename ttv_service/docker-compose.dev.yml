@@ -1,0 +1,62 @@
+# Development Docker Compose Override
+# Simplified setup for development with external services
+
+version: '3.8'
+
+services:
+  ttv_api:
+    build:
+      context: .
+      dockerfile: ttv_service/Dockerfile
+      target: development
+    environment:
+      - TTV_SERVICE_HOST=0.0.0.0
+      - TTV_SERVICE_PORT=8002
+      - DATABASE_URL=sqlite:///./ttv_dev.db
+      - REDIS_URL=redis://localhost:6379/0
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+      - STORAGE_BACKEND=local
+      - CONTENT_MODERATION_ENABLED=false
+    ports:
+      - "8002:8002"
+    volumes:
+      - .:/app
+      - ./storage:/app/storage
+      - ./cache:/app/cache
+      - ./temp:/app/temp
+      - ./logs:/app/logs
+    profiles:
+      - dev
+
+  ttv_worker:
+    build:
+      context: .
+      dockerfile: ttv_service/Dockerfile
+      target: development
+    command: celery -A ttv_service.job_manager.celery_app worker --loglevel=debug --reload
+    environment:
+      - DATABASE_URL=sqlite:///./ttv_dev.db
+      - REDIS_URL=redis://localhost:6379/0
+      - ENVIRONMENT=development
+    volumes:
+      - .:/app
+      - ./storage:/app/storage
+      - ./cache:/app/cache
+      - ./temp:/app/temp
+      - ./logs:/app/logs
+    profiles:
+      - dev
+
+  # Remove production services for development
+  postgres:
+    profiles:
+      - prod
+
+  nginx:
+    profiles:
+      - prod
+
+  flower:
+    profiles:
+      - dev

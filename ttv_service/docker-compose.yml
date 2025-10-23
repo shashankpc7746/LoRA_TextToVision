@@ -1,0 +1,224 @@
+# TTV Service Docker Compose Configuration
+# Production deployment with GPU support, Redis, PostgreSQL, and Nginx
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ttv_postgres
+    environment:
+      POSTGRES_DB: ai_agent
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_password_change_me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - ttv_network
+
+  # Redis Cache and Message Broker
+  redis:
+    image: redis:7-alpine
+    container_name: ttv_redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password_change_me}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - ttv_network
+
+  # TTV Service API
+  ttv_api:
+    build:
+      context: .
+      dockerfile: ttv_service/Dockerfile
+    container_name: ttv_api
+    environment:
+      - TTV_SERVICE_HOST=0.0.0.0
+      - TTV_SERVICE_PORT=8002
+      - TTV_SERVICE_WORKERS=4
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD:-secure_password_change_me}@postgres:5432/ai_agent
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_password_change_me}@redis:6379/0
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+      - STORAGE_BACKEND=bhiv_bucket
+      - CONTENT_MODERATION_ENABLED=true
+      - SENTRY_DSN=${SENTRY_DSN}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+      - BHIV_BACKEND_URL=${BHIV_BACKEND_URL:-http://192.168.0.121:8001}
+    volumes:
+      - ./storage:/app/storage
+      - ./cache:/app/cache
+      - ./temp:/app/temp
+      - ./logs:/app/logs
+      - ./AnimateDiff:/app/AnimateDiff:ro
+      - ./SadTalker:/app/SadTalker:ro
+    ports:
+      - "8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - ttv_network
+
+  # Celery Worker for GPU Processing
+  ttv_worker:
+    build:
+      context: .
+      dockerfile: ttv_service/Dockerfile
+    container_name: ttv_worker
+    command: celery -A ttv_service.job_manager.celery_app worker --loglevel=info --queues=gpu_high,default --concurrency=2
+    environment:
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD:-secure_password_change_me}@postgres:5432/ai_agent
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_password_change_me}@redis:6379/0
+      - ENVIRONMENT=production
+      - WORKER_ID=gpu_worker_1
+      - GPU_MEMORY_LIMIT=8192
+      - MAX_CONCURRENT_JOBS=2
+    volumes:
+      - ./storage:/app/storage
+      - ./cache:/app/cache
+      - ./temp:/app/temp
+      - ./logs:/app/logs
+      - ./AnimateDiff:/app/AnimateDiff:ro
+      - ./SadTalker:/app/SadTalker:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+        limits:
+          memory: 12G
+    networks:
+      - ttv_network
+
+  # Celery Beat Scheduler
+  ttv_scheduler:
+    build:
+      context: .
+      dockerfile: ttv_service/Dockerfile
+    container_name: ttv_scheduler
+    command: celery -A ttv_service.job_manager.celery_app beat --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD:-secure_password_change_me}@postgres:5432/ai_agent
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_password_change_me}@redis:6379/0
+      - ENVIRONMENT=production
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - ttv_network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: ttv_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./storage:/var/www/storage:ro
+    depends_on:
+      - ttv_api
+    restart: unless-stopped
+    networks:
+      - ttv_network
+
+  # Flower for Celery Monitoring
+  flower:
+    build:
+      context: .
+      dockerfile: ttv_service/Dockerfile
+    container_name: ttv_flower
+    command: celery -A ttv_service.job_manager.celery_app flower --port=5555
+    environment:
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_password_change_me}@redis:6379/0
+      - FLOWER_BASIC_AUTH=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-flower_password_change_me}
+    ports:
+      - "5555:5555"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - ttv_network
+
+  # Redis Commander (Development/Staging only)
+  redis_commander:
+    image: rediscommander/redis-commander:latest
+    container_name: ttv_redis_commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0:${REDIS_PASSWORD:-redis_password_change_me}
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    profiles:
+      - dev
+    networks:
+      - ttv_network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  ttv_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

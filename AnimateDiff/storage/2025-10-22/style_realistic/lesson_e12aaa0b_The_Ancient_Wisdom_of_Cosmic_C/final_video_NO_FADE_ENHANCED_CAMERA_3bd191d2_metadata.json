@@ -1,0 +1,20 @@
+{
+  "title": "The Ancient Wisdom of Cosmic Consciousness",
+  "level": "Master",
+  "style": "realistic",
+  "text": "In the cosmic realm beyond time and space ancient wisdom keepers guard eternal truths. A young mystic receives visions of the interconnectedness of all existence in the universe. She sees how every thought and action creates ripples across the fabric of reality. The cosmic teachers show her that consciousness is the fundamental building block of creation. Through deep meditation she experiences unity with the infinite source of all knowledge. She learns that time is an illusion and that past present and future exist simultaneously. The masters reveal that love is the force that binds all particles and planets together. She discovers her role as a bridge between the earthly realm and cosmic consciousness. Ancient symbols and sacred geometry reveal the mathematical patterns underlying all creation. She understands that every soul is on a journey of evolution toward higher consciousness. The cosmic library opens to her showing the akashic records of all souls throughout time. She learns to channel cosmic energy for healing and transformation of herself and others. With this profound knowledge she becomes a guardian of ancient wisdom for future generations. Her consciousness expands to embrace the infinite and she becomes one with the cosmic dance.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Ancient Wisdom of Cosmic Consciousness",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 16,
+    "steps": 38,
+    "clips_count": 14,
+    "total_duration": 28.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "REALISTIC-SPECIFIC: Enhanced photorealistic with dynamic movement and full body framing"
+  },
+  "timestamp": "2025-10-22T10:40:59.736002",
+  "lesson_id": "e12aaa0b"
+}
