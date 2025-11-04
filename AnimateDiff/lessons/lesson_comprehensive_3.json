@@ -1,0 +1,74 @@
+{
+  "title": "The Boy and the Glimmering Stone",
+  "level": "Simple",
+  "duration": "40-60 seconds",
+  "tts_enabled": true,
+  "scenes": [
+    {
+      "text": "A young boy named Tom loved exploring the woods behind his house.",
+      "duration": 5.0
+    },
+    {
+      "text": "One sunny afternoon, he followed a path he had never seen before.",
+      "duration": 5.2
+    },
+    {
+      "text": "The path led him to a small, quiet clearing with a sparkling stream.",
+      "duration": 5.5
+    },
+    {
+      "text": "He knelt by the water and saw something glimmering on the bottom.",
+      "duration": 5.0
+    },
+    {
+      "text": "He reached in and pulled out a perfectly smooth, bright blue stone.",
+      "duration": 5.4
+    },
+    {
+      "text": "It was warm to the touch and pulsed with a very soft, gentle light.",
+      "duration": 5.3
+    },
+    {
+      "text": "Tom had never seen anything like it and put it safely in his pocket.",
+      "duration": 5.1
+    },
+    {
+      "text": "He ran back home, excited to show his parents his magical discovery.",
+      "duration": 5.0
+    },
+    {
+      "text": "That night, he placed the stone on his nightstand.",
+      "duration": 4.5
+    },
+    {
+      "text": "It filled his room with a calm, blue light as he fell asleep.",
+      "duration": 5.0
+    }
+  ],
+  "prompts": [
+    "Young boy walking into a bright, sunny forest, cinematic, adventure",
+    "The boy discovering a new, hidden dirt path, sun filtering through trees, mystery",
+    "A beautiful, sunlit clearing with a small, clear stream, peaceful, nature",
+    "Close-up of the boy's face as he spots something shiny in the water, curious expression",
+    "The boy's hand pulling a smooth, glowing blue stone from the stream, magical, discovery",
+    "Close-up of the stone pulsing with soft light in the boy's hand, wonder",
+    "The boy putting the glowing stone into his pocket, smiling",
+    "The boy running happily out of the woods toward a small house in the distance, excited",
+    "The glowing blue stone sitting on a wooden nightstand in a dark bedroom",
+    "The boy sleeping peacefully in his bed, his face illuminated by the soft blue light, dreamy"
+  ],
+  "text": "A young boy named Tom loved exploring the woods behind his house. One sunny afternoon, he followed a path he had never seen before. The path led him to a small, quiet clearing with a sparkling stream. He knelt by the water and saw something glimmering on the bottom. He reached in and pulled out a perfectly smooth, bright blue stone. It was warm to the touch and pulsed with a very soft, gentle light. Tom had never seen anything like it and put it safely in his pocket. He ran back home, excited to show his parents his magical discovery. That night, he placed the stone on his nightstand. It filled his room with a calm, blue light as he fell asleep.",
+  "metadata": {
+    "theme": "discovery and wonder",
+    "setting": "forest and home",
+    "character": "young boy",
+    "lesson": "curiosity leads to wonderful discoveries",
+    "mood": "magical and peaceful",
+    "visual_style": "bright and whimsical",
+    "duration_target": "51 seconds",
+    "created": "2025-10-29",
+    "story_type": "simple_adventure",
+    "test_video": true,
+    "sub_task_5": true
+  }
+}

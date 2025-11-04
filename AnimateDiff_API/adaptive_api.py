@@ -9,9 +9,14 @@ import sys
 import json
 import time
 import subprocess
+import logging
 from typing import Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Import adaptive engine modules
 # Add AnimateDiff path to sys.path for adaptive_engine imports
@@ -66,10 +71,69 @@ except ImportError as e:
     def get_bgm_manager():
         raise ImportError("BGM manager not available")
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, Depends
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 import uvicorn
+import jwt
+from functools import wraps
+
+
+# JWT Security Configuration (Task 9 - Compliance)
+SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", "your-supabase-jwt-secret-here")
+JWT_ALGORITHM = "HS256"
+security = HTTPBearer()
+
+
+def verify_jwt_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Dict[str, Any]:
+    """
+    Verify Supabase JWT token.
+    
+    Args:
+        credentials: HTTP Bearer token from Authorization header
+        
+    Returns:
+        Decoded JWT payload with user info
+        
+    Raises:
+        HTTPException: If token is invalid or expired
+    """
+    try:
+        token = credentials.credentials
+        
+        # Decode and verify JWT
+        payload = jwt.decode(
+            token,
+            SUPABASE_JWT_SECRET,
+            algorithms=[JWT_ALGORITHM],
+            options={"verify_exp": True}
+        )
+        
+        # Extract user information
+        user_id = payload.get("sub")
+        email = payload.get("email")
+        role = payload.get("role", "authenticated")
+        
+        return {
+            "user_id": user_id,
+            "email": email,
+            "role": role,
+            "raw_payload": payload
+        }
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(
+            status_code=401,
+            detail=f"Invalid token: {str(e)}",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
 
 
 class AdaptiveVideoRequest(BaseModel):
@@ -398,18 +462,27 @@ adaptive_app = FastAPI(title="Adaptive Video Generation API", version="2.0.0")
 
 
 @adaptive_app.post("/ttv/generate", response_model=AdaptiveVideoResponse)
-async def generate_adaptive_video(request: AdaptiveVideoRequest, background_tasks: BackgroundTasks):
+async def generate_adaptive_video(
+    request: AdaptiveVideoRequest, 
+    background_tasks: BackgroundTasks,
+    user_auth: Dict[str, Any] = Depends(verify_jwt_token)
+):
     """
-    Task-4 Adaptive Video Generation Endpoint
+    Task-4 Adaptive Video Generation Endpoint (JWT Protected)
 
     This endpoint automatically:
+    - Verifies Supabase JWT authentication
     - Detects device capabilities
     - Analyzes task complexity
     - Plans optimal quality settings
     - Routes to best processing tier
     - Generates video with adaptive intelligence
+    - Tracks KSML lineage with user context
     """
     try:
+        # Log authenticated user
+        logger.info(f"🔐 Authenticated request from user: {user_auth.get('user_id')}")
+        
         # Create request
         request_id = api_manager.create_adaptive_request(request)
 

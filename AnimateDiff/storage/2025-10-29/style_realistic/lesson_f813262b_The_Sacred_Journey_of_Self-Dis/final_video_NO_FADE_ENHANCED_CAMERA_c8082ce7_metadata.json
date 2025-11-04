@@ -1,0 +1,20 @@
+{
+  "title": "The Sacred Journey of Self-Discovery",
+  "level": "Advanced",
+  "style": "realistic",
+  "text": "In the ancient mountains of the Himalayas a young seeker begins her spiritual journey. She walks through misty forests where ancient sages once meditated for years. At a sacred temple she meets a wise guru who teaches the path of self-realization. The guru explains that true knowledge comes from within not from external sources. Through meditation she learns to quiet her mind and listen to her inner voice. Days pass as she practices mindfulness and develops deeper awareness of her thoughts. She discovers that suffering comes from attachment to temporary things in life. The guru teaches her about dharma and living in harmony with universal principles. She learns that compassion and service to others are essential parts of spiritual growth. Through daily practice she develops patience wisdom and inner peace that radiates outward. She realizes that the journey of self-discovery is lifelong and filled with continuous learning. With gratitude she returns to the world carrying the light of wisdom to help others. Her transformation inspires many to begin their own sacred journey of awakening and growth. The cycle continues as wisdom flows from teacher to student across generations of seekers.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Sacred Journey of Self-Discovery",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 16,
+    "steps": 38,
+    "clips_count": 14,
+    "total_duration": 28.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "REALISTIC-SPECIFIC: Enhanced photorealistic with dynamic movement and full body framing"
+  },
+  "timestamp": "2025-10-29T16:38:44.014188",
+  "lesson_id": "f813262b"
+}

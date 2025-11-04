@@ -1,0 +1,20 @@
+{
+  "title": "Underwater Ocean Adventure",
+  "level": "Beginner",
+  "style": "realistic",
+  "text": "A young diver with scuba gear swims through a vibrant coral reef with tropical fish. She discovers a sunken pirate ship covered in seaweed and treasure chests. A wise old sea turtle guides her back to the surface through rays of sunlight.",
+  "subject": "Text-to-Video Generation",
+  "topic": "Underwater Ocean Adventure",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 16,
+    "steps": 38,
+    "clips_count": 3,
+    "total_duration": 6.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "REALISTIC-SPECIFIC: Enhanced photorealistic with dynamic movement and full body framing"
+  },
+  "timestamp": "2025-11-03T12:07:44.036861",
+  "lesson_id": "f6549cdb"
+}

@@ -1,0 +1,20 @@
+{
+  "title": "The Potter's Creative Journey",
+  "level": "Intermediate",
+  "style": "realistic",
+  "text": "In a sunlit workshop a young potter sits at her wheel ready to create something beautiful. She centers a lump of clay on the spinning wheel with careful steady hands. With gentle pressure from her fingers she begins to shape the clay into a graceful form. She opens the clay with her thumbs creating space for the vessel to take shape. Pulling and shaping with rhythmic motions she builds the walls higher and more elegant. Finally she adds delicate decorative patterns with careful carving tools.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Potter's Creative Journey",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 16,
+    "steps": 38,
+    "clips_count": 6,
+    "total_duration": 12.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "REALISTIC-SPECIFIC: Enhanced photorealistic with dynamic movement and full body framing"
+  },
+  "timestamp": "2025-11-03T13:14:16.050844",
+  "lesson_id": "2ba630f4"
+}
