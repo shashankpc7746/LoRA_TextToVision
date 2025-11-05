@@ -1,0 +1,45 @@
+{
+  "title": "Neon Data Vortex – Cinematic Visual Sequence",
+  "level": "Advanced",
+  "duration": "12-16 seconds",
+  "tts_enabled": false,
+  "scenes": [
+    {
+      "text": "A massive swirling vortex of glowing data streams in deep space",
+      "duration": 3.0
+    },
+    {
+      "text": "Neon-magenta and electric-blue data streams crash and collide violently",
+      "duration": 3.0
+    },
+    {
+      "text": "A bright white-gold fractal energy appears, moving against the flow",
+      "duration": 3.0
+    },
+    {
+      "text": "The golden energy ANANT accelerates forward with rhythmic pulsing motion",
+      "duration": 3.5
+    }
+  ],
+  "prompts": [
+    "Cinematic wide shot, massive swirling vortex in deep space, glowing digital data streams, neon colors, dark cosmic background, smooth camera zoom in, 8K quality, volumetric lighting",
+    "Close up view, neon-magenta and electric-blue glowing data streams crashing together, violent collision effects, particles exploding, motion blur, high contrast lighting, dynamic movement",
+    "Medium shot, bright white-gold fractal energy emerging in center, geometric patterns, glowing brilliantly, moving against dark flowing streams, camera slowly rotating, mystical atmosphere",
+    "Dynamic tracking shot, golden fractal energy ANANT accelerating forward, rhythmic pulsing motion, pushing through data streams, light trails, cinematic motion blur, epic scale, dramatic lighting"
+  ],
+  "text": "A massive vortex of glowing data streams swirls in deep space. Neon-magenta and electric-blue streams crash violently together. A brilliant white-gold fractal energy emerges, moving against the flow. The golden entity ANANT accelerates forward with powerful rhythmic motion.",
+  "metadata": {
+    "theme": "Cosmic data-energy collision and resistance",
+    "setting": "Abstract digital-cosmic dimension",
+    "character": "ANANT – white-gold fractal energy entity",
+    "mood": "intense, futuristic, high-impact",
+    "visual_style": "8K Marvel-scale hyper-cinematic, rhythmic motion",
+    "duration_target": "12-16 seconds",
+    "created": "2025-11-05",
+    "updated": "2025-11-05",
+    "story_type": "multi_scene_cinematic_sequence",
+    "test_video": false,
+    "sub_task_5": false,
+    "prompt_style": "segmented_for_better_generation"
+  }
+}
