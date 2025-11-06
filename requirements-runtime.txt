@@ -76,3 +76,7 @@ typing_extensions==4.9.0
 regex==2024.11.6
 six==1.17.0
 python-dateutil==2.9.0.post0
+
+# Security & Cryptography (Task 10)
+cryptography>=41.0.0
+imagehash>=4.3.1

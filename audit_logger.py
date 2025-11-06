@@ -147,7 +147,8 @@ class AuditLogger:
         output_path: str,
         ksml_token: Optional[Dict] = None,
         quality_metrics: Optional[Dict] = None,
-        processing_time: Optional[float] = None
+        processing_time: Optional[float] = None,
+        security_metadata: Optional[Dict] = None
     ) -> str:
         """
         Log video generation with full metadata.
@@ -158,6 +159,7 @@ class AuditLogger:
             ksml_token: KSML token
             quality_metrics: Quality metrics (VMAF, etc.)
             processing_time: Processing time in seconds
+            security_metadata: Security fields (build_id, artifact_hash, watermark_id, signed)
             
         Returns:
             Log entry ID
@@ -166,7 +168,8 @@ class AuditLogger:
             "prompt": prompt,
             "output_path": output_path,
             "quality_metrics": quality_metrics or {},
-            "processing_time_seconds": processing_time
+            "processing_time_seconds": processing_time,
+            "security": security_metadata or {}
         }
         
         return self.log_operation(
