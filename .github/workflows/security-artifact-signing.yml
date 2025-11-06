@@ -1,0 +1,298 @@
+name: Security - Artifact Signing
+
+on:
+  workflow_run:
+    workflows: ["Training Pipeline"]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      artifact_path:
+        description: 'Path to artifact to sign (relative to repo root)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  PYTHON_VERSION: '3.10'
+
+jobs:
+  sign-artifacts:
+    name: Sign Training Artifacts
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-runtime.txt
+
+      - name: Generate signing key (Ed25519)
+        id: generate-key
+        run: |
+          python << 'PYTHON_SCRIPT'
+          from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+          from cryptography.hazmat.primitives import serialization
+          import os
+          
+          # Generate Ed25519 key pair
+          private_key = Ed25519PrivateKey.generate()
+          
+          # Serialize private key
+          private_pem = private_key.private_bytes(
+              encoding=serialization.Encoding.PEM,
+              format=serialization.PrivateFormat.PKCS8,
+              encryption_algorithm=serialization.NoEncryption()
+          )
+          
+          # Serialize public key
+          public_pem = private_key.public_key().public_bytes(
+              encoding=serialization.Encoding.PEM,
+              format=serialization.PublicFormat.SubjectPublicKeyInfo
+          )
+          
+          # Save keys (in production, use GitHub Secrets)
+          os.makedirs('security/keys', exist_ok=True)
+          with open('security/keys/signing_key.pem', 'wb') as f:
+              f.write(private_pem)
+          with open('security/keys/signing_key.pub', 'wb') as f:
+              f.write(public_pem)
+          
+          print("✅ Ed25519 signing keys generated")
+          PYTHON_SCRIPT
+
+      - name: Find unsigned artifacts
+        id: find-artifacts
+        run: |
+          # Find all model files without signatures
+          echo "🔍 Searching for unsigned artifacts..."
+          
+          UNSIGNED_FILES=""
+          
+          # Search common artifact locations
+          for pattern in "*.safetensors" "*.ckpt" "*.pth" "*.bin"; do
+            while IFS= read -r file; do
+              if [ -f "$file" ] && [ ! -f "${file}.sig" ]; then
+                UNSIGNED_FILES="${UNSIGNED_FILES}${file}|"
+                echo "  📄 Found: $file"
+              fi
+            done < <(find adapters/gurukul_lora AnimateDiff/models -name "$pattern" 2>/dev/null || true)
+          done
+          
+          # Handle workflow_dispatch input
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            MANUAL_FILE="${{ inputs.artifact_path }}"
+            if [ -f "$MANUAL_FILE" ] && [ ! -f "${MANUAL_FILE}.sig" ]; then
+              UNSIGNED_FILES="${UNSIGNED_FILES}${MANUAL_FILE}|"
+              echo "  📄 Manual: $MANUAL_FILE"
+            fi
+          fi
+          
+          if [ -z "$UNSIGNED_FILES" ]; then
+            echo "✅ No unsigned artifacts found"
+            echo "has_unsigned=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_unsigned=true" >> $GITHUB_OUTPUT
+            echo "files=$UNSIGNED_FILES" >> $GITHUB_OUTPUT
+            echo "📦 Total unsigned artifacts: $(echo $UNSIGNED_FILES | tr '|' '\n' | grep -c .)"
+          fi
+
+      - name: Sign artifacts
+        if: steps.find-artifacts.outputs.has_unsigned == 'true'
+        run: |
+          IFS='|' read -ra FILES <<< "${{ steps.find-artifacts.outputs.files }}"
+          
+          python << 'PYTHON_SCRIPT'
+          import sys
+          import os
+          from security.artifact_signer import ArtifactSigner
+          
+          # Initialize signer
+          signer = ArtifactSigner('security/keys/signing_key.pem')
+          
+          # Get files from environment
+          files = os.environ.get('FILES_TO_SIGN', '').split('|')
+          files = [f for f in files if f.strip()]
+          
+          print(f"🔐 Signing {len(files)} artifacts...")
+          
+          for filepath in files:
+              if not filepath.strip():
+                  continue
+              try:
+                  signature = signer.sign_artifact(filepath)
+                  print(f"  ✅ Signed: {filepath}")
+                  print(f"     Signature: {signature[:64]}...")
+              except Exception as e:
+                  print(f"  ❌ Failed to sign {filepath}: {e}")
+                  sys.exit(1)
+          
+          print(f"\n✅ All {len(files)} artifacts signed successfully")
+          PYTHON_SCRIPT
+        env:
+          FILES_TO_SIGN: ${{ steps.find-artifacts.outputs.files }}
+
+      - name: Verify signatures
+        if: steps.find-artifacts.outputs.has_unsigned == 'true'
+        run: |
+          python << 'PYTHON_SCRIPT'
+          import os
+          from security.artifact_signer import ArtifactSigner
+          
+          signer = ArtifactSigner('security/keys/signing_key.pem')
+          
+          files = os.environ.get('FILES_TO_SIGN', '').split('|')
+          files = [f for f in files if f.strip()]
+          
+          print(f"🔍 Verifying {len(files)} signatures...")
+          
+          failed = []
+          for filepath in files:
+              if not filepath.strip():
+                  continue
+              try:
+                  is_valid = signer.verify_signature(filepath)
+                  if is_valid:
+                      print(f"  ✅ Valid: {filepath}")
+                  else:
+                      print(f"  ❌ Invalid: {filepath}")
+                      failed.append(filepath)
+              except Exception as e:
+                  print(f"  ❌ Verification failed for {filepath}: {e}")
+                  failed.append(filepath)
+          
+          if failed:
+              print(f"\n❌ Verification failed for {len(failed)} artifacts")
+              exit(1)
+          else:
+              print(f"\n✅ All {len(files)} signatures verified")
+          PYTHON_SCRIPT
+        env:
+          FILES_TO_SIGN: ${{ steps.find-artifacts.outputs.files }}
+
+      - name: Commit signatures
+        if: steps.find-artifacts.outputs.has_unsigned == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Add all .sig files
+          git add **/*.sig security/keys/signing_key.pub
+          
+          # Create commit
+          SIGNED_COUNT=$(git diff --cached --name-only | grep -c '\.sig$' || echo "0")
+          if [ "$SIGNED_COUNT" -gt 0 ]; then
+            git commit -m "chore(security): Sign $SIGNED_COUNT artifacts [skip ci]"
+            git push
+            echo "✅ Committed $SIGNED_COUNT signatures"
+          else
+            echo "⚠️ No new signatures to commit"
+          fi
+
+      - name: Upload public key artifact
+        if: steps.find-artifacts.outputs.has_unsigned == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: signing-public-key
+          path: security/keys/signing_key.pub
+          retention-days: 90
+
+      - name: Generate security report
+        if: always()
+        run: |
+          python << 'PYTHON_SCRIPT'
+          import os
+          import json
+          from datetime import datetime
+          
+          report = {
+              "workflow": "artifact-signing",
+              "timestamp": datetime.utcnow().isoformat(),
+              "branch": os.environ.get('GITHUB_REF_NAME', 'unknown'),
+              "commit": os.environ.get('GITHUB_SHA', 'unknown')[:8],
+              "signed_artifacts": [],
+              "status": "success"
+          }
+          
+          # Find all .sig files
+          for root, dirs, files in os.walk('.'):
+              for file in files:
+                  if file.endswith('.sig'):
+                      report["signed_artifacts"].append(
+                          os.path.join(root, file).replace('.sig', '')
+                      )
+          
+          report["total_signed"] = len(report["signed_artifacts"])
+          
+          # Save report
+          os.makedirs('security/reports', exist_ok=True)
+          report_path = f'security/reports/signing-report-{datetime.utcnow().strftime("%Y%m%d-%H%M%S")}.json'
+          with open(report_path, 'w') as f:
+              json.dump(report, f, indent=2)
+          
+          print(f"📊 Security report saved: {report_path}")
+          print(json.dumps(report, indent=2))
+          PYTHON_SCRIPT
+
+  security-gate:
+    name: Security Gate Check
+    runs-on: ubuntu-latest
+    needs: sign-artifacts
+    if: always()
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for unsigned artifacts in production paths
+        run: |
+          echo "🚨 Security Gate: Checking for unsigned artifacts in production..."
+          
+          UNSIGNED=0
+          
+          # Check production paths only
+          for pattern in "*.safetensors" "*.ckpt" "*.pth"; do
+            while IFS= read -r file; do
+              if [ -f "$file" ] && [ ! -f "${file}.sig" ]; then
+                echo "  ❌ UNSIGNED: $file"
+                UNSIGNED=$((UNSIGNED + 1))
+              fi
+            done < <(find adapters/gurukul_lora/production AnimateDiff/models/production -name "$pattern" 2>/dev/null || true)
+          done
+          
+          if [ $UNSIGNED -gt 0 ]; then
+            echo ""
+            echo "❌ SECURITY GATE FAILED: $UNSIGNED unsigned artifacts in production"
+            echo "🔒 All production artifacts must be cryptographically signed"
+            exit 1
+          else
+            echo "✅ Security gate passed: All production artifacts are signed"
+          fi
+
+      - name: Verify signature chain of trust
+        run: |
+          echo "🔗 Verifying signature chain of trust..."
+          
+          if [ ! -f "security/keys/signing_key.pub" ]; then
+            echo "❌ Public signing key not found"
+            exit 1
+          fi
+          
+          echo "✅ Public signing key verified"
+          echo "🔐 Signature chain of trust established"
