@@ -565,3 +565,6 @@ checkpoints
 
 # Mac
 .DS_Store
+
+# Artifact signing keys (DO NOT COMMIT)
+.signing_keys/

@@ -561,6 +561,165 @@ $synth.Dispose()
             print(f"   📍 Main output: {os.path.abspath(output_path)}")
             print(f"   📤 Team sharing: {os.path.abspath(storage_path)}")
 
+            # =================================================================
+            # TASK 10: Security Integration - Watermarking & Fingerprinting
+            # =================================================================
+            try:
+                print(f"\n🔒 Applying security measures...")
+                
+                # Import security modules
+                import sys
+                sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                from security import embed_watermark, compute_fingerprint
+                from security.visible_watermark import add_visible_watermark
+                from audit_logger import get_audit_logger
+                
+                # Get BUILD_ID from environment or generate
+                build_id = os.getenv('BUILD_ID', f'build_{datetime.now().strftime("%Y%m%d_%H%M%S")}')
+                print(f"   🏷️ BUILD_ID: {build_id}")
+                
+                # Step 1: Add invisible watermark (metadata-based)
+                print(f"   💧 Adding invisible watermark...")
+                watermarked_invisible = embed_watermark(
+                    storage_path,  # Watermark the storage version
+                    build_id=build_id,
+                    output_path=storage_path.replace('.mp4', '_watermarked_temp.mp4')
+                )
+                
+                # Step 2: Add visible logo watermark (subtle, production mode)
+                print(f"   🎨 Adding visible logo watermark...")
+                watermarked_final = add_visible_watermark(
+                    watermarked_invisible,
+                    style="subtle",  # 35% opacity, visible but professional
+                    build_id=build_id
+                )
+                
+                # Replace original with watermarked version
+                if os.path.exists(watermarked_final):
+                    # IMPORTANT: OpenCV watermarking strips audio, so we need to restore it!
+                    print(f"   🎵 Restoring audio from original video...")
+                    
+                    # Re-encode to H.264 with audio from original video
+                    print(f"   🔄 Re-encoding to H.264 for compatibility...")
+                    h264_output = storage_path.replace('.mp4', '_h264_temp.mp4')
+                    
+                    import subprocess
+                    try:
+                        # Use FFmpeg to:
+                        # 1. Take video from watermarked file (no audio)
+                        # 2. Take audio from original storage file (with audio)
+                        # 3. Combine them with H.264 encoding
+                        ffmpeg_cmd = [
+                            'ffmpeg', '-y',
+                            '-i', watermarked_final,  # Video input (watermarked, no audio)
+                            '-i', storage_path,        # Audio input (original with audio)
+                            '-map', '0:v:0',          # Take video from first input
+                            '-map', '1:a:0?',         # Take audio from second input (? = optional)
+                            '-c:v', 'libx264',        # H.264 video codec
+                            '-c:a', 'aac',            # AAC audio codec
+                            '-b:a', '192k',           # Audio bitrate
+                            '-preset', 'medium',      # Balance speed/quality
+                            '-crf', '23',             # Quality (lower = better, 23 is good)
+                            '-pix_fmt', 'yuv420p',    # Compatibility
+                            '-movflags', '+faststart', # Web streaming optimization
+                            '-shortest',              # Match shortest stream duration
+                            h264_output
+                        ]
+                        
+                        result = subprocess.run(
+                            ffmpeg_cmd,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            timeout=300  # 5 minute timeout
+                        )
+                        
+                        if result.returncode == 0 and os.path.exists(h264_output):
+                            # Success! Use H.264 version
+                            shutil.copy2(h264_output, storage_path)
+                            shutil.copy2(h264_output, output_path)
+                            os.remove(h264_output)
+                            print(f"   ✅ Re-encoded to H.264 successfully")
+                        else:
+                            # FFmpeg failed, use original watermarked version
+                            print(f"   ⚠️ H.264 encoding failed, using mp4v codec")
+                            shutil.copy2(watermarked_final, storage_path)
+                            shutil.copy2(watermarked_final, output_path)
+                    
+                    except (subprocess.TimeoutExpired, FileNotFoundError) as e:
+                        print(f"   ⚠️ FFmpeg not available or timeout: {e}")
+                        print(f"   ℹ️ Using mp4v codec (may not play in VS Code)")
+                        shutil.copy2(watermarked_final, storage_path)
+                        shutil.copy2(watermarked_final, output_path)
+                    
+                    # Clean up temp files
+                    if os.path.exists(watermarked_invisible):
+                        os.remove(watermarked_invisible)
+                    if watermarked_final != storage_path and os.path.exists(watermarked_final):
+                        os.remove(watermarked_final)
+                    
+                    print(f"   ✅ Watermarks applied successfully")
+                else:
+                    print(f"   ⚠️ Watermarking failed, using original video")
+                
+                # Step 3: Compute content fingerprint
+                print(f"   🔍 Computing content fingerprint...")
+                fingerprint = compute_fingerprint(storage_path, build_id=build_id)
+                
+                print(f"   ✅ Fingerprint: {fingerprint['sha256'][:16]}...")
+                print(f"   ✅ Security measures applied")
+                
+                # Store fingerprint info with metadata
+                fingerprint_file = storage_path.replace('.mp4', '_fingerprint.json')
+                with open(fingerprint_file, 'w') as f:
+                    json.dump(fingerprint, f, indent=2)
+                
+                # Step 4: Log to audit trail with security metadata
+                print(f"   📝 Logging to audit trail...")
+                audit_logger = get_audit_logger()
+                
+                # Create KSML token (if available from request context)
+                ksml_token_data = {
+                    "ksml_token": os.getenv('KSML_TOKEN', 'ksml_production'),
+                    "intent": "video_generation",
+                    "karma_state": "authorized",
+                    "lineage": {
+                        "lesson": lesson_title,
+                        "style": style,
+                        "build_id": build_id
+                    }
+                }
+                
+                # Log video generation with security metadata
+                audit_logger.log_video_generation(
+                    prompt=lesson_data.get('text', '')[:200],  # First 200 chars
+                    output_path=storage_path,
+                    ksml_token=ksml_token_data,
+                    quality_metrics={
+                        "duration": audio_duration,
+                        "clips": len(video_clips),
+                        "style": style
+                    },
+                    security_metadata={
+                        "build_id": build_id,
+                        "artifact_hash": fingerprint['sha256'],
+                        "watermark_id": build_id,
+                        "signed": False,  # Will be True after CI signs
+                        "watermark_method": "dual_layer",  # invisible + visible
+                        "fingerprint_method": "sha256+blake2b+perceptual"
+                    }
+                )
+                
+                print(f"   ✅ Audit log created")
+                
+            except Exception as security_error:
+                print(f"   ⚠️ Security integration warning: {security_error}")
+                print(f"   📝 Video saved without watermarks (module may not be available)")
+                import traceback
+                traceback.print_exc()
+            # =================================================================
+            # END: Security Integration
+            # =================================================================
+
             return output_path
             
         except ZeroDivisionError as e:

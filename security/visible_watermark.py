@@ -86,10 +86,29 @@ class VisibleWatermarker:
         fps = int(cap.get(cv2.CAP_PROP_FPS))
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        
+        # Try H.264 codec first, fall back to mp4v if not available
+        # H.264 is more compatible with VS Code and browsers
+        codec_tried = []
+        fourcc = None
+        out = None
+        
+        for codec in ['avc1', 'H264', 'X264', 'mp4v']:
+            try:
+                fourcc = cv2.VideoWriter_fourcc(*codec)
+                out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+                if out.isOpened():
+                    print(f"   🎬 Using codec: {codec}")
+                    break
+                codec_tried.append(codec)
+            except:
+                codec_tried.append(codec)
+                continue
+        
+        if out is None or not out.isOpened():
+            raise RuntimeError(f"Failed to create video writer. Tried codecs: {codec_tried}")
         
         # Create output writer
-        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
         
         # Resize logo
         logo_width = int(width * scale)
@@ -190,9 +209,21 @@ class VisibleWatermarker:
         fps = int(cap.get(cv2.CAP_PROP_FPS))
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         
-        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+        # Try H.264 codec first, fall back to mp4v
+        fourcc = None
+        out = None
+        for codec in ['avc1', 'H264', 'X264', 'mp4v']:
+            try:
+                fourcc = cv2.VideoWriter_fourcc(*codec)
+                out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+                if out.isOpened():
+                    break
+            except:
+                continue
+        
+        if out is None or not out.isOpened():
+            raise RuntimeError("Failed to create video writer")
         
         frame_count = 0
         start_time = datetime.now()
@@ -285,9 +316,21 @@ class VisibleWatermarker:
         fps = int(cap.get(cv2.CAP_PROP_FPS))
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         
-        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+        # Try H.264 codec first, fall back to mp4v
+        fourcc = None
+        out = None
+        for codec in ['avc1', 'H264', 'X264', 'mp4v']:
+            try:
+                fourcc = cv2.VideoWriter_fourcc(*codec)
+                out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+                if out.isOpened():
+                    break
+            except:
+                continue
+        
+        if out is None or not out.isOpened():
+            raise RuntimeError("Failed to create video writer")
         
         print(f"📹 Adding DEMO watermark (restricted mode)...")
         
@@ -299,7 +342,7 @@ class VisibleWatermarker:
             
             # Large diagonal "DEMO" text
             overlay = frame.copy()
-            font = cv2.FONT_HERSHEY_BOLD
+            font = cv2.FONT_HERSHEY_DUPLEX  # Fixed: FONT_HERSHEY_BOLD doesn't exist
             font_scale = width / 200  # Scale with video width
             font_thickness = max(2, int(font_scale * 3))
             
@@ -353,9 +396,9 @@ def add_visible_watermark(
     
     # Style presets
     style_config = {
-        "subtle": {"opacity": 0.15, "scale": 0.08, "position": "bottom-right"},
-        "moderate": {"opacity": 0.30, "scale": 0.12, "position": "bottom-right"},
-        "prominent": {"opacity": 0.50, "scale": 0.15, "position": "top-right"},
+        "subtle": {"opacity": 0.35, "scale": 0.08, "position": "bottom-right"},  # Increased from 0.15 to 0.35
+        "moderate": {"opacity": 0.50, "scale": 0.12, "position": "bottom-right"},  # Increased from 0.30 to 0.50
+        "prominent": {"opacity": 0.70, "scale": 0.15, "position": "top-right"},  # Increased from 0.50 to 0.70
     }
     
     config = style_config.get(style, style_config["subtle"])
@@ -385,8 +428,19 @@ if __name__ == "__main__":
     # Create simple video (10 frames)
     width, height = 640, 480
     fps = 30
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(test_video, fourcc, fps, (width, height))
+    
+    # Try H.264 codec first, fall back to mp4v
+    fourcc = None
+    out = None
+    for codec in ['avc1', 'H264', 'X264', 'mp4v']:
+        try:
+            fourcc = cv2.VideoWriter_fourcc(*codec)
+            out = cv2.VideoWriter(test_video, fourcc, fps, (width, height))
+            if out.isOpened():
+                print(f"   Using codec: {codec}")
+                break
+        except:
+            continue
     
     for i in range(10):
         # Create gradient frame
@@ -405,7 +459,7 @@ if __name__ == "__main__":
     result1 = watermarker.add_corner_watermark(
         test_video,
         position="bottom-right",
-        opacity=0.15,
+        opacity=0.35,  # Updated to match "subtle" preset
         scale=0.08,
         build_id="build_20251106_001"
     )

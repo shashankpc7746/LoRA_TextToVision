@@ -1,0 +1,20 @@
+{
+  "title": "Neon Data Vortex \u2013 Cinematic Visual Sequence",
+  "level": "Advanced",
+  "style": "realistic",
+  "text": "A massive vortex of glowing data streams swirls in deep space. Neon-magenta and electric-blue streams crash violently together. A brilliant white-gold fractal energy emerges, moving against the flow. The golden entity ANANT accelerates forward with powerful rhythmic motion.",
+  "subject": "Text-to-Video Generation",
+  "topic": "Neon Data Vortex \u2013 Cinematic Visual Sequence",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 16,
+    "steps": 38,
+    "clips_count": 4,
+    "total_duration": 8.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "REALISTIC-SPECIFIC: Enhanced photorealistic with dynamic movement and full body framing"
+  },
+  "timestamp": "2025-11-06T15:28:29.295064",
+  "lesson_id": "3732d371"
+}

@@ -1256,23 +1256,35 @@ if clips:
     audio_path = None
     if lesson_data and lesson_data.get('text'):
         try:
-            from simple_audio_integration import add_simple_audio
+            # NOTE: simple_audio_integration module removed - audio is now handled by unified_video_generator
+            # from simple_audio_integration import add_simple_audio
 
-            # Generate audio path
+            # Audio integration is handled by unified_video_generator.py
+            print("   ℹ️ Audio integration is handled by unified_video_generator.py")
+            print("   ℹ️ Skipping duplicate audio processing...")
+            
+            # Generate audio path (for reference only)
             audio_output_path = os.path.join(base_output_dir, "final_video_WITH_AUDIO.mp4")
 
             print(f"   🎵 Generating TTS audio for lesson...")
 
-            # Add simple audio to video
-            audio_path = add_simple_audio(final_path, lesson_data, audio_output_path)
+            # NOTE: Audio integration moved to unified_video_generator.py
+            # This code path is no longer used
+            print(f"   ℹ️ Skipping - audio is integrated in unified_video_generator.py")
+            audio_path = final_path  # Use original path
+            
+            # Old code (disabled):
+            # audio_path = add_simple_audio(final_path, lesson_data, audio_output_path)
 
-            if audio_path != final_path:
-                print(f"   ✅ Audio added successfully: {os.path.basename(audio_path)}")
-            else:
-                print(f"   ⚠️ Audio generation failed, using original video")
+            if False:  # Disabled
+                if audio_path != final_path:
+                    print(f"   ✅ Audio added successfully: {os.path.basename(audio_path)}")
+                else:
+                    print(f"   ⚠️ Audio generation failed, using original video")
 
         except Exception as e:
             print(f"   ⚠️ Audio generation error: {e}")
+            audio_path = final_path
 
     # Use audio version if available, otherwise original
     if audio_path and os.path.exists(audio_path) and audio_path != final_path:

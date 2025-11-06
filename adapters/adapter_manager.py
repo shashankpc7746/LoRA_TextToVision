@@ -65,6 +65,89 @@ class AdapterManager:
 
     def load_gurukul_adapter(self) -> GurukulLoRA:
         """Load or create Gurukul LoRA adapter"""
+        # =================================================================
+        # TASK 10: Verify Adapter Signature Before Loading
+        # =================================================================
+        print("\n🔒 Verifying adapter signature...")
+        
+        try:
+            import sys
+            import os
+            from pathlib import Path
+            
+            # Add parent directory to path for security imports
+            sys.path.insert(0, str(Path(__file__).parent.parent))
+            from security.artifact_signer import ArtifactSigner
+            
+            # Path to gurukul_lora checkpoint
+            adapter_path = Path("adapters/gurukul_lora")
+            checkpoint_paths = list(adapter_path.glob("*.pt")) + list(adapter_path.glob("*.safetensors"))
+            
+            if checkpoint_paths:
+                checkpoint_file = checkpoint_paths[0]  # Use first found checkpoint
+                signature_file = Path(str(checkpoint_file) + '.sig')
+                
+                # Check if signature exists
+                if signature_file.exists():
+                    print(f"   📝 Found checkpoint: {checkpoint_file.name}")
+                    print(f"   🔏 Found signature: {signature_file.name}")
+                    
+                    # Get public key for verification
+                    public_key_path = os.getenv('ARTIFACT_PUBLIC_KEY_PATH', 'security/keys/signing_key.pub')
+                    
+                    if Path(public_key_path).exists():
+                        # Verify signature
+                        signer = ArtifactSigner(public_key_path)
+                        is_valid = signer.verify_signature(str(checkpoint_file))
+                        
+                        if is_valid:
+                            print(f"   ✅ Signature verified successfully")
+                        else:
+                            print(f"   ❌ SIGNATURE VERIFICATION FAILED")
+                            print(f"   🚨 Unsigned or tampered model detected!")
+                            
+                            # Check if in production mode (via environment)
+                            runtime_mode = os.getenv('RUNTIME_MODE', 'production')
+                            
+                            if runtime_mode == 'production':
+                                raise ValueError(
+                                    "SECURITY VIOLATION: Cannot load unsigned model in production mode. "
+                                    "Sign the model using: python -m security.artifact_signer sign adapters/gurukul_lora/*.pt"
+                                )
+                            else:
+                                print(f"   ⚠️  WARNING: Loading unsigned model in development mode")
+                                print(f"   📝 Sign the model before production deployment")
+                    else:
+                        print(f"   ⚠️  Public key not found at: {public_key_path}")
+                        print(f"   📝 Skipping signature verification")
+                else:
+                    print(f"   ⚠️  No signature file found for: {checkpoint_file.name}")
+                    print(f"   📝 Expected: {signature_file.name}")
+                    print(f"   💡 Sign using: python tools/sign_artifact.py {checkpoint_file}")
+                    
+                    # In production, this should fail
+                    runtime_mode = os.getenv('RUNTIME_MODE', 'development')
+                    if runtime_mode == 'production':
+                        raise ValueError(
+                            "SECURITY VIOLATION: Cannot load unsigned model in production mode. "
+                            f"Sign the model using: python tools/sign_artifact.py {checkpoint_file}"
+                        )
+            else:
+                print(f"   ℹ️  No checkpoint files found in {adapter_path}")
+        
+        except ImportError as e:
+            print(f"   ⚠️  Security module not available: {e}")
+            print(f"   📝 Loading adapter without verification (development mode)")
+        except Exception as e:
+            print(f"   ⚠️  Signature verification error: {e}")
+            # Don't fail the load, just warn
+            print(f"   📝 Continuing with adapter load...")
+        
+        print("="*70 + "\n")
+        # =================================================================
+        # END: Signature Verification
+        # =================================================================
+        
         gurukul_lora = GurukulLoRA()
 
         if not gurukul_lora.is_trained():

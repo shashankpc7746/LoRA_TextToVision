@@ -460,6 +460,92 @@ api_manager = AdaptiveAPIManager()
 # FastAPI app for adaptive endpoints
 adaptive_app = FastAPI(title="Adaptive Video Generation API", version="2.0.0")
 
+# =================================================================
+# TASK 10: Runtime Key Validation at Startup
+# =================================================================
+# Global variable to track runtime mode
+RESTRICTED_DEMO_MODE = False
+RUNTIME_KEY_STATUS = "unknown"
+
+@adaptive_app.on_event("startup")
+async def startup_security_validation():
+    """
+    Validate runtime key at startup - Task 10 Security Requirement
+    If key missing or invalid, start in RESTRICTED DEMO MODE
+    """
+    global RESTRICTED_DEMO_MODE, RUNTIME_KEY_STATUS
+    
+    print("\n" + "="*70)
+    print("🔒 TASK 10: Runtime Key Validation")
+    print("="*70)
+    
+    try:
+        # Import security module
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from security.runtime_validator import RuntimeKeyValidator
+        
+        # Get runtime key from environment
+        runtime_key = os.getenv('RUNTIME_KEY')
+        worker_id = os.getenv('WORKER_ID', 'adaptive-api-worker')
+        
+        if not runtime_key:
+            print("⚠️  WARNING: No RUNTIME_KEY found in environment")
+            print("🚧 Starting in RESTRICTED DEMO MODE")
+            print("   - Limited quality (480p max)")
+            print("   - Demo watermarks applied")
+            print("   - No production features")
+            RESTRICTED_DEMO_MODE = True
+            RUNTIME_KEY_STATUS = "missing"
+            return
+        
+        # Get Core public key for validation
+        public_key_path = os.getenv('CORE_PUBLIC_KEY_PATH', 'security/keys/signing_key.pub')
+        
+        if not os.path.exists(public_key_path):
+            print(f"⚠️  WARNING: Core public key not found at {public_key_path}")
+            print("🚧 Starting in RESTRICTED DEMO MODE (cannot verify key)")
+            RESTRICTED_DEMO_MODE = True
+            RUNTIME_KEY_STATUS = "no_public_key"
+            return
+        
+        # Validate runtime key
+        with open(public_key_path, 'r') as f:
+            public_key_pem = f.read()
+        
+        validator = RuntimeKeyValidator(public_key_pem)
+        is_valid, message = validator.validate_runtime_key(runtime_key, worker_id=worker_id)
+        
+        if is_valid:
+            print("✅ Runtime key validated successfully")
+            print(f"   Worker ID: {worker_id}")
+            print("🚀 Starting in PRODUCTION MODE")
+            print("   - Full quality available")
+            print("   - All features enabled")
+            RESTRICTED_DEMO_MODE = False
+            RUNTIME_KEY_STATUS = "valid"
+        else:
+            print(f"❌ Runtime key validation FAILED: {message}")
+            print("🚧 Starting in RESTRICTED DEMO MODE")
+            RESTRICTED_DEMO_MODE = True
+            RUNTIME_KEY_STATUS = f"invalid: {message}"
+    
+    except Exception as e:
+        print(f"❌ Runtime key validation error: {e}")
+        print("🚧 Starting in RESTRICTED DEMO MODE (validation failed)")
+        RESTRICTED_DEMO_MODE = True
+        RUNTIME_KEY_STATUS = f"error: {str(e)}"
+        import traceback
+        traceback.print_exc()
+    
+    finally:
+        print("="*70)
+        print(f"Mode: {'RESTRICTED DEMO' if RESTRICTED_DEMO_MODE else 'PRODUCTION'}")
+        print("="*70 + "\n")
+# =================================================================
+# END: Runtime Key Validation
+# =================================================================
+
 
 @adaptive_app.post("/ttv/generate", response_model=AdaptiveVideoResponse)
 async def generate_adaptive_video(
@@ -511,6 +597,27 @@ async def get_system_capabilities():
         "device_capabilities": device_caps,
         "tier_status": tier_status,
         "available_quality_presets": budget_planner.get_available_presets(),
+        "runtime_mode": "RESTRICTED_DEMO" if RESTRICTED_DEMO_MODE else "PRODUCTION",
+        "runtime_key_status": RUNTIME_KEY_STATUS,
+        "timestamp": int(time.time())
+    }
+
+
+@adaptive_app.get("/ttv/security/status")
+async def get_security_status():
+    """
+    Task 10: Get security status and runtime mode
+    """
+    return {
+        "mode": "RESTRICTED_DEMO" if RESTRICTED_DEMO_MODE else "PRODUCTION",
+        "restricted_demo_mode": RESTRICTED_DEMO_MODE,
+        "runtime_key_status": RUNTIME_KEY_STATUS,
+        "capabilities": {
+            "max_quality": "480p" if RESTRICTED_DEMO_MODE else "1080p",
+            "watermarks": "DEMO overlay" if RESTRICTED_DEMO_MODE else "subtle invisible + visible logo",
+            "production_features": not RESTRICTED_DEMO_MODE,
+            "full_tier_access": not RESTRICTED_DEMO_MODE
+        },
         "timestamp": int(time.time())
     }
 
