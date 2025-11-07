@@ -2,6 +2,20 @@
 
 **Enterprise-Grade Text-to-Video Generation System**
 
+## 🎯 About Gurukul Project
+
+**IMPORTANT**: "Gurukul" is the **project name**, not a thematic constraint.
+
+**What Gurukul Does:**
+- **General-purpose educational video generation platform**
+- Users can learn **ANY concept** (physics, programming, history, art, sports, cooking, etc.)
+- User searches for a topic → Text content generated → JSON prompt file created → Video generated
+- **No style limitations** - the system must handle diverse educational content
+
+**Key Point**: The name "Gurukul" is just a brand name (like "YouTube" or "Khan Academy"), not a visual theme. Our model generates videos for **any subject matter**, not just traditional/ancient Indian educational themes.
+
+---
+
 ## 📋 System Overview
 
 LoRA_TextToVision is a complete AI-powered video generation pipeline that transforms text prompts into high-quality videos through:

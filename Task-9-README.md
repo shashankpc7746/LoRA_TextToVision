@@ -1,5 +1,30 @@
 # Task-9: TTV-Studio Quality Harden - Indigenous Image Adapter & Studio Pipeline
 
+## 🎯 Project Context: What is Gurukul?
+
+**IMPORTANT CLARIFICATION**: "Gurukul" is the **name of the project**, NOT a visual theme or style constraint.
+
+**What Gurukul Actually Does:**
+- **Gurukul is a general-purpose educational video generation platform**
+- When a user wants to learn ANY concept (physics, programming, history, cooking, etc.), they search on Gurukul
+- Text content is generated based on their query
+- Our model fetches this content and creates a JSON file (prompt structure)
+- This JSON is used to generate educational videos
+- **The user is free to learn ANY concept** - there are no thematic limitations
+
+**What This Means for Video Generation:**
+- ❌ **NOT**: Limited to ancient Indian Gurukul aesthetic, sages, traditional themes
+- ✅ **CORRECT**: Must handle ANY educational content - modern science, technology, arts, sports, etc.
+- ✅ The model must be **versatile and general-purpose**, not style-locked
+- ✅ "Gurukul" is just the project name (like "YouTube" or "Coursera"), not a content theme
+
+**Training Implications:**
+- Training dataset should be **diverse** across subjects and styles
+- LoRA adapter should learn **high-quality educational video generation**, not specific cultural aesthetics
+- Focus on **clarity, consistency, and educational effectiveness** rather than a specific visual theme
+
+---
+
 ## 📋 Task Overview
 
 **Objective**: Transform TTV service into a fully indigenous, production-hardened video generation studio with native text-to-image capabilities, advanced quality controls, temporal consistency, and complete enterprise compliance.

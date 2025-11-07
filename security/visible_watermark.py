@@ -47,14 +47,14 @@ class VisibleWatermarker:
         self,
         video_path: str,
         output_path: Optional[str] = None,
-        position: Literal["top-right", "top-left", "bottom-right", "bottom-left"] = "bottom-right",
+        position: Literal["top-right", "top-left", "bottom-right", "bottom-left", "center"] = "bottom-right",
         opacity: float = 0.5,
         scale: float = 0.1,
         text: Optional[str] = None,
         build_id: Optional[str] = None
     ) -> str:
         """
-        Add logo watermark to video corner using OpenCV
+        Add logo watermark to video corner or center using OpenCV
         
         Args:
             video_path: Input video path
@@ -136,7 +136,8 @@ class VisibleWatermarker:
             "top-right": (width - logo_width - padding, padding),
             "top-left": (padding, padding),
             "bottom-right": (width - logo_width - padding, height - logo_height - padding),
-            "bottom-left": (padding, height - logo_height - padding)
+            "bottom-left": (padding, height - logo_height - padding),
+            "center": ((width - logo_width) // 2, (height - logo_height) // 2)
         }
         x, y = positions_map[position]
         
@@ -396,9 +397,9 @@ def add_visible_watermark(
     
     # Style presets
     style_config = {
-        "subtle": {"opacity": 0.35, "scale": 0.08, "position": "bottom-right"},  # Increased from 0.15 to 0.35
-        "moderate": {"opacity": 0.50, "scale": 0.12, "position": "bottom-right"},  # Increased from 0.30 to 0.50
-        "prominent": {"opacity": 0.70, "scale": 0.15, "position": "top-right"},  # Increased from 0.50 to 0.70
+        "subtle": {"opacity": 0.30, "scale": 0.12, "position": "center"},  # Centered watermark
+        "moderate": {"opacity": 0.50, "scale": 0.12, "position": "center"},  # Centered watermark
+        "prominent": {"opacity": 0.70, "scale": 0.15, "position": "center"},  # Centered watermark
     }
     
     config = style_config.get(style, style_config["subtle"])
