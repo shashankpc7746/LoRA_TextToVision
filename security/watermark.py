@@ -127,7 +127,7 @@ class VideoWatermarker:
         
         Args:
             video_path: Path to input video
-            metadata: Metadata to embed
+            metadata: Metadata to embed (should include: title, copyright, author, comment, description)
             output_path: Path for watermarked video
         
         Returns:
@@ -137,24 +137,39 @@ class VideoWatermarker:
             video_path_obj = Path(video_path)
             output_path = str(video_path_obj.parent / f"{video_path_obj.stem}_meta{video_path_obj.suffix}")
         
-        # Create metadata JSON
+        # Create metadata JSON for custom tag
         metadata_json = json.dumps(metadata)
         metadata_b64 = base64.b64encode(metadata_json.encode()).decode()
         
         # Use ffmpeg to embed metadata
-        # ffmpeg -i input.mp4 -metadata BHIV_WATERMARK="base64_data" output.mp4
         import subprocess
         
         try:
+            # Build ffmpeg command with individual metadata tags
             cmd = [
                 'ffmpeg',
                 '-i', video_path,
-                '-metadata', f'BHIV_WATERMARK={metadata_b64}',
-                '-metadata', f'BUILD_ID={self.build_id}',
-                '-c', 'copy',  # Copy codec (fast)
-                '-y',  # Overwrite output
-                output_path
+                '-metadata', f'BHIV_WATERMARK={metadata_b64}',  # Custom encoded tag
+                '-metadata', f'BUILD_ID={self.build_id}',        # BUILD_ID tag
             ]
+            
+            # Add individual metadata tags for easy verification
+            if 'title' in metadata:
+                cmd.extend(['-metadata', f'title={metadata["title"]}'])
+            if 'copyright' in metadata:
+                cmd.extend(['-metadata', f'copyright={metadata["copyright"]}'])
+            if 'author' in metadata:
+                cmd.extend(['-metadata', f'author={metadata["author"]}'])
+            if 'comment' in metadata:
+                cmd.extend(['-metadata', f'comment={metadata["comment"]}'])
+            if 'description' in metadata:
+                cmd.extend(['-metadata', f'description={metadata["description"]}'])
+            
+            cmd.extend([
+                '-c', 'copy',  # Copy codec (fast, no re-encoding)
+                '-y',          # Overwrite output
+                output_path
+            ])
             
             result = subprocess.run(cmd, capture_output=True, text=True)
             
@@ -162,7 +177,7 @@ class VideoWatermarker:
                 print(f"✅ Metadata watermark embedded")
                 return output_path
             else:
-                print(f"⚠️  ffmpeg failed: {result.stderr}")
+                print(f"⚠️  ffmpeg failed: {result.stderr[:200]}")
                 # Fallback: copy file
                 import shutil
                 shutil.copy2(video_path, output_path)
@@ -340,9 +355,20 @@ class ContentFingerprinter:
 # Convenience functions
 def embed_watermark(video_path: str, build_id: Optional[str] = None,
                    output_path: Optional[str] = None) -> str:
-    """Embed watermark in video"""
+    """Embed watermark in video using FFmpeg metadata"""
     watermarker = VideoWatermarker(build_id)
-    return watermarker.embed_lsb_watermark(video_path, output_path, build_id)
+    
+    # Prepare metadata to embed
+    metadata = {
+        'title': 'BHIV Secured Content',
+        'copyright': 'BlackHole Infiverse (c) 2024',
+        'author': 'BHIV TTV Studio',
+        'comment': f'BUILD_ID: {build_id or watermarker.build_id}',
+        'description': 'BHIV Security: Artifact signed, watermarked, fingerprinted'
+    }
+    
+    # Use FFmpeg metadata embedding (not LSB which just copies)
+    return watermarker.embed_metadata_watermark(video_path, metadata, output_path)
 
 
 def detect_watermark(video_path: str) -> Optional[Dict[str, Any]]:
