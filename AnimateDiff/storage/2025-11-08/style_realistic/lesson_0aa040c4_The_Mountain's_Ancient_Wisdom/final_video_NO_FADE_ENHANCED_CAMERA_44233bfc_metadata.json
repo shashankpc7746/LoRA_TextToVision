@@ -1,0 +1,20 @@
+{
+  "title": "The Mountain's Ancient Wisdom",
+  "level": "Intermediate",
+  "style": "realistic",
+  "text": "High in the mountains a wise sage sits in peaceful meditation. The mountain winds carry ancient wisdom through the valleys. She learns that patience is like the mountain eternal and strong. The peaks teach her that true wisdom comes from stillness. She opens her eyes with understanding as vast as the mountain range.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Mountain's Ancient Wisdom",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 16,
+    "steps": 38,
+    "clips_count": 5,
+    "total_duration": 10.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "REALISTIC-SPECIFIC: Enhanced photorealistic with dynamic movement and full body framing"
+  },
+  "timestamp": "2025-11-08T13:13:03.344400",
+  "lesson_id": "0aa040c4"
+}
