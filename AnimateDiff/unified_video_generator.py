@@ -609,12 +609,15 @@ $synth.Dispose()
                         # 1. Take video from watermarked file (no audio)
                         # 2. Take audio from original storage file (with audio)
                         # 3. Combine them with H.264 encoding
+                        # 4. CRITICAL: Copy metadata from watermarked_invisible (has FFmpeg tags)
                         ffmpeg_cmd = [
                             'ffmpeg', '-y',
                             '-i', watermarked_final,  # Video input (watermarked, no audio)
                             '-i', storage_path,        # Audio input (original with audio)
+                            '-i', watermarked_invisible,  # Metadata source (has watermark tags)
                             '-map', '0:v:0',          # Take video from first input
                             '-map', '1:a:0?',         # Take audio from second input (? = optional)
+                            '-map_metadata', '2',     # Copy metadata from third input (watermarked_invisible)
                             '-c:v', 'libx264',        # H.264 video codec
                             '-c:a', 'aac',            # AAC audio codec
                             '-b:a', '192k',           # Audio bitrate
