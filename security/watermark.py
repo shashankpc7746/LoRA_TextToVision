@@ -166,8 +166,10 @@ class VideoWatermarker:
                 cmd.extend(['-metadata', f'description={metadata["description"]}'])
             
             cmd.extend([
-                '-c', 'copy',  # Copy codec (fast, no re-encoding)
-                '-y',          # Overwrite output
+                '-c:v', 'copy',     # Copy video (no re-encoding)
+                '-c:a', 'copy',     # Copy audio (no re-encoding)
+                '-movflags', '+use_metadata_tags',  # CRITICAL: Force custom metadata tags
+                '-y',               # Overwrite output
                 output_path
             ])
             
