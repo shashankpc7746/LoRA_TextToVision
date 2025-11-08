@@ -643,7 +643,7 @@ $synth.Dispose()
                             '-preset', 'medium',      # Balance speed/quality
                             '-crf', '23',             # Quality (lower = better, 23 is good)
                             '-pix_fmt', 'yuv420p',    # Compatibility
-                            '-movflags', '+faststart', # Web streaming optimization
+                            '-movflags', '+faststart+use_metadata_tags',  # Preserve custom metadata during H.264 encoding
                             '-shortest',              # Match shortest stream duration
                             h264_output
                         ])
