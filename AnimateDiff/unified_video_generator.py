@@ -605,19 +605,38 @@ $synth.Dispose()
                     
                     import subprocess
                     try:
+                        # First, extract metadata tags from watermarked_invisible
+                        print(f"   📋 Extracting watermark metadata...")
+                        metadata_cmd = ['ffprobe', '-v', 'quiet', '-print_format', 'json', '-show_format', watermarked_invisible]
+                        metadata_result = subprocess.run(metadata_cmd, capture_output=True, text=True)
+                        
+                        watermark_tags = {}
+                        if metadata_result.returncode == 0:
+                            import json as json_module
+                            metadata_json = json_module.loads(metadata_result.stdout)
+                            if 'format' in metadata_json and 'tags' in metadata_json['format']:
+                                watermark_tags = metadata_json['format']['tags']
+                                print(f"   ✅ Found {len(watermark_tags)} metadata tags")
+                        
                         # Use FFmpeg to:
                         # 1. Take video from watermarked file (no audio)
                         # 2. Take audio from original storage file (with audio)
-                        # 3. Combine them with H.264 encoding
-                        # 4. CRITICAL: Copy metadata from watermarked_invisible (has FFmpeg tags)
+                        # 3. Add ALL watermark metadata tags manually (FFmpeg -map_metadata is unreliable)
                         ffmpeg_cmd = [
                             'ffmpeg', '-y',
                             '-i', watermarked_final,  # Video input (watermarked, no audio)
                             '-i', storage_path,        # Audio input (original with audio)
-                            '-i', watermarked_invisible,  # Metadata source (has watermark tags)
                             '-map', '0:v:0',          # Take video from first input
                             '-map', '1:a:0?',         # Take audio from second input (? = optional)
-                            '-map_metadata', '2',     # Copy metadata from third input (watermarked_invisible)
+                        ]
+                        
+                        # Add each watermark tag explicitly (more reliable than -map_metadata)
+                        for key, value in watermark_tags.items():
+                            # Skip encoder tags (will be overwritten anyway)
+                            if key.lower() not in ['encoder', 'major_brand', 'minor_version', 'compatible_brands']:
+                                ffmpeg_cmd.extend(['-metadata', f'{key}={value}'])
+                        
+                        ffmpeg_cmd.extend([
                             '-c:v', 'libx264',        # H.264 video codec
                             '-c:a', 'aac',            # AAC audio codec
                             '-b:a', '192k',           # Audio bitrate
@@ -627,7 +646,9 @@ $synth.Dispose()
                             '-movflags', '+faststart', # Web streaming optimization
                             '-shortest',              # Match shortest stream duration
                             h264_output
-                        ]
+                        ])
+                        
+                        print(f"   🔄 Re-encoding with {len([x for x in ffmpeg_cmd if x == '-metadata'])} metadata tags...")
                         
                         result = subprocess.run(
                             ffmpeg_cmd,
