@@ -5,42 +5,42 @@
   "micro_expressions": {
     "blinks": [
       {
-        "frame": 22,
+        "frame": 58,
         "action": "BLINK",
         "duration": 4
       },
       {
-        "frame": 127,
+        "frame": 138,
         "action": "BLINK",
         "duration": 4
       },
       {
-        "frame": 250,
+        "frame": 215,
         "action": "BLINK",
         "duration": 4
       },
       {
-        "frame": 322,
+        "frame": 313,
         "action": "BLINK",
         "duration": 4
       },
       {
-        "frame": 414,
+        "frame": 419,
         "action": "BLINK",
         "duration": 4
       },
       {
-        "frame": 514,
+        "frame": 497,
         "action": "BLINK",
         "duration": 4
       },
       {
-        "frame": 562,
+        "frame": 596,
         "action": "BLINK",
         "duration": 4
       },
       {
-        "frame": 693,
+        "frame": 650,
         "action": "BLINK",
         "duration": 4
       }
@@ -61,17 +61,17 @@
   "camera_movements": [
     {
       "frame": 0,
-      "action": "zoom_out",
-      "duration": 60
-    },
-    {
-      "frame": 60,
       "action": "static",
       "duration": 60
     },
     {
+      "frame": 60,
+      "action": "zoom_out",
+      "duration": 60
+    },
+    {
       "frame": 120,
-      "action": "pan_left",
+      "action": "static",
       "duration": 60
     },
     {
@@ -81,37 +81,37 @@
     },
     {
       "frame": 240,
-      "action": "pan_right",
+      "action": "static",
       "duration": 60
     },
     {
       "frame": 300,
-      "action": "zoom_in",
+      "action": "pan_left",
       "duration": 60
     },
     {
       "frame": 360,
-      "action": "pan_right",
-      "duration": 60
-    },
-    {
-      "frame": 420,
-      "action": "pan_right",
-      "duration": 60
-    },
-    {
-      "frame": 480,
-      "action": "pan_right",
-      "duration": 60
-    },
-    {
-      "frame": 540,
       "action": "zoom_out",
       "duration": 60
     },
     {
-      "frame": 600,
+      "frame": 420,
+      "action": "static",
+      "duration": 60
+    },
+    {
+      "frame": 480,
+      "action": "static",
+      "duration": 60
+    },
+    {
+      "frame": 540,
       "action": "zoom_in",
+      "duration": 60
+    },
+    {
+      "frame": 600,
+      "action": "static",
       "duration": 60
     },
     {
@@ -124,32 +124,32 @@
     {
       "frame": 0,
       "pose": "three_quarter",
-      "conditioning_strength": 0.7334120147253202
+      "conditioning_strength": 0.7583850036008621
     },
     {
       "frame": 120,
-      "pose": "frontal",
-      "conditioning_strength": 0.8593281905185868
+      "pose": "profile",
+      "conditioning_strength": 0.9758328818937569
     },
     {
       "frame": 240,
-      "pose": "three_quarter",
-      "conditioning_strength": 0.9151228209606392
+      "pose": "frontal",
+      "conditioning_strength": 0.7443213626532824
     },
     {
       "frame": 360,
-      "pose": "three_quarter",
-      "conditioning_strength": 0.8642686248879913
+      "pose": "closeup",
+      "conditioning_strength": 0.7916800328354643
     },
     {
       "frame": 480,
       "pose": "profile",
-      "conditioning_strength": 0.9307203679092144
+      "conditioning_strength": 0.7648631106271239
     },
     {
       "frame": 600,
-      "pose": "closeup",
-      "conditioning_strength": 0.7702886678296538
+      "pose": "frontal",
+      "conditioning_strength": 0.8345777463049475
     }
   ]
 }
