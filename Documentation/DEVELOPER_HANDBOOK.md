@@ -731,15 +731,55 @@ result = await generate_video(prompt, resolution=384)  # Instead of 512
 
 **Symptoms**: `detect_provenance.py` shows "❌ No watermark detected"
 
-**Root Cause**: FFmpeg metadata stripped during re-encoding
+**Root Cause**: FFmpeg metadata stripped during video re-encoding (5 bugs discovered Nov 8, 2025)
+
+**Common Causes**:
+1. Missing `-movflags +use_metadata_tags` in FFmpeg commands
+2. Using `-c copy` without metadata flags
+3. `-map_metadata` only copies standard tags, not custom MP4 tags
+4. Multi-stage pipelines stripping metadata at each re-encoding step
+5. H.264/H.265 encoding without explicit metadata flags
 
 **Solution**:
 ```bash
-# Always use -movflags +use_metadata_tags
-ffmpeg -i input.mp4 -c:v libx264 -movflags +faststart+use_metadata_tags output.mp4
+# ❌ WRONG - Strips custom metadata tags:
+ffmpeg -i input.mp4 -c copy output.mp4
+ffmpeg -i input.mp4 -c:v libx264 -c:a aac output.mp4
+
+# ✅ CORRECT - Preserves custom metadata:
+ffmpeg -i input.mp4 -c copy -movflags +use_metadata_tags output.mp4
+ffmpeg -i input.mp4 -c:v libx264 -c:a aac -movflags +faststart+use_metadata_tags output.mp4
+
+# ✅ For multi-stage pipelines (audio restoration):
+ffmpeg -i temp.mp4 -i audio.wav -c:v copy -c:a aac \
+  -map 0:v -map 1:a -map_metadata 0 \
+  -metadata lora_adapter="indigenous_v1.0" \
+  -metadata watermark_version="1.0" \
+  -movflags +use_metadata_tags \
+  output.mp4
 ```
 
-See `Documentation/Tasks/Task-10-README.md` lines 1180-1470 for 5 watermark bugs and fixes.
+**Verification**:
+```bash
+# Check if watermark is present
+ffprobe -v quiet -print_format json -show_format output.mp4 | grep -A5 tags
+
+# Should see:
+# "tags": {
+#   "lora_adapter": "indigenous_v1.0",
+#   "watermark_version": "1.0",
+#   ...
+# }
+```
+
+**Critical Lessons**:
+- **ALWAYS** use `-movflags +use_metadata_tags` when writing MP4 files with custom tags
+- Apply metadata flags at **EVERY** re-encoding step in multi-stage pipelines
+- `-map_metadata` alone is insufficient for custom tags
+- Test with `ffprobe` after each pipeline stage
+
+**Full Bug Details**: See `Documentation/ERRORS_AND_BUGS_LOG.md` - Task 10 section  
+**Timeline**: 4-hour debugging session, 5 cascading bugs, 5 commits (Nov 8, 2025)
 
 #### 3. Poor Lip-sync Quality
 

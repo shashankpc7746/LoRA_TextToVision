@@ -40,7 +40,7 @@ Enterprise-grade video generation platform that combines:
 ✅ **VMAF ≥0.87** average quality score  
 ✅ **145s average latency** (2.4 minutes per video)  
 ✅ **$0.08 cost per video** with cloud fallback  
-✅ **100% watermark detection** with dual-layer security  
+✅ **100% watermark detection** with dual-layer security (5 FFmpeg bugs fixed Nov 8)  
 ✅ **81% test coverage** with comprehensive validation  
 
 ---
@@ -87,12 +87,7 @@ print(f"Video generated: {result['final_result']['output_path']}")
 ```bash
 # Generate video from lesson file
 cd AnimateDiff
-python unified_video_generator.py lesson_space_adventure.json realistic 1
-
-# Output: storage/2025-11-12/Space_Adventure_realistic_complete.mp4
-```
-
----
+python .\generate_lesson_video_safe.py lesson_comprehensive_3.json realistic 1                                                                                 
 
 ## 🏗️ Architecture Overview
 
@@ -168,6 +163,8 @@ LoRA_TextToVision/
 
 ### Watermarking & Provenance
 
+**Status**: ✅ 100% detection achieved (after fixing 5 FFmpeg metadata bugs - Nov 8, 2025)
+
 ```python
 from security import embed_watermark, compute_fingerprint
 from tools.detect_provenance import detect_watermark
@@ -182,6 +179,20 @@ fingerprint = compute_fingerprint(watermarked)
 result = detect_watermark(watermarked)
 print(result['build_id'])  # build_20251112_123456
 ```
+
+### Critical Bugs Fixed (Nov 8, 2025)
+
+During production testing, user verification revealed 100% watermark detection failure. Fixed 5 cascading FFmpeg bugs:
+
+1. ❌ **Bug #1**: LSB watermarking just copying files → ✅ Switched to FFmpeg metadata
+2. ❌ **Bug #2**: Audio restoration stripping metadata → ✅ Added `-map_metadata`  
+3. ❌ **Bug #3**: `-map_metadata` ignoring custom tags → ✅ Added explicit `-metadata` flags
+4. ❌ **Bug #4**: `-c copy` stripping MP4 metadata → ✅ Added `-movflags +use_metadata_tags`
+5. ❌ **Bug #5**: H.264 encoding stripping tags → ✅ Applied `+use_metadata_tags` at ALL steps
+
+**Result**: 0% → 100% watermark detection  
+**Duration**: 4-hour debugging session (9:15 AM - 1:16 PM)  
+**Full Details**: `Documentation/ERRORS_AND_BUGS_LOG.md` - Task 10 section
 
 ### Detection on Other PCs
 

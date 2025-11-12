@@ -515,6 +515,71 @@ async def secure_generate(request: GenerationRequest, token: str = Depends(verif
     return await generate_video(request.prompt, **request.dict())
 ```
 
+### Watermark Detection & Verification
+
+**Status**: ✅ 100% detection (5 FFmpeg bugs fixed Nov 8, 2025)
+
+```bash
+# Verify watermark on ANY PC (no dependencies)
+python tools/detect_provenance.py "video.mp4"
+
+# Output:
+# ✅ Watermark detected!
+#    Build ID: build_20251112_123456
+# ✅ VERIFIED - File has valid provenance
+```
+
+**Troubleshooting Watermark Detection**:
+
+If watermark not detected, check FFmpeg metadata preservation:
+
+```bash
+# Verify metadata is present
+ffprobe -v quiet -print_format json -show_format "video.mp4"
+
+# Look for these tags:
+# - BHIV_WATERMARK
+# - BUILD_ID  
+# - lora_adapter
+# - watermark_version
+```
+
+**Common Issues**:
+
+| Issue | Symptom | Solution |
+|-------|---------|----------|
+| **Metadata stripped** | No watermark tags in ffprobe | Re-encode with `-movflags +use_metadata_tags` |
+| **Stream copy failed** | Tags present but detection fails | Use `-c copy -movflags +use_metadata_tags` |
+| **Multi-stage pipeline** | Works initially, fails after audio/upscale | Apply metadata flags at EVERY re-encoding step |
+
+**FFmpeg Best Practices** (Critical for watermark preservation):
+
+```bash
+# ❌ WRONG - Strips custom metadata:
+ffmpeg -i input.mp4 -c copy output.mp4
+
+# ✅ CORRECT - Preserves custom metadata:
+ffmpeg -i input.mp4 -c copy -movflags +use_metadata_tags output.mp4
+
+# ✅ For multi-stage pipelines (audio restoration):
+ffmpeg -i temp.mp4 -i audio.wav \
+  -c:v copy -c:a aac \
+  -map 0:v -map 1:a -map_metadata 0 \
+  -metadata lora_adapter="indigenous_v1.0" \
+  -metadata BUILD_ID="build_20251112_123456" \
+  -movflags +faststart+use_metadata_tags \
+  output.mp4
+```
+
+**Key Lessons from Nov 8 Debugging**:
+- `-c copy` alone DOES NOT preserve custom MP4 tags
+- `-map_metadata` only copies standard MP4 tags, not custom ones
+- **MUST** use `-movflags +use_metadata_tags` at EVERY re-encoding step
+- Multi-stage pipelines require metadata flags at each stage
+- Test with `ffprobe` after each pipeline stage
+
+**Full Bug Details**: See `Documentation/ERRORS_AND_BUGS_LOG.md` - Task 10 section
+
 ### Data Privacy
 
 - All processing happens locally by default
