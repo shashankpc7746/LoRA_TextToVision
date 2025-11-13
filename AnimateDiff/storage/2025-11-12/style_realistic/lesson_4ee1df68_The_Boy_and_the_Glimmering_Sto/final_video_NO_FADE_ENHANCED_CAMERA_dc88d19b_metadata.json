@@ -1,0 +1,20 @@
+{
+  "title": "The Boy and the Glimmering Stone",
+  "level": "Simple",
+  "style": "realistic",
+  "text": "A young boy named Tom loved exploring the woods behind his house. One sunny afternoon, he followed a path he had never seen before. The path led him to a small, quiet clearing with a sparkling stream. He knelt by the water and saw something glimmering on the bottom. He reached in and pulled out a perfectly smooth, bright blue stone. It was warm to the touch and pulsed with a very soft, gentle light. Tom had never seen anything like it and put it safely in his pocket. He ran back home, excited to show his parents his magical discovery. That night, he placed the stone on his nightstand. It filled his room with a calm, blue light as he fell asleep.",
+  "subject": "Text-to-Video Generation",
+  "topic": "The Boy and the Glimmering Stone",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 16,
+    "steps": 38,
+    "clips_count": 10,
+    "total_duration": 20.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "REALISTIC-SPECIFIC: Enhanced photorealistic with dynamic movement and full body framing"
+  },
+  "timestamp": "2025-11-12T15:11:39.675788",
+  "lesson_id": "4ee1df68"
+}

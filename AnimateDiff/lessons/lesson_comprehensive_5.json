@@ -1,0 +1,83 @@
+{
+  "title": "Geometry Explained - From Ancient Shapes to Modern Tech",
+  "level": "Foundational",
+  "duration": "90-110 seconds",
+  "tts_enabled": true,
+  "scenes": [
+    {
+      "text": "Hello and welcome! You've selected 'Geometry.' Let's explore this core branch of mathematics together.",
+      "duration": 6.2
+    },
+    {
+      "text": "The word 'Geometry' literally means 'Earth-measurement.' It all started thousands of years ago when people needed to measure land and build structures.",
+      "duration": 8.5
+    },
+    {
+      "text": "At its heart, geometry is the study of shapes, sizes, positions of figures, and the properties of space.",
+      "duration": 7.0
+    },
+    {
+      "text": "We start with the simplest building blocks: a 'point' is a location, a 'line' is a straight path, and a 'plane' is a flat surface like a screen.",
+      "duration": 8.0
+    },
+    {
+      "text": "From these, we build all the shapes you know: 2D shapes like triangles, squares, and circles...",
+      "duration": 6.8
+    },
+    {
+      "text": "...and 3D shapes like cubes, spheres, and pyramids. We learn to measure their area, perimeter, and volume.",
+      "duration": 7.5
+    },
+    {
+      "text": "But you might be wondering, 'How is this used today?' The answer is: *everywhere*.",
+      "duration": 5.5
+    },
+    {
+      "text": "Architects and engineers use geometry every day to design buildings, bridges, and cars that are safe and strong.",
+      "duration": 7.8
+    },
+    {
+      "text": "Do you love video games or animated movies? That's all geometry! Artists use 3D models, angles, and coordinates to create those virtual worlds.",
+      "duration": 9.0
+    },
+    {
+      "text": "Even the GPS on your phone uses geometry. It uses a process called 'trilateration' with satellites to find your exact location on Earth.",
+      "duration": 8.8
+    },
+    {
+      "text": "So, geometry isn't just about old formulas. It's a living, essential tool for understanding and shaping our modern world.",
+      "duration": 8.0
+    },
+    {
+      "text": "In this module, we'll start with the basics of lines and angles. Let's begin your journey.",
+      "duration": 6.0
+    }
+  ],
+  "prompts": [
+    "The word 'Geometry' literally means 'Earth-measurement.' It all started thousands of years ago when people needed to measure land and build structures., animation of ancient Egyptians measuring land by the Nile, transition to Greek philosophers, 'Geo' + 'Metron' text",
+    "At its heart, geometry is the study of shapes, sizes, positions of figures, and the properties of space., clean motion graphics, various 2D and 3D shapes (triangle, cube, sphere) rotating",
+    "We start with the simplest building blocks: a 'point' is a location, a 'line' is a straight path, and a 'plane' is a flat surface like a screen., minimalist animation: a dot appears ('point'), a line draws itself ('line'), a flat plane appears ('plane')",
+    "From these, we build all the shapes you know: 2D shapes like triangles, squares, and circles..., animated diagram, points and lines connecting to form a triangle, then a square, then a circle",
+    "...and 3D shapes like cubes, spheres, and pyramids. We learn to measure their area, perimeter, and volume., animation showing a square extruding into a 'cube', a circle spinning into a 'sphere', volume formulas appearing",
+    "But you might be wondering, 'How is this used today?' The answer is: *everywhere*., engaging transition, question mark graphic, fast-paced montage of modern technology",
+    "Architects and engineers use geometry every day to design buildings, bridges, and cars that are safe and strong., digital blueprint of a skyscraper, CAD model of a suspension bridge, animated stress-test on a car design",
+    "Do you love video games or animated movies? That's all geometry! Artists use 3D models, angles, and coordinates to create those virtual worlds., split screen: 3D wireframe model of a game character and the final, rendered character in motion",
+    "Even the GPS on your phone uses geometry. It uses a process called 'trilateration' with satellites to find your exact location on Earth., animation of a globe, 3 satellites beaming signals to a point on a map on a phone screen",
+    "So, geometry isn't just about old formulas. It's a living, essential tool for understanding and shaping our modern world., inspiring cinematic montage: robotics, space exploration (James Webb telescope), medical imaging (MRI)",
+    "In this module, we'll start with the basics of lines and angles. Let's begin your journey., AI narrator interface, 'Next Lesson: Lines & Angles' button appears, encouraging, clean UI"
+  ],
+  "text": "Hello and welcome! You've selected 'Geometry.' Let's explore this core branch of mathematics together. The word 'Geometry' literally means 'Earth-measurement.' It all started thousands of years ago when people needed to measure land and build structures. At its heart, geometry is the study of shapes, sizes, positions of figures, and the properties of space. We start with the simplest building blocks: a 'point' is a location, a 'line' is a straight path, and a 'plane' is a flat surface like a screen. From these, we build all the shapes you know: 2D shapes like triangles, squares, and circles... ...and 3D shapes like cubes, spheres, and pyramids. We learn to measure their area, perimeter, and volume. But you might be wondering, 'How is this used today?' The answer is: *everywhere*. Architects and engineers use geometry every day to design buildings, bridges, and cars that are safe and strong. Do you love video games or animated movies? That's all geometry! Artists use 3D models, angles, and coordinates to create those virtual worlds. Even the GPS on your phone uses geometry. It uses a process called 'trilateration' with satellites to find your exact location on Earth. So, geometry isn't just about old formulas. It's a living, essential tool for understanding and shaping our modern world. In this module, we'll start with the basics of lines and angles. Let's begin your journey.",
+  "metadata": {
+    "theme": "Introduction to Geometry",
+    "setting": "Digital learning platform",
+    "character": "Calm AI educational narrator",
+    "lesson": "What is geometry, its building blocks, and its modern applications",
+    "mood": "Informative, inspiring, and foundational",
+    "visual_style": "Clean motion graphics and educational animations",
+    "duration_target": "100 seconds",
+    "created": "2025-11-12",
+    "story_type": "educational_platform_explainer",
+    "test_video": true,
+    "sub_task_5": true
+  }
+}

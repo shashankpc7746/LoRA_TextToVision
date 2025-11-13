@@ -1,0 +1,83 @@
+1
+00:00:00,000 --> 00:00:04,209
+Hello and welcome! You've selected 'Geometry.
+
+2
+00:00:04,209 --> 00:00:08,259
+' Let's explore this core branch of mathematics together.
+
+3
+00:00:08,259 --> 00:00:11,869
+The word 'Geometry' literally means 'Earth-measurement.
+
+4
+00:00:11,869 --> 00:00:17,750
+' It all started thousands of years ago when people needed
+to measure land and build structures.
+
+5
+00:00:17,750 --> 00:00:25,420
+At its heart, geometry is the study of shapes, sizes,
+positions of figures, and the properties of space.
+
+6
+00:00:25,420 --> 00:00:34,259
+We start with the simplest building blocks: a 'point' is a
+location, a 'line' is a straight path, and a 'plane' is a
+flat surface like a screen.
+
+7
+00:00:34,259 --> 00:00:41,450
+From these, we build all the shapes you know: 2D shapes
+like triangles, squares, and circles.
+
+8
+00:00:41,450 --> 00:00:46,020
+and 3D shapes like cubes, spheres, and pyramids.
+
+9
+00:00:46,020 --> 00:00:50,250
+We learn to measure their area, perimeter, and volume.
+
+10
+00:00:50,250 --> 00:00:57,590
+But you might be wondering, 'How is this used today?' The
+answer is: *everywhere*.
+
+11
+00:00:57,590 --> 00:01:05,400
+Architects and engineers use geometry every day to design
+buildings, bridges, and cars that are safe and strong.
+
+12
+00:01:05,400 --> 00:01:17,450
+Do you love video games or animated movies? That's all
+geometry! Artists use 3D models, angles, and coordinates to
+create those virtual worlds.
+
+13
+00:01:17,450 --> 00:01:20,989
+Even the GPS on your phone uses geometry.
+
+14
+00:01:20,989 --> 00:01:27,310
+It uses a process called 'trilateration' with satellites to
+find your exact location on Earth.
+
+15
+00:01:27,310 --> 00:01:31,200
+So, geometry isn't just about old formulas.
+
+16
+00:01:31,200 --> 00:01:36,400
+It's a living, essential tool for understanding and shaping
+our modern world.
+
+17
+00:01:36,400 --> 00:01:41,019
+In this module, we'll start with the basics of lines and
+angles.
+
+18
+00:01:41,019 --> 00:01:43,040
+Let's begin your journey.

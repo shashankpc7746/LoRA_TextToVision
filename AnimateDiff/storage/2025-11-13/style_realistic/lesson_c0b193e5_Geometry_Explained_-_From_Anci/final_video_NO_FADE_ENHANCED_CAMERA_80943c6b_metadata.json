@@ -1,0 +1,20 @@
+{
+  "title": "Geometry Explained - From Ancient Shapes to Modern Tech",
+  "level": "Foundational",
+  "style": "realistic",
+  "text": "Hello and welcome! You've selected 'Geometry.' Let's explore this core branch of mathematics together. The word 'Geometry' literally means 'Earth-measurement.' It all started thousands of years ago when people needed to measure land and build structures. At its heart, geometry is the study of shapes, sizes, positions of figures, and the properties of space. We start with the simplest building blocks: a 'point' is a location, a 'line' is a straight path, and a 'plane' is a flat surface like a screen. From these, we build all the shapes you know: 2D shapes like triangles, squares, and circles... ...and 3D shapes like cubes, spheres, and pyramids. We learn to measure their area, perimeter, and volume. But you might be wondering, 'How is this used today?' The answer is: *everywhere*. Architects and engineers use geometry every day to design buildings, bridges, and cars that are safe and strong. Do you love video games or animated movies? That's all geometry! Artists use 3D models, angles, and coordinates to create those virtual worlds. Even the GPS on your phone uses geometry. It uses a process called 'trilateration' with satellites to find your exact location on Earth. So, geometry isn't just about old formulas. It's a living, essential tool for understanding and shaping our modern world. In this module, we'll start with the basics of lines and angles. Let's begin your journey.",
+  "subject": "Text-to-Video Generation",
+  "topic": "Geometry Explained - From Ancient Shapes to Modern Tech",
+  "generation_params": {
+    "model": "SG161222/Realistic_Vision_V5.1_noVAE",
+    "guidance_scale": 16,
+    "steps": 38,
+    "clips_count": 19,
+    "total_duration": 38.0,
+    "has_subtitles": true,
+    "camera_effects": "6 dynamic 3D motions (no zoom)",
+    "style_description": "REALISTIC-SPECIFIC: Enhanced photorealistic with dynamic movement and full body framing"
+  },
+  "timestamp": "2025-11-13T12:22:53.201469",
+  "lesson_id": "c0b193e5"
+}

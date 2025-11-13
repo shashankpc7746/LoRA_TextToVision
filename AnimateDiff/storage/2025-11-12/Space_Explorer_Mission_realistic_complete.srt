@@ -1,0 +1,14 @@
+1
+00:00:00,000 --> 00:00:06,490
+A brave astronaut in a white spacesuit lands on a colorful
+alien planet with purple mountains.
+
+2
+00:00:06,490 --> 00:00:11,869
+She meets friendly blue alien creatures with big eyes in a
+field of glowing flowers.
+
+3
+00:00:11,869 --> 00:00:16,839
+The astronaut and aliens work together to build a beautiful
+crystal city.
