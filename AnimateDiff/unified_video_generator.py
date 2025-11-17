@@ -13,6 +13,10 @@ import sys
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict
+
+# Add current directory to path for adaptive_engine imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 import moviepy.config as config
 from moviepy.editor import (
     VideoFileClip, AudioFileClip, concatenate_audioclips,
@@ -393,15 +397,84 @@ $synth.Dispose()
             sentences = [s.strip() for s in lesson_data['text'].split('.') if s.strip()]
             print(f"   📝 Processing {len(sentences)} scenes")
 
-            # Step 1: Generate audio track
-            final_audio, audio_clips = self.generate_audio_track(sentences, speech_rate)
+            # Task 11 Days 1-4: Analyze story with full intelligence stack
+            print(f"\n🧠 Analyzing story with TTV Studio Intelligence...")
+            from adaptive_engine import (
+                get_story_context_parser, 
+                get_identity_memory, 
+                get_scene_memory,
+                get_narrative_sequencer,
+                get_emotion_controller
+            )
+            
+            story_parser = get_story_context_parser()
+            identity_memory = get_identity_memory()
+            scene_memory = get_scene_memory()
+            narrative_sequencer = get_narrative_sequencer()
+            emotion_controller = get_emotion_controller()
+            
+            # Day 1: Analyze complete story
+            story_analysis = story_parser.analyze_story(sentences)
+            
+            # Day 2: Build scene graph for narrative understanding
+            scene_graph = scene_memory.build_scene_graph(sentences, story_analysis.characters)
+            graph_stats = scene_memory.get_graph_stats()
+            print(f"   📊 Scene graph: {graph_stats['total_scenes']} scenes, {graph_stats['total_entities']} entities")
+            
+            # Day 3: Analyze narrative structure (story beats + character arcs)
+            narrative_analysis = narrative_sequencer.analyze_narrative(sentences, story_analysis.characters)
+            print(f"   🎭 Story structure: {len(narrative_analysis.story_beats)} beats, {len(narrative_analysis.character_arcs)} arcs")
+            
+            # Day 4: Set initial emotions for characters based on story beats
+            for char_name in story_analysis.characters.keys():
+                for i, beat in enumerate(narrative_analysis.story_beats):
+                    # Map story beat to emotion
+                    emotion_mapping = {
+                        'SETUP': 'neutral',
+                        'RISING_ACTION': 'fear',
+                        'CLIMAX': 'surprise',
+                        'FALLING_ACTION': 'sadness',
+                        'RESOLUTION': 'joy',
+                        'TWIST': 'surprise'
+                    }
+                    emotion = emotion_mapping.get(beat.beat_type.name, 'neutral')
+                    intensity = beat.tension_level
+                    emotion_controller.set_emotion(char_name, emotion, intensity, scene_index=i)
+            
+            print(f"   😊 Emotion tracking initialized for {len(story_analysis.characters)} characters")
+            
+            print(f"   ✅ Found {len(story_analysis.characters)} characters:")
+            for char_name, char in story_analysis.characters.items():
+                print(f"      • {char_name}: {char.gender} (confidence: {char.confidence:.2f})")
+            
+            # Two versions of text:
+            # 1. CONDENSED narration for audio/subtitles (reduces looping!)
+            # 2. ENHANCED prompts for image generation (character consistency)
+            condensed_narration = story_analysis.condensed_narration
+            enhanced_prompts = story_analysis.enhanced_prompts
+            
+            print(f"   ✅ Generated condensed narration (shorter audio = less looping!)")
+            print(f"   ✅ Generated enhanced image prompts (better character consistency)")
+
+            # Step 1: Generate audio track using CONDENSED narration
+            final_audio, audio_clips = self.generate_audio_track(condensed_narration, speech_rate)
             if not final_audio:
                 print("❌ Audio generation failed")
                 return None
 
             # Step 2: Generate video clips directly for this specific lesson
             print(f"\n🎬 Generating video clips in {style} style...")
-            video_clips = self.generate_video_clips_direct(lesson_data, style, lesson_path)
+            
+            # Update lesson data:
+            # - Use ENHANCED prompts for IMAGE GENERATION (better character consistency)
+            # - Use CONDENSED narration for AUDIO/SUBTITLES (less looping!)
+            # - Add scene memory context for cross-scene continuity
+            enhanced_lesson_data = lesson_data.copy()
+            enhanced_lesson_data['text'] = '. '.join(enhanced_prompts) + '.'  # For image generation
+            enhanced_lesson_data['narration'] = '. '.join(condensed_narration) + '.'  # For subtitles
+            enhanced_lesson_data['scene_graph'] = scene_graph  # For narrative continuity tracking
+            
+            video_clips = self.generate_video_clips_direct(enhanced_lesson_data, style, lesson_path)
 
             if not video_clips:
                 print("❌ Video generation failed")
@@ -417,11 +490,33 @@ $synth.Dispose()
             # Initialize cinematic flow engine
             cinematic_engine = CinematicFlowEngine()
 
-            # Apply cinematic enhancements
+            # Apply cinematic enhancements with scene memory context + emotion-based motion
             cinematic_video_clips = []
             for i, video_clip in enumerate(video_clips):
                 scene = scene_contexts[i] if i < len(scene_contexts) else 'temple'
                 flow_instruction = flow_instructions[i] if i < len(flow_instructions) else {}
+                
+                # Get entities in this scene from scene memory
+                entities_in_scene = scene_memory.get_entities_in_scene(i)
+                if entities_in_scene:
+                    # Extract entity names from the list of dicts
+                    entity_names = [e['name'] for e in entities_in_scene]
+                    print(f"   🎭 Scene {i+1} entities: {', '.join(entity_names[:3])}")  # Show first 3
+                
+                # Day 4: Apply emotion-based motion adjustments
+                # Get character emotions for this scene
+                character_emotions = {}
+                for char_name in story_analysis.characters.keys():
+                    emotion_state = emotion_controller.get_current_emotion(char_name, scene_index=i)
+                    if emotion_state:
+                        character_emotions[char_name] = emotion_state
+                        # Adjust motion intensity based on emotion
+                        base_intensity = flow_instruction.get('intensity', 1.0)
+                        adjusted_intensity = emotion_controller.get_motion_intensity(
+                            emotion_state.emotion, base_intensity
+                        )
+                        flow_instruction['intensity'] = adjusted_intensity
+                        print(f"   😊 {char_name}: {emotion_state.emotion} ({emotion_state.intensity:.2f}) → motion {adjusted_intensity:.2f}x")
 
                 enhanced_clip = cinematic_engine._enhance_clip_with_flow(
                     video_clip, scene, flow_instruction, i
@@ -481,10 +576,10 @@ $synth.Dispose()
             print(f"\n🎵 Adding audio to video...")
             video_with_audio = adjusted_video.set_audio(final_audio)
             
-            # Step 6: Create advanced subtitles with Gurukul styling
-            print(f"\n📝 Adding advanced subtitles...")
+            # Step 6: Create advanced subtitles with Gurukul styling using CONDENSED narration
+            print(f"\n📝 Adding advanced subtitles with condensed narration...")
             subtitle_clips, srt_path = self.create_advanced_subtitles(
-                sentences, audio_clips, adjusted_video.w, language='english'
+                condensed_narration, audio_clips, adjusted_video.w, language='english'
             )
 
             if subtitle_clips:

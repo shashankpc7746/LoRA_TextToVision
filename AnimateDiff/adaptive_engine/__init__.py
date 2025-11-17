@@ -121,7 +121,56 @@ from .analytics import (  # type: ignore
     LatencyReport  # type: ignore
 )
 
-__version__ = "2.0.0"
+# Task 11 Day 1 Components
+from .story_context_parser import (  # type: ignore
+    get_story_context_parser,  # type: ignore
+    StoryContextParser,  # type: ignore
+    StoryAnalysis,  # type: ignore
+    Character  # type: ignore
+)
+
+from .identity_memory import (  # type: ignore
+    get_identity_memory,  # type: ignore
+    IdentityMemory,  # type: ignore
+    CharacterIdentity,  # type: ignore
+    IdentityMatch  # type: ignore
+)
+
+# Task 11 Day 2 Components - Phase 2 Goal #1 ✅
+from .scene_memory_core import (  # type: ignore
+    get_scene_memory,  # type: ignore
+    SceneMemoryCore,  # type: ignore
+    SceneNode,  # type: ignore
+    EntityNode,  # type: ignore
+    SceneTransition  # type: ignore
+)
+
+# Task 11 Day 3 Components - Phase 2 Goal #4 ✅
+from .narrative_sequencer_v1 import (  # type: ignore
+    get_narrative_sequencer,  # type: ignore
+    NarrativeSequencerV1,  # type: ignore
+    NarrativeContinuity,  # type: ignore
+    SceneBeat,  # type: ignore
+    CharacterArc,  # type: ignore
+    DialogueFlow,  # type: ignore
+    StoryBeat,  # type: ignore
+    CharacterArcStage,  # type: ignore
+    DialogueType  # type: ignore
+)
+
+# Task 11 Day 4 Components - Emotion Intelligence ✅
+from .emotion_controller import (  # type: ignore
+    get_emotion_controller,  # type: ignore
+    EmotionController,  # type: ignore
+    EmotionState,  # type: ignore
+    EmotionTransition,  # type: ignore
+    MicroExpression,  # type: ignore
+    MotionParameters,  # type: ignore
+    EmotionType,  # type: ignore
+    EmotionIntensity  # type: ignore
+)
+
+__version__ = "2.4.0"  # Updated for Task 11 Day 4
 __all__ = [
     # Device Probe
     "get_device_capabilities",
@@ -218,5 +267,43 @@ __all__ = [
     "RequestMetrics",
     "SystemMetrics",
     "CostReport",
-    "LatencyReport"
+    "LatencyReport",
+
+    # Task 11 Day 1: Story Context & Identity
+    "get_story_context_parser",
+    "StoryContextParser",
+    "StoryAnalysis",
+    "Character",
+    "get_identity_memory",
+    "IdentityMemory",
+    "CharacterIdentity",
+    "IdentityMatch",
+
+    # Task 11 Day 2: Scene Memory Core - Phase 2 Goal #1 ✅
+    "get_scene_memory",
+    "SceneMemoryCore",
+    "SceneNode",
+    "EntityNode",
+    "SceneTransition",
+
+    # Task 11 Day 3: Narrative Sequencer - Phase 2 Goal #4 ✅
+    "get_narrative_sequencer",
+    "NarrativeSequencerV1",
+    "NarrativeContinuity",
+    "SceneBeat",
+    "CharacterArc",
+    "DialogueFlow",
+    "StoryBeat",
+    "CharacterArcStage",
+    "DialogueType",
+
+    # Task 11 Day 4: Emotion Controller - Emotional Intelligence ✅
+    "get_emotion_controller",
+    "EmotionController",
+    "EmotionState",
+    "EmotionTransition",
+    "MicroExpression",
+    "MotionParameters",
+    "EmotionType",
+    "EmotionIntensity"
 ]

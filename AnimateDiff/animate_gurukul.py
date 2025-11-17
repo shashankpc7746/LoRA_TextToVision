@@ -7,6 +7,9 @@ from pathlib import Path
 # Add the animatediff module to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'animatediff'))
 
+# Add parent directory to path for adapter imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 # Fix tqdm progress bar issues directly
 def patch_tqdm():
     """Fix tqdm division by zero issue and enable white box progress bars"""
@@ -125,6 +128,53 @@ MODEL_CONFIGS = {
 # Global pipeline variable
 pipe = None
 current_style = None
+lora_enabled = False  # Track if LoRA is loaded
+
+def load_gurukul_lora(pipeline):
+    """Load Gurukul LoRA adapter onto the pipeline's UNet"""
+    global lora_enabled
+    
+    if lora_enabled:
+        print("   ℹ️ Gurukul LoRA already loaded")
+        return pipeline
+    
+    try:
+        from adapters.lora_adapter import get_lora_adapter
+        
+        # Check both possible LoRA locations
+        lora_paths = [
+            Path(__file__).parent.parent / "adapters" / "gurukul_lora" / "adapters" / "gurukul_lora",
+            Path(__file__).parent.parent / "adapters" / "gurukul_lora" / "gurukul_lora"
+        ]
+        
+        lora_dir = None
+        for path in lora_paths:
+            if path.exists():
+                lora_dir = path
+                break
+        
+        if lora_dir:
+            print(f"   🎨 Loading Gurukul LoRA adapter from {lora_dir.name}")
+            
+            # Load the LoRA adapter using PEFT
+            from peft import PeftModel
+            
+            pipeline.unet = PeftModel.from_pretrained(
+                pipeline.unet,
+                str(lora_dir),
+                is_trainable=False
+            )
+            lora_enabled = True
+            print("   ✅ Gurukul LoRA adapter loaded successfully")
+        else:
+            print(f"   ℹ️ No LoRA adapter directory found")
+            print("   ℹ️ Continuing with base model only")
+            
+    except Exception as e:
+        print(f"   ⚠️ Could not load LoRA adapter: {e}")
+        print("   ℹ️ Continuing with base model only")
+    
+    return pipeline
 
 def initialize_animatediff_pipeline(style="realistic"):
     """Initialize proper AnimateDiff pipeline with full repository features"""
@@ -183,6 +233,9 @@ def initialize_animatediff_pipeline(style="realistic"):
     # Enable optimizations
     pipe.enable_vae_slicing()
     pipe.enable_model_cpu_offload()
+
+    # Load Gurukul LoRA adapter for indigenous keyframe generation
+    pipe = load_gurukul_lora(pipe)
 
     current_style = style
     print(f"✅ AnimateDiff pipeline initialized for {style}")

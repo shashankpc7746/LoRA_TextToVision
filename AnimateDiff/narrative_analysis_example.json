@@ -1,0 +1,171 @@
+{
+  "story_beats": [
+    {
+      "scene_index": 0,
+      "beat_type": "setup",
+      "description": "A young seeker embarks on a spiritual journey",
+      "tension_level": 0.2,
+      "pacing_speed": "slow",
+      "key_events": [],
+      "characters_involved": [
+        "seeker"
+      ]
+    },
+    {
+      "scene_index": 1,
+      "beat_type": "rising_action",
+      "description": "She walks through misty forests where ancient sages meditated",
+      "tension_level": 0.33999999999999997,
+      "pacing_speed": "medium",
+      "key_events": [],
+      "characters_involved": [
+        "sage"
+      ]
+    },
+    {
+      "scene_index": 2,
+      "beat_type": "rising_action",
+      "description": "The seeker encounters a wise teacher at an old temple",
+      "tension_level": 0.54,
+      "pacing_speed": "medium",
+      "key_events": [],
+      "characters_involved": [
+        "seeker",
+        "teacher"
+      ]
+    },
+    {
+      "scene_index": 3,
+      "beat_type": "climax",
+      "description": "Together they discuss the nature of reality and consciousness",
+      "tension_level": 1.0,
+      "pacing_speed": "fast",
+      "key_events": [
+        "Together"
+      ],
+      "characters_involved": []
+    },
+    {
+      "scene_index": 4,
+      "beat_type": "resolution",
+      "description": "The seeker realizes the truth has been within her all along",
+      "tension_level": 0.3,
+      "pacing_speed": "slow",
+      "key_events": [],
+      "characters_involved": [
+        "seeker"
+      ]
+    }
+  ],
+  "character_arcs": {
+    "seeker": [
+      {
+        "scene_index": 0,
+        "arc_stage": "introduction",
+        "emotional_state": "neutral",
+        "motivation": "unknown",
+        "relationships": {},
+        "growth_indicators": []
+      },
+      {
+        "scene_index": 1,
+        "arc_stage": "ordinary_world",
+        "emotional_state": "neutral",
+        "motivation": "unknown",
+        "relationships": {},
+        "growth_indicators": []
+      },
+      {
+        "scene_index": 2,
+        "arc_stage": "development",
+        "emotional_state": "neutral",
+        "motivation": "unknown",
+        "relationships": {
+          "teacher": "mentor"
+        },
+        "growth_indicators": []
+      },
+      {
+        "scene_index": 3,
+        "arc_stage": "transformation",
+        "emotional_state": "neutral",
+        "motivation": "unknown",
+        "relationships": {},
+        "growth_indicators": []
+      },
+      {
+        "scene_index": 4,
+        "arc_stage": "new_equilibrium",
+        "emotional_state": "neutral",
+        "motivation": "unknown",
+        "relationships": {},
+        "growth_indicators": []
+      }
+    ],
+    "teacher": [
+      {
+        "scene_index": 1,
+        "arc_stage": "introduction",
+        "emotional_state": "neutral",
+        "motivation": "unknown",
+        "relationships": {},
+        "growth_indicators": []
+      },
+      {
+        "scene_index": 2,
+        "arc_stage": "development",
+        "emotional_state": "neutral",
+        "motivation": "unknown",
+        "relationships": {
+          "teacher": "mentor"
+        },
+        "growth_indicators": []
+      },
+      {
+        "scene_index": 3,
+        "arc_stage": "transformation",
+        "emotional_state": "neutral",
+        "motivation": "unknown",
+        "relationships": {},
+        "growth_indicators": []
+      },
+      {
+        "scene_index": 4,
+        "arc_stage": "new_equilibrium",
+        "emotional_state": "neutral",
+        "motivation": "unknown",
+        "relationships": {},
+        "growth_indicators": []
+      }
+    ]
+  },
+  "dialogue_flows": [],
+  "continuity_issues": [],
+  "pacing_analysis": {
+    "total_scenes": 5,
+    "pacing_distribution": {
+      "slow": {
+        "count": 2,
+        "percentage": 40.0
+      },
+      "medium": {
+        "count": 2,
+        "percentage": 40.0
+      },
+      "fast": {
+        "count": 1,
+        "percentage": 20.0
+      }
+    },
+    "tension_curve": [
+      0.2,
+      0.33999999999999997,
+      0.54,
+      1.0,
+      0.3
+    ],
+    "average_tension": 0.476,
+    "peak_tension": 1.0,
+    "recommendations": []
+  }
+}
