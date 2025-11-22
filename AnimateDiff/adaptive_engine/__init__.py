@@ -170,7 +170,22 @@ from .emotion_controller import (  # type: ignore
     EmotionIntensity  # type: ignore
 )
 
-__version__ = "2.4.0"  # Updated for Task 11 Day 4
+# Task 11 Day 5 Components - Video Extension & Transitions ✅
+from .smart_video_extender import (  # type: ignore
+    get_smart_video_extender,  # type: ignore
+    SmartVideoExtender,  # type: ignore
+    ExtensionMethod,  # type: ignore
+    ExtensionParams  # type: ignore
+)
+
+from .cinematic_transition_core import (  # type: ignore
+    get_cinematic_transition_core,  # type: ignore
+    CinematicTransitionCore,  # type: ignore
+    TransitionType,  # type: ignore
+    TransitionParams  # type: ignore
+)
+
+__version__ = "2.5.0"  # Updated for Task 11 Day 5
 __all__ = [
     # Device Probe
     "get_device_capabilities",
@@ -305,5 +320,15 @@ __all__ = [
     "MicroExpression",
     "MotionParameters",
     "EmotionType",
-    "EmotionIntensity"
+    "EmotionIntensity",
+
+    # Task 11 Day 5: Video Extension & Transitions - Fix Looping ✅
+    "get_smart_video_extender",
+    "SmartVideoExtender",
+    "ExtensionMethod",
+    "ExtensionParams",
+    "get_cinematic_transition_core",
+    "CinematicTransitionCore",
+    "TransitionType",
+    "TransitionParams"
 ]

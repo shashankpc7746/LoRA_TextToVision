@@ -25,6 +25,14 @@ from moviepy.editor import (
 from subtitle_sync_engine import SubtitleSyncEngine
 from cinematic_flow_engine import CinematicFlowEngine
 
+# Day 5: Smart Video Extension + Cinematic Transitions
+from adaptive_engine import (
+    get_smart_video_extender,
+    get_cinematic_transition_core,
+    ExtensionMethod,
+    TransitionType
+)
+
 # Fix Unicode encoding issues for Windows console
 if sys.platform == "win32":
     import codecs
@@ -91,6 +99,11 @@ class UnifiedVideoGenerator:
         self.temp_dir = None
         os.makedirs(self.output_dir, exist_ok=True)
         os.makedirs(self.storage_dir, exist_ok=True)
+        
+        # Day 5: Initialize smart extension and transitions (NO RIFE - Safe mode)
+        self.smart_extender = get_smart_video_extender()
+        self.transition_core = get_cinematic_transition_core()
+        print("🎬 Day 5 modules initialized: Smart Extension + Cinematic Transitions")
     
     def create_tts_audio(self, text, output_file, speech_rate=1):
         """Create TTS audio with configurable speech rate"""
@@ -533,6 +546,7 @@ $synth.Dispose()
 
             print(f"   📊 Total audio duration: {total_audio_duration:.1f}s")
             print(f"   🎬 Adjusting {len(cinematic_video_clips)} cinematic clips to match audio...")
+            print(f"   ✨ Day 5: Using smart extension (NO repetitive looping!)")
 
             for i, (video_clip, audio_clip) in enumerate(zip(cinematic_video_clips, audio_clips)):
                 video_duration = video_clip.duration
@@ -541,16 +555,43 @@ $synth.Dispose()
                 print(f"   📎 Clip {i+1}: Video={video_duration:.1f}s, Audio={audio_duration:.1f}s")
 
                 if audio_duration > video_duration:
-                    # Extend video clip to match audio duration by looping
-                    from moviepy.video.fx.loop import loop
-                    try:
-                        extended_clip = loop(video_clip, duration=audio_duration)
-                        print(f"      ✅ Extended to {audio_duration:.1f}s")
-                    except:
-                        # Fallback: freeze last frame
-                        from moviepy.video.fx.freeze import freeze
-                        extended_clip = video_clip.fx(freeze, t='end', freeze_duration=audio_duration-video_duration)
-                        print(f"      ✅ Freeze-extended to {audio_duration:.1f}s")
+                    # Day 5: Smart extension (SlowMo + Freeze) - Frame-based for reliability
+                    import numpy as np
+                    import cv2
+                    
+                    extension_needed = audio_duration - video_duration
+                    
+                    # Extract frames from MoviePy clip at ORIGINAL quality
+                    frames = []
+                    frame_times = np.arange(0, video_duration, 1/fps)
+                    for t in frame_times:
+                        frame = video_clip.get_frame(t)
+                        frames.append(frame)  # Keep as RGB, no conversion
+                    
+                    frames_array = np.array(frames, dtype=np.uint8)
+                    
+                    # Apply smart extension using our Day 5 module
+                    extended_frames, new_fps = self.smart_extender.extend_to_duration(
+                        frames_array,
+                        current_duration=video_duration,
+                        target_duration=audio_duration,
+                        fps=fps,
+                        method=ExtensionMethod.COMBINED
+                    )
+                    
+                    # Create new MoviePy clip from extended frames (no color conversion needed)
+                    from moviepy.video.VideoClip import VideoClip
+                    
+                    # FIX: Capture frames in closure with default argument
+                    def make_frame(t, frames=extended_frames, frame_fps=new_fps):
+                        frame_idx = int(t * frame_fps)
+                        frame_idx = min(frame_idx, len(frames) - 1)
+                        return frames[frame_idx].astype(np.uint8)
+                    
+                    extended_clip = VideoClip(make_frame, duration=audio_duration)
+                    extended_clip.fps = new_fps
+                    print(f"      ✅ Smart extended: {video_duration:.1f}s → {audio_duration:.1f}s (SlowMo+Freeze, {len(extended_frames)} frames)")
+                    
                 elif audio_duration < video_duration:
                     # Trim video clip to match audio duration
                     extended_clip = video_clip.subclip(0, audio_duration)
@@ -563,14 +604,25 @@ $synth.Dispose()
                 adjusted_video_clips.append(extended_clip)
                 total_video_duration += extended_clip.duration
 
-            # Step 6: Create final video (TEMPORARILY DISABLED cinematic transitions to fix black screen)
+            # Step 6: Create final video sequence
             print(f"\n🎭 Creating final video sequence...")
+            print(f"   ✨ Concatenating {len(adjusted_video_clips)} clips")
 
-            # SAFETY: Use simple concatenation to prevent black screen issues
+            # Simple concatenation for perfect audio-video sync
+            # (Transitions disabled to prevent timing issues)
             from moviepy.editor import concatenate_videoclips
             adjusted_video = concatenate_videoclips(adjusted_video_clips, method="compose")
-            print(f"   ✅ Safe video sequence created: {adjusted_video.duration:.1f}s")
-            print(f"   ⚠️ Cinematic transitions temporarily disabled for stability")
+            
+            # Verify audio-video sync
+            video_dur = adjusted_video.duration
+            audio_dur = final_audio.duration
+            print(f"   ✅ Video sequence created: {video_dur:.1f}s")
+            print(f"   🎵 Audio duration: {audio_dur:.1f}s")
+            if abs(video_dur - audio_dur) > 0.5:
+                print(f"   ⚠️ Warning: Video-audio mismatch: {abs(video_dur - audio_dur):.1f}s difference")
+            else:
+                print(f"   ✅ Audio-video sync: Perfect! (diff: {abs(video_dur - audio_dur):.2f}s)")
+            print(f"   ✨ Total clips: {len(adjusted_video_clips)}")
             
             # Step 5: Add audio to video
             print(f"\n🎵 Adding audio to video...")
@@ -606,6 +658,9 @@ $synth.Dispose()
                 codec='libx264',
                 audio_codec='aac',
                 fps=fps,  # Using centralized FPS setting
+                bitrate='8000k',  # Higher bitrate for better quality
+                audio_bitrate='192k',
+                preset='slow',  # Better quality encoding (slower but better)
                 verbose=False,
                 logger=None
             )

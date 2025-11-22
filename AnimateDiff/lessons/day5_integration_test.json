@@ -1,0 +1,27 @@
+{
+  "title": "Day5_Integration_Test",
+  "description": "Test lesson to verify Day 5: Smart Extension + Cinematic Transitions",
+  "scenes": [
+    {
+      "scene_id": 1,
+      "narration": "This is the first scene testing smart video extension.",
+      "condensed_narration": "First scene with smart extension.",
+      "visual_prompt": "ancient temple with golden statues",
+      "duration": 3.0
+    },
+    {
+      "scene_id": 2,
+      "narration": "This is the second scene testing cinematic transitions.",
+      "condensed_narration": "Second scene with transitions.",
+      "visual_prompt": "peaceful forest with morning sunlight",
+      "duration": 3.0
+    },
+    {
+      "scene_id": 3,
+      "narration": "This is the third scene completing the integration test.",
+      "condensed_narration": "Third scene completing test.",
+      "visual_prompt": "mountain peak with clouds",
+      "duration": 3.0
+    }
+  ]
+}

@@ -139,7 +139,7 @@ smart_extender.extend_video(clip, target_duration=6.0)  # ✅ Works
 - ❌ **Gender Confusion**: "young seeker" (male) → "She" (female) → Character changes mid-video
 - ❌ **Lack of Forward Context**: Per-sentence processing misses future references
 
-**🎯 PHASE 2 GOAL**: Foundation for Scene Graph (Day 2) and Narrative Engine (Day 3)
+**🎯 PHASE 2 GOAL**: Foundation for Scene Graph (Day 2) and Narrative Engine (Day 3)/
 
 **Objectives**:
 1. **Story Context Parser** (NEW - Solves gender confusion):
