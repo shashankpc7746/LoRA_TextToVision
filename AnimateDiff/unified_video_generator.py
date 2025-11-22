@@ -33,6 +33,9 @@ from adaptive_engine import (
     TransitionType
 )
 
+# Day 6: Telemetry v3
+from analytics.telemetry_v3 import get_telemetry
+
 # Fix Unicode encoding issues for Windows console
 if sys.platform == "win32":
     import codecs
@@ -104,6 +107,12 @@ class UnifiedVideoGenerator:
         self.smart_extender = get_smart_video_extender()
         self.transition_core = get_cinematic_transition_core()
         print("🎬 Day 5 modules initialized: Smart Extension + Cinematic Transitions")
+        
+        # Day 6: Initialize telemetry and audit logger
+        self.telemetry = get_telemetry()
+        from audit_logger import get_audit_logger
+        self.audit_logger = get_audit_logger()
+        print("📊 Day 6: Telemetry v3 + Audit logger with TTV intelligence metrics ready")
     
     def create_tts_audio(self, text, output_file, speech_rate=1):
         """Create TTS audio with configurable speech rate"""
@@ -468,6 +477,16 @@ $synth.Dispose()
             
             print(f"   ✅ Generated condensed narration (shorter audio = less looping!)")
             print(f"   ✅ Generated enhanced image prompts (better character consistency)")
+            
+            # Day 6: Calculate metrics for later logging (will be logged at end with all metrics)
+            gender_resolved_count = sum(1 for char in story_analysis.characters.values() if char.gender != 'unknown')
+            original_length = len('. '.join(sentences))
+            condensed_length = len('. '.join(condensed_narration))
+            condensation_percent = ((original_length - condensed_length) / original_length * 100) if original_length > 0 else 0
+            
+            avg_tension = sum(beat.tension_level for beat in narrative_analysis.story_beats) / len(narrative_analysis.story_beats) if narrative_analysis.story_beats else 0
+            peak_tension = max((beat.tension_level for beat in narrative_analysis.story_beats), default=0)
+            pacing_score = narrative_analysis.pacing_score if hasattr(narrative_analysis, 'pacing_score') else 0.0
 
             # Step 1: Generate audio track using CONDENSED narration
             final_audio, audio_clips = self.generate_audio_track(condensed_narration, speech_rate)
@@ -505,6 +524,10 @@ $synth.Dispose()
 
             # Apply cinematic enhancements with scene memory context + emotion-based motion
             cinematic_video_clips = []
+            emotion_changes_count = 0
+            total_motion_intensity = 0.0
+            emotion_distribution = {}
+            
             for i, video_clip in enumerate(video_clips):
                 scene = scene_contexts[i] if i < len(scene_contexts) else 'temple'
                 flow_instruction = flow_instructions[i] if i < len(flow_instructions) else {}
@@ -529,6 +552,13 @@ $synth.Dispose()
                             emotion_state.emotion, base_intensity
                         )
                         flow_instruction['intensity'] = adjusted_intensity
+                        total_motion_intensity += adjusted_intensity
+                        emotion_changes_count += 1
+                        
+                        # Track emotion distribution (convert EmotionType to string for JSON serialization)
+                        emotion_key = emotion_state.emotion.value if hasattr(emotion_state.emotion, 'value') else str(emotion_state.emotion)
+                        emotion_distribution[emotion_key] = emotion_distribution.get(emotion_key, 0) + 1
+                        
                         print(f"   😊 {char_name}: {emotion_state.emotion} ({emotion_state.intensity:.2f}) → motion {adjusted_intensity:.2f}x")
 
                 enhanced_clip = cinematic_engine._enhance_clip_with_flow(
@@ -536,6 +566,14 @@ $synth.Dispose()
                 )
                 cinematic_video_clips.append(enhanced_clip)
                 print(f"   🎬 Clip {i+1}: Applied {flow_instruction.get('movement', 'default')} in {scene} scene")
+            
+            # Day 6: Log emotion metrics (will be added to final TTV metrics at end)
+            avg_motion_intensity = total_motion_intensity / emotion_changes_count if emotion_changes_count > 0 else 0.0
+            emotion_metrics = {
+                'emotion_changes': emotion_changes_count,
+                'avg_motion_intensity': avg_motion_intensity,
+                'emotion_distribution': emotion_distribution
+            }
 
             # Step 5: Synchronize enhanced clips with audio
             print(f"\n⏱️ Synchronizing cinematic clips with audio segments...")
@@ -543,6 +581,11 @@ $synth.Dispose()
             adjusted_video_clips = []
             total_video_duration = 0
             total_audio_duration = sum(clip.duration for clip in audio_clips)
+            
+            # Day 6: Track extension metrics
+            clips_extended = 0
+            clips_trimmed = 0
+            total_extension_duration = 0.0
 
             print(f"   📊 Total audio duration: {total_audio_duration:.1f}s")
             print(f"   🎬 Adjusting {len(cinematic_video_clips)} cinematic clips to match audio...")
@@ -590,11 +633,14 @@ $synth.Dispose()
                     
                     extended_clip = VideoClip(make_frame, duration=audio_duration)
                     extended_clip.fps = new_fps
+                    clips_extended += 1
+                    total_extension_duration += (audio_duration - video_duration)
                     print(f"      ✅ Smart extended: {video_duration:.1f}s → {audio_duration:.1f}s (SlowMo+Freeze, {len(extended_frames)} frames)")
                     
                 elif audio_duration < video_duration:
                     # Trim video clip to match audio duration
                     extended_clip = video_clip.subclip(0, audio_duration)
+                    clips_trimmed += 1
                     print(f"      ✅ Trimmed to {audio_duration:.1f}s")
                 else:
                     # Perfect match
@@ -710,6 +756,59 @@ $synth.Dispose()
             print(f"   📝 Subtitles: {len(subtitle_clips)} synchronized")
             print(f"   📍 Main output: {os.path.abspath(output_path)}")
             print(f"   📤 Team sharing: {os.path.abspath(storage_path)}")
+            
+            # Day 6: Log complete TTV intelligence + extension + quality metrics
+            avg_extension_duration = total_extension_duration / clips_extended if clips_extended > 0 else 0.0
+            sync_diff = abs(video_dur - audio_dur)
+            
+            self.audit_logger.log_ttv_intelligence(
+                lesson_name=lesson_title,
+                story_analysis={
+                    'character_count': len(story_analysis.characters),
+                    'gender_resolved': gender_resolved_count,
+                    'text_condensation_percent': condensation_percent,
+                    'enhanced_prompts_count': len(enhanced_prompts)
+                },
+                scene_graph={
+                    'total_scenes': graph_stats['total_scenes'],
+                    'total_entities': graph_stats['total_entities'],
+                    'avg_entities_per_scene': graph_stats['avg_entities_per_scene'],
+                    'total_edges': graph_stats.get('total_edges', 0)  # Scene connections
+                },
+                narrative={
+                    'story_beats': len(narrative_analysis.story_beats),
+                    'character_arcs': len(narrative_analysis.character_arcs),
+                    'avg_tension': avg_tension,
+                    'peak_tension': peak_tension,
+                    'pacing_score': pacing_score
+                },
+                emotion=emotion_metrics,
+                extension={
+                    'clips_extended': clips_extended,
+                    'clips_trimmed': clips_trimmed,
+                    'total_clips': len(video_clips),
+                    'avg_extension_duration': avg_extension_duration,
+                    'method': 'combined_slowmo_freeze'
+                },
+                quality={
+                    'audio_video_sync_diff': sync_diff,
+                    'total_duration': audio_duration,
+                    'fps': fps,
+                    'bitrate': '8000k',
+                    'style': style
+                },
+                ksml_token={
+                    "ksml_token": "ksml_ttv_complete",
+                    "intent": "video_generation",
+                    "karma_state": "completed",
+                    "lineage": {
+                        "lesson": lesson_title,
+                        "style": style,
+                        "output_path": storage_path
+                    }
+                }
+            )
+            print(f"   📊 Day 6: Complete TTV intelligence metrics logged to audit trail")
 
             # =================================================================
             # TASK 10: Security Integration - Watermarking & Fingerprinting

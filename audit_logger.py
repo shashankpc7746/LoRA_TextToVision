@@ -242,6 +242,90 @@ class AuditLogger:
             status="error"
         )
     
+    # ===== Day 6: TTV Studio Intelligence Metrics =====
+    
+    def log_ttv_intelligence(
+        self,
+        lesson_name: str,
+        story_analysis: Optional[Dict] = None,
+        scene_graph: Optional[Dict] = None,
+        narrative: Optional[Dict] = None,
+        emotion: Optional[Dict] = None,
+        extension: Optional[Dict] = None,
+        quality: Optional[Dict] = None,
+        ksml_token: Optional[Dict] = None
+    ) -> str:
+        """
+        Log TTV Studio intelligence metrics (Day 6).
+        
+        Args:
+            lesson_name: Name of lesson being processed
+            story_analysis: Story analysis metrics (characters, gender, condensation)
+            scene_graph: Scene graph metrics (scenes, entities, transitions)
+            narrative: Narrative metrics (beats, arcs, tension)
+            emotion: Emotion metrics (changes, motion intensity)
+            extension: Extension metrics (clips extended, methods used)
+            quality: Quality metrics (sync, frame quality, bitrate)
+            ksml_token: KSML token
+            
+        Returns:
+            Log entry ID
+        """
+        metadata = {
+            "lesson_name": lesson_name,
+            "ttv_metrics": {
+                "story_analysis": story_analysis or {},
+                "scene_graph": scene_graph or {},
+                "narrative": narrative or {},
+                "emotion": emotion or {},
+                "extension": extension or {},
+                "quality": quality or {}
+            }
+        }
+        
+        return self.log_operation(
+            operation="ttv_intelligence_analysis",
+            ksml_token=ksml_token,
+            metadata=metadata
+        )
+    
+    def log_performance_metric(
+        self,
+        module_name: str,
+        execution_time: float,
+        cache_hits: int = 0,
+        cache_misses: int = 0,
+        ksml_token: Optional[Dict] = None
+    ) -> str:
+        """
+        Log performance metrics for TTV modules.
+        
+        Args:
+            module_name: Name of module being measured
+            execution_time: Execution time in seconds
+            cache_hits: Number of cache hits
+            cache_misses: Number of cache misses
+            ksml_token: KSML token
+            
+        Returns:
+            Log entry ID
+        """
+        cache_hit_rate = cache_hits / (cache_hits + cache_misses) if (cache_hits + cache_misses) > 0 else 0.0
+        
+        metadata = {
+            "module": module_name,
+            "execution_time_seconds": execution_time,
+            "cache_hits": cache_hits,
+            "cache_misses": cache_misses,
+            "cache_hit_rate": cache_hit_rate
+        }
+        
+        return self.log_operation(
+            operation="module_performance",
+            ksml_token=ksml_token,
+            metadata=metadata
+        )
+    
     def query_logs(
         self,
         operation: Optional[str] = None,
