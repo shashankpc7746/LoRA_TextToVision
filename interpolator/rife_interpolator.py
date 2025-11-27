@@ -16,7 +16,7 @@ from datetime import datetime
 import subprocess
 import shutil
 
-from ..adapters.keyframe_generator import get_keyframe_generator
+from adapters.keyframe_generator import get_keyframe_generator
 
 
 class RIFEInterpolator:

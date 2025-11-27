@@ -15,7 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 import asyncio
 
 from .rife_interpolator import get_rife_interpolator, get_frame_cache
-from ..adapters.keyframe_generator import get_keyframe_generator
+from adapters.keyframe_generator import get_keyframe_generator
 
 
 class StabilizationEngine:
