@@ -45,8 +45,13 @@ def main():
     # Download Pexels
     if pexels_needed > 0:
         print(f'📥 Downloading {pexels_needed} more Pexels images...')
-        pexels_count = downloader.download_pexels(api_key='PZh2fI3WvnlieZcM47uyspL9Xv9QHdnKjgPKDhDmaN9jJfXaxm1uzz15')
-        print(f'✅ Downloaded {pexels_count} Pexels images\n')
+        pexels_api_key = os.getenv('PEXELS_API_KEY')
+        if not pexels_api_key:
+            print('⚠️  PEXELS_API_KEY not found in environment variables')
+            pexels_count = 0
+        else:
+            pexels_count = downloader.download_pexels(api_key=pexels_api_key)
+            print(f'✅ Downloaded {pexels_count} Pexels images\n')
     else:
         pexels_count = 0
         print('✅ Pexels quota already met\n')

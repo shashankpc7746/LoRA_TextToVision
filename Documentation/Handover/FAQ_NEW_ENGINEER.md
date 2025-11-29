@@ -593,9 +593,228 @@ smart_extension_enabled = False # Use old looping method
 
 ---
 
+### Q29: Why are lineage tokens (KSML tokens) required?
+
+**A:** Lineage tokens provide **complete traceability** of every video from input to output.
+
+**Without lineage tokens:**
+- ❌ Can't prove who generated a video
+- ❌ Can't track which models were used
+- ❌ Can't detect tampered/unauthorized videos
+- ❌ Can't meet regulatory compliance requirements
+
+**With lineage tokens (KSML):**
+- ✅ Every video cryptographically bound to KSML token
+- ✅ Full audit trail in logs (append-only, tamper-evident)
+- ✅ Watermarks linked to build ID and worker ID
+- ✅ Can verify provenance years later
+
+**Example lineage chain:**
+```
+Input → KSML Token → Models Used → Processing Steps → Watermark → Fingerprint → Audit Log
+```
+
+**How it works:**
+```python
+# At video generation start
+ksml_token = {
+    "ksml_token": "ksml_production",
+    "intent": "video_generation",
+    "karma_state": "authorized",
+    "lineage": {
+        "lesson": "Photosynthesis Basics",
+        "style": "realistic",
+        "build_id": "build_20251127_001"
+    }
+}
+
+# Token embedded in:
+# - Watermark metadata
+# - Content fingerprint
+# - Audit log entry
+# - Security metadata
+```
+
+**Production requirement:** All videos MUST have valid KSML tokens in production mode.
+
+---
+
+### Q30: How do I add new scenes or transitions to a lesson?
+
+**A:** Edit the lesson JSON file or use the scene editor.
+
+**Method 1: Edit Lesson JSON**
+
+```json
+{
+  "title": "My Lesson",
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "text": "First scene content",
+      "duration_sec": 5,
+      "style": "realistic",
+      "transition": "fade"
+    },
+    {
+      "scene_id": "scene_002",
+      "text": "Second scene content",
+      "duration_sec": 5,
+      "style": "realistic",
+      "transition": "dissolve"
+    }
+  ]
+}
+```
+
+**Available transitions (Task 11 Day 5):**
+- `fade` - Smooth fade in/out
+- `dissolve` - Cross-dissolve between scenes
+- `wipe` - Wipe left/right
+- `slide` - Slide left/right/up/down
+- `zoom` - Zoom in/out
+- `blur` - Blur transition
+- `pixelate` - Pixelate effect
+- `circle` - Circle wipe
+
+**Method 2: Use Scene Editor (if available)**
+
+```python
+from AnimateDiff.scene_editor import SceneEditor
+
+editor = SceneEditor("lesson_comprehensive_1.json")
+
+# Add new scene
+editor.add_scene(
+    text="New scene content",
+    duration=5,
+    style="realistic",
+    transition="fade"
+)
+
+# Modify existing scene
+editor.update_scene(
+    scene_id="scene_002",
+    transition="dissolve"
+)
+
+# Save changes
+editor.save()
+```
+
+**Testing new scenes:**
+```powershell
+# Regenerate video with new scenes
+python generate_lesson_video_safe.py lesson_comprehensive_1.json realistic 1
+```
+
+---
+
+### Q31: What common mistakes should I avoid?
+
+**A:** Here are the top 10 mistakes that waste time:
+
+**1. ❌ Treating Tasks 1-5 as pipeline stages**
+- ✅ Task 3 is the complete engine, Tasks 4-11 are enhancements
+
+**2. ❌ Using Python 3.11+ or 3.9-**
+- ✅ Use Python 3.10.11 only (dependency compatibility)
+
+**3. ❌ Editing binary files (checkpoints, cache, models)**
+- ✅ Never touch `.pt`, `.pkl`, `.safetensors` files directly
+
+**4. ❌ Committing test images/videos to Git**
+- ✅ Test outputs belong in `.gitignore`
+
+**5. ❌ Disabling security features "to make it faster"**
+- ✅ Security is production-required, not optional
+
+**6. ❌ Assuming "Gurukul" = Indian traditional themes only**
+- ✅ Gurukul is just a project name, system handles ANY educational content
+
+**7. ❌ Using RIFE for video extension**
+- ✅ Use SlowMo + Freeze (Task 11 Day 5) - avoids black screens
+
+**8. ❌ Hardcoding file paths**
+- ✅ Use Path objects and environment variables
+
+**9. ❌ Storing secrets in code or Git**
+- ✅ Use `.env` files and secret managers
+
+**10. ❌ Skipping tests before committing**
+- ✅ Always run `pytest tests/` before pushing
+
+**Pro tip:** Read the "Important Concepts" section in TTV_HANDOVER_MASTER.md to avoid architectural misunderstandings.
+
+---
+
+### Q32: What files should never be touched or modified?
+
+**A:** **Critical files** - touching these can break production:
+
+**1. Binary Model Files (NEVER EDIT):**
+- ❌ `adapters/gurukul_lora/checkpoint.pt` (89MB LoRA model)
+- ❌ `AnimateDiff/models/*.safetensors` (AnimateDiff weights)
+- ❌ `AnimateDiff/models/*.ckpt` (Stable Diffusion checkpoints)
+- ❌ Any `.pt`, `.pth`, `.safetensors` files
+
+**Why:** Binary corruption = hours of retraining/redownloading
+
+**2. Cache Files (NEVER COMMIT):**
+- ❌ `AnimateDiff/cache/*.pkl` (scene memory, narrative cache)
+- ❌ `__pycache__/` directories
+- ❌ `.pyc` files
+
+**Why:** Machine-specific, breaks cross-platform compatibility
+
+**3. Security Keys (NEVER COMMIT):**
+- ❌ `security/keys/signing_key.priv` (Ed25519 private key)
+- ❌ `.env` file (contains secrets)
+- ❌ Any file with passwords/API keys
+
+**Why:** Security breach, unauthorized access
+
+**4. Generated Artifacts (NEVER COMMIT):**
+- ❌ `AnimateDiff/storage/**/*.mp4` (generated videos)
+- ❌ `test_results/**/*.png` (test images)
+- ❌ `adapters/gurukul_lora/test_outputs/` (test images)
+- ❌ `logs/audit/*.jsonl` (except production samples)
+
+**Why:** Bloats repository, wastes storage
+
+**5. System Configuration (MODIFY WITH CAUTION):**
+- ⚠️ `requirements-runtime.txt` (production dependencies)
+- ⚠️ `Dockerfile` (production deployment)
+- ⚠️ `docker-compose.yml` (orchestration)
+
+**Why:** Breaking changes affect all deployments
+
+**6. Core Engine Logic (UNDERSTAND BEFORE CHANGING):**
+- ⚠️ `AnimateDiff/unified_video_generator.py` (main orchestrator)
+- ⚠️ `security/watermark.py` (watermarking pipeline)
+- ⚠️ `audit_logger.py` (audit logging system)
+
+**Why:** Complex interdependencies, extensive testing needed
+
+**Safe to modify:**
+- ✅ Lesson JSON files (`AnimateDiff/lessons/*.json`)
+- ✅ Background music (`assets/bgm/`)
+- ✅ Test scripts (`tests/*.py`)
+- ✅ Documentation (`Documentation/**/*.md`)
+- ✅ Your own feature modules
+
+**Before modifying ANY file:**
+1. Read the module docstring
+2. Check if it's tested (`tests/test_*.py`)
+3. Create a backup
+4. Test changes locally
+5. Run full test suite
+
+---
+
 ## 🔐 Security Questions
 
-### Q29: Are the security keys committed to Git?
+### Q33: Are the security keys committed to Git?
 
 **A:** **NO!** Security keys are in `.gitignore`.
 
@@ -746,5 +965,6 @@ python security/verify_watermark.py video.mp4
 ---
 
 **Document Status:** ✅ Production Ready  
-**Last Updated:** November 26, 2025  
+**Last Updated:** November 27, 2025  
+**Total Questions:** 36 (including all required FAQ topics)  
 **Questions or Updates?** Add new Q&A sections as needed.

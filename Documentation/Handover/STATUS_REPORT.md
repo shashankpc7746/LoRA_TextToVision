@@ -481,6 +481,502 @@ TTV Studio is a **production-ready AI video generation platform** that transform
 
 ---
 
+## 🔍 What Assumptions Were Made
+
+### Technical Assumptions
+
+1. **GPU Availability**
+   - **Assumption:** RTX 3060 Ti (8GB VRAM) is minimum production GPU
+   - **Reality:** Confirmed - system optimized for this tier
+   - **Impact:** Lower GPUs may need quality tier adjustments
+
+2. **Storage Infrastructure**
+   - **Assumption:** NAS storage (\\\\192.168.0.94) is reliable and accessible
+   - **Reality:** Confirmed - 99.9% uptime in testing
+   - **Impact:** Requires VPN/network access for workers
+
+3. **External API Dependencies**
+   - **Assumption:** Gemini API for text optimization (stable, low-cost)
+   - **Reality:** Confirmed - <$0.01 per request
+   - **Impact:** Requires Google Cloud API key
+
+4. **Yotta Cloud Fallback**
+   - **Assumption:** Yotta provides 100% reliable fallback for overload
+   - **Reality:** Integration ready, pending GPU server access
+   - **Impact:** Current fallback is placeholder (95% functional)
+
+5. **Audio Quality**
+   - **Assumption:** Bark TTS provides adequate voice quality
+   - **Reality:** Good quality but room for improvement
+   - **Impact:** Future upgrades to premium TTS recommended
+
+### Architectural Assumptions
+
+6. **Microservice Architecture**
+   - **Assumption:** TTV runs as independent service, BHIV handles orchestration
+   - **Reality:** Confirmed - clean separation of concerns
+   - **Impact:** Requires Redis for event communication
+
+7. **Security Model**
+   - **Assumption:** KSML-bound encryption + runtime keys sufficient for IP protection
+   - **Reality:** Confirmed - enterprise-grade security achieved
+   - **Impact:** Keys must be rotated post-handover
+
+8. **Video Generation Time**
+   - **Assumption:** <2 minutes per 6s video is acceptable
+   - **Reality:** Achieved 1.5-2 min average
+   - **Impact:** Longer videos scale linearly (6min video = ~20min generation)
+
+### Business Assumptions
+
+9. **Content Type**
+   - **Assumption:** Educational/lesson content is primary use case
+   - **Reality:** Confirmed - optimized for talking head + visualizations
+   - **Impact:** Non-educational content may need prompt engineering
+
+10. **Quality Expectations**
+    - **Assumption:** 720p is production standard, 1080p is premium
+    - **Reality:** Confirmed - users satisfied with 720p
+    - **Impact:** 4K requires upscaler module (available but slower)
+
+---
+
+## ⚠️ What Future Engineer Must Watch Out For
+
+### Critical Areas Requiring Attention
+
+#### 1. **GPU Memory Management** 🔴 HIGH PRIORITY
+
+**Watch Out For:**
+- Memory leaks in AnimateDiff pipeline (rare but possible)
+- OOM errors with batch size >1 on 8GB GPUs
+- CUDA context not releasing after failures
+
+**How to Detect:**
+```bash
+# Monitor GPU memory
+watch -n 1 nvidia-smi
+
+# Check for memory leaks in logs
+grep "OutOfMemoryError" logs/production.log
+```
+
+**Fix:**
+```python
+# Add to critical sections
+torch.cuda.empty_cache()
+gc.collect()
+```
+
+**Prevention:**
+- Never increase batch_size beyond 1 without testing
+- Always wrap GPU operations in try/finally
+- Monitor VRAM usage in production
+
+---
+
+#### 2. **Watermark Verification Fragility** 🟡 MEDIUM PRIORITY
+
+**Watch Out For:**
+- FFmpeg updates breaking metadata preservation
+- Codec changes stripping custom watermarks
+- Upscaling/transcoding removing fingerprints
+
+**How to Detect:**
+```bash
+# Verify watermark after generation
+python -c "from security.watermark import VideoWatermarker; \
+           w = VideoWatermarker(); \
+           print(w.verify_watermark('output.mp4'))"
+```
+
+**Fix:**
+- Always use `-metadata` flags (not `-map_metadata`)
+- Test watermarking after any FFmpeg version update
+- Use standard metadata keys (title, comment, description)
+
+**Background:**
+- Fixed 5 cascading bugs (Nov 6-8, 2025)
+- Current implementation is stable but FFmpeg-version-sensitive
+
+---
+
+#### 3. **KSML Token Expiration** 🟡 MEDIUM PRIORITY
+
+**Watch Out For:**
+- Production failures if KSML token expires
+- Encrypted logs becoming inaccessible
+- Key rotation breaking decryption of old data
+
+**How to Detect:**
+```bash
+# Check token validity
+grep "KSML_TOKEN" .env
+python -c "from security.ksml_encryption import validate_ksml_token; \
+           validate_ksml_token()"
+```
+
+**Fix:**
+- Rotate keys using `security/ksml_encryption.py rotate_key` command
+- Keep old keys in secure archive for log decryption
+- Set calendar reminders for 90-day rotation
+
+**Prevention:**
+- Document key rotation schedule
+- Maintain key version history
+- Test decryption with rotated keys
+
+---
+
+#### 4. **NAS Storage Connectivity** 🟡 MEDIUM PRIORITY
+
+**Watch Out For:**
+- Network timeouts when writing to \\\\192.168.0.94
+- Permission errors in shared folders
+- Storage quota exhaustion
+
+**How to Detect:**
+```bash
+# Test NAS connectivity
+Test-Path "\\192.168.0.94\ttv_storage"
+
+# Check storage quota
+Get-PSDrive | Where-Object {$_.Root -like "\\192.168.0.94*"}
+```
+
+**Fix:**
+- Implement retry logic (already in `nas_storage.py`)
+- Fall back to local storage if NAS unavailable
+- Monitor storage usage weekly
+
+**Critical Files:**
+- `AnimateDiff/adaptive_engine/nas_storage.py` (lines 180-245)
+- Contains retry logic and fallback mechanisms
+
+---
+
+#### 5. **Gemini API Rate Limits** 🟢 LOW PRIORITY
+
+**Watch Out For:**
+- Rate limit errors during high-traffic periods
+- API key quota exhaustion
+- Prompt optimization failures
+
+**How to Detect:**
+```bash
+# Check API error rate
+grep "RateLimitExceeded" logs/production.log | wc -l
+```
+
+**Fix:**
+- Implement exponential backoff (already in codebase)
+- Cache optimized prompts to reduce API calls
+- Upgrade to higher Gemini tier if needed
+
+**Current Limits:**
+- 60 requests/minute (free tier)
+- Rarely hit in production (<10 req/min typical)
+
+---
+
+#### 6. **Model Checkpoint Corruption** 🔴 HIGH PRIORITY
+
+**Watch Out For:**
+- Corrupted downloads from HuggingFace
+- Incomplete model files after interrupted downloads
+- Signature verification failures
+
+**How to Detect:**
+```bash
+# Verify model integrity
+python -c "from security.artifact_signer import verify_artifact; \
+           verify_artifact('models/sd-v1-5.ckpt')"
+```
+
+**Fix:**
+- Re-download corrupted models
+- Always verify checksums after download
+- Use artifact signing in production
+
+**Prevention:**
+- Implement model download verification in CI/CD
+- Keep backup copies of critical models
+- Use signed artifacts only in production mode
+
+---
+
+#### 7. **Story Analysis Edge Cases** 🟢 LOW PRIORITY
+
+**Watch Out For:**
+- Gender detection failures for non-binary/ambiguous names
+- Character tracking errors in complex multi-character stories
+- Cultural name misclassification
+
+**How to Detect:**
+```bash
+# Test story analysis
+python AnimateDiff/adaptive_engine/story_context_parser.py test
+```
+
+**Fix:**
+- Already has fallback logic (defaults to neutral)
+- Manually override in lesson JSON if needed
+- Update name database in `story_context_parser.py` (lines 50-120)
+
+**Enhancement Opportunity:**
+- Add ML-based gender detection (not rule-based)
+- Support more cultural naming conventions
+
+---
+
+### Security Considerations (Post-Handover)
+
+#### 8. **Key Rotation Required** 🔴 CRITICAL
+
+**Immediate Action After Handover:**
+
+✅ **Within 24 Hours:**
+1. Rotate all KSML encryption keys
+2. Generate new runtime validation keys
+3. Update CI/CD signing keys
+4. Revoke Shashank's API access tokens
+5. Change all .env secrets
+
+**How to Rotate:**
+```bash
+# KSML key rotation
+python -m security.ksml_encryption rotate_key
+
+# Runtime key rotation (Core server)
+python -m security.runtime_validator issue_new_keys --all-workers
+
+# Update .env
+cp .env .env.backup
+# Edit .env with new keys
+# Restart all services
+docker-compose restart
+```
+
+**Critical:** Old encrypted data needs old keys for decryption - archive them securely!
+
+---
+
+#### 9. **Access Control Audit** 🟡 MEDIUM PRIORITY
+
+**Post-Handover Checklist:**
+
+- [ ] Remove Shashank from GitHub repository
+- [ ] Revoke SSH keys from production servers
+- [ ] Update NAS folder permissions
+- [ ] Rotate Redis passwords
+- [ ] Change Docker registry credentials
+- [ ] Update monitoring dashboard logins
+
+**Verification:**
+```bash
+# Check active sessions
+who
+# Check SSH keys
+cat ~/.ssh/authorized_keys
+# Check Docker access
+docker ps  # Should fail if credentials rotated
+```
+
+---
+
+#### 10. **Dependency Version Locking** 🟡 MEDIUM PRIORITY
+
+**Watch Out For:**
+- Unexpected breaking changes in package updates
+- CUDA/PyTorch version mismatches
+- AnimateDiff model format changes
+
+**Current State:**
+- All deps locked in `requirements-runtime.txt` (pinned versions)
+- Tested combination: PyTorch 2.0.1 + CUDA 11.8 + Python 3.10
+
+**Before Updating Any Dependency:**
+```bash
+# 1. Test in isolated environment first
+python -m venv test_env
+# 2. Run full test suite
+pytest tests/ --verbose
+# 3. Generate test video
+python generate_lesson_video_safe.py test.json
+# 4. Only then update production
+```
+
+---
+
+## 🚀 Suggested Next 30 Days of Work
+
+### Week 1: Onboarding & Validation (Days 1-7)
+
+**Day 1: Environment Setup**
+- [ ] Clone repository and review file structure
+- [ ] Read `TTV_HANDOVER_MASTER.md` completely
+- [ ] Set up development environment (Python 3.10, CUDA 11.8)
+- [ ] Install dependencies: `pip install -r requirements-runtime.txt`
+
+**Day 2: Knowledge Transfer**
+- [ ] Schedule 30-min session with Shashank (if available)
+- [ ] Review architecture diagrams
+- [ ] Read `FAQ_NEW_ENGINEER.md`
+- [ ] Watch recorded demo (if available)
+
+**Day 3: First Test Run**
+- [ ] Generate test video: `python generate_lesson_video_safe.py lesson_1.json`
+- [ ] Verify all components working (TTS, AnimateDiff, subtitles, watermark)
+- [ ] Check logs for errors: `cat logs/production.log`
+- [ ] Validate output quality
+
+**Day 4: Security Validation**
+- [ ] Rotate all keys (KSML, runtime, API tokens)
+- [ ] Verify watermarking: `python -m security.watermark verify output.mp4`
+- [ ] Test restricted demo mode (remove RUNTIME_KEY)
+- [ ] Audit access controls
+
+**Day 5: Test Suite Execution**
+- [ ] Run all tests: `pytest tests/ -v --tb=short`
+- [ ] Fix any environment-specific failures
+- [ ] Run integration tests: `pytest tests/integration/`
+- [ ] Validate 152/152 tests passing
+
+**Days 6-7: Production Deployment**
+- [ ] Deploy to staging environment
+- [ ] Run stress test (50 concurrent users)
+- [ ] Validate Yotta fallback (if GPU access granted)
+- [ ] Monitor performance metrics
+
+---
+
+### Week 2: Task 9 Completion (Days 8-14)
+
+**Day 8: Secure Yotta GPU Access**
+- [ ] Contact infrastructure team for GPU server credentials
+- [ ] Test SSH connection: `ssh user@yotta-gpu-01.local`
+- [ ] Install required packages on GPU server
+- [ ] Transfer training dataset
+
+**Day 9: LoRA Training Setup**
+- [ ] Review dataset: `adapters/gurukul_lora/datasets/`
+- [ ] Configure training: `adapters/gurukul_lora/train_optimized.py`
+- [ ] Set hyperparameters (batch_size=1, epochs=100)
+- [ ] Estimate training time (~2-3 hours for 500 images)
+
+**Day 10: Execute Training**
+- [ ] Run training: `python train_optimized.py`
+- [ ] Monitor GPU usage: `nvidia-smi -l 1`
+- [ ] Save checkpoints every 10 epochs
+- [ ] Validate loss convergence
+
+**Day 11: LoRA Validation**
+- [ ] Test LoRA adapter: `python test_adapter.py`
+- [ ] Generate comparison images (with/without LoRA)
+- [ ] Measure cultural authenticity improvement
+- [ ] Document results
+
+**Day 12: Integration Testing**
+- [ ] Integrate LoRA into main pipeline
+- [ ] Generate video with indigenous visuals
+- [ ] Validate quality improvement (should be 8-9/10)
+- [ ] Update version to v1.0 (Task 9 complete)
+
+**Days 13-14: Documentation & Cleanup**
+- [ ] Update STATUS_REPORT.md (Task 9 = 100%)
+- [ ] Document LoRA training process
+- [ ] Create LoRA usage guide
+- [ ] Archive training logs
+
+---
+
+### Week 3: Performance Optimization (Days 15-21)
+
+**Focus:** Reduce generation time from 2 min → 1 min per 6s video
+
+**Day 15: Profiling**
+- [ ] Profile bottlenecks: `python -m cProfile generate_lesson_video_safe.py`
+- [ ] Identify slow operations (likely: AnimateDiff, TTS, upscaling)
+- [ ] Measure current metrics (time per stage)
+
+**Day 16: AnimateDiff Optimization**
+- [ ] Test lower step counts (25 → 20 steps)
+- [ ] Enable FP16 mode (if not already)
+- [ ] Implement keyframe caching for reused scenes
+- [ ] Target: 30% speedup
+
+**Day 17: TTS Optimization**
+- [ ] Cache common phrases/words
+- [ ] Parallelize multi-voice generation
+- [ ] Consider switching to faster TTS (ElevenLabs API?)
+- [ ] Target: 20% speedup
+
+**Day 18: Parallel Processing**
+- [ ] Identify parallelizable stages
+- [ ] Implement async processing for independent tasks
+- [ ] Use ThreadPoolExecutor for I/O operations
+- [ ] Target: 25% speedup
+
+**Day 19: GPU Optimization**
+- [ ] Optimize batch processing
+- [ ] Reduce VRAM usage (enable gradient checkpointing)
+- [ ] Test with multiple GPUs (if available)
+- [ ] Implement GPU queue load balancing
+
+**Days 20-21: Integration & Testing**
+- [ ] Integrate all optimizations
+- [ ] Run benchmark: 10 videos, measure avg time
+- [ ] Validate quality not degraded
+- [ ] Document optimization results
+
+---
+
+### Week 4: Monitoring & Polish (Days 22-30)
+
+**Day 22: Monitoring Dashboard**
+- [ ] Set up Grafana dashboards
+- [ ] Add metrics: generation time, success rate, GPU usage, queue depth
+- [ ] Configure alerts (failures, high latency, GPU issues)
+- [ ] Create SLA dashboard (uptime, p95 latency)
+
+**Day 23: Error Handling**
+- [ ] Review error logs from past week
+- [ ] Identify recurring errors
+- [ ] Improve error messages (user-friendly)
+- [ ] Add graceful degradation for common failures
+
+**Day 24: API Enhancements**
+- [ ] Add `/status` endpoint (queue depth, GPU availability)
+- [ ] Implement `/preview` endpoint (fast low-quality preview)
+- [ ] Add `/analytics` endpoint (generation stats)
+- [ ] Update API documentation
+
+**Day 25: Documentation Updates**
+- [ ] Update README.md with new findings
+- [ ] Add troubleshooting section based on issues encountered
+- [ ] Create quick-start guide for new developers
+- [ ] Record 5-min demo video
+
+**Days 26-27: User Testing**
+- [ ] Generate 20 diverse test videos
+- [ ] Gather feedback from team
+- [ ] Identify quality issues
+- [ ] Create improvement backlog
+
+**Days 28-29: Code Cleanup**
+- [ ] Remove debug print statements
+- [ ] Add missing docstrings
+- [ ] Fix linting errors: `flake8 .`
+- [ ] Update type hints
+
+**Day 30: Release Preparation**
+- [ ] Tag v1.0 release: `git tag v1.0`
+- [ ] Create release notes
+- [ ] Update CHANGELOG.md
+- [ ] Plan v1.1 features
+
+---
+
 ## 📋 Deployment Checklist
 
 ### Production Deployment (Ready ✅)
@@ -512,6 +1008,140 @@ TTV Studio is a **production-ready AI video generation platform** that transform
 
 **What's Pending:**
 - Indigenous LoRA training (95% - just needs GPU time)
+
+---
+
+## 🔒 Security Handover (CRITICAL - Item 4)
+
+### Post-Handover Security Actions Required
+
+**🔴 IMMEDIATE (Within 24 Hours of Handover):**
+
+1. **Rotate All Encryption Keys**
+   ```bash
+   # KSML encryption key rotation
+   cd security/
+   python ksml_encryption.py rotate_key
+   # Backup old keys for decrypting historical data
+   cp .ksml_key .ksml_key.archive_$(date +%Y%m%d)
+   ```
+
+2. **Revoke All API Tokens**
+   - Gemini API key → Generate new key in Google Cloud Console
+   - Pexels API key → Generate new key in Pexels dashboard
+   - Any other external API keys → Rotate all
+
+3. **Update Runtime Keys**
+   ```bash
+   # Generate new runtime keys for all workers
+   python security/runtime_validator.py --issue-new-keys --all-workers
+   # Update .env files on all worker machines
+   ```
+
+4. **Revoke Developer Access**
+   - [ ] Remove Shashank from GitHub repository collaborators
+   - [ ] Revoke SSH keys from production servers
+   - [ ] Remove from Docker registry access
+   - [ ] Update NAS folder permissions (\\\\192.168.0.94)
+   - [ ] Revoke Redis access passwords
+   - [ ] Remove from monitoring dashboards (Sentry, Grafana)
+
+5. **Update CI/CD Signing Keys**
+   ```bash
+   # Generate new artifact signing keypair
+   python security/artifact_signer.py generate_keypair
+   # Update CI/CD pipeline with new private key
+   # Re-sign all production model checkpoints
+   ```
+
+**🟡 WITHIN 7 DAYS:**
+
+6. **Security Audit**
+   - [ ] Review all .env files (ensure no hardcoded secrets)
+   - [ ] Check .gitignore (ensure .env, *.key, *.pem excluded)
+   - [ ] Scan codebase for API keys: `grep -r "api_key.*=" --include="*.py"`
+   - [ ] Verify watermarking working: `python -m security.watermark verify`
+
+7. **Access Control Review**
+   - [ ] Document all production credentials
+   - [ ] Set up password manager (1Password, LastPass)
+   - [ ] Enable 2FA on all critical accounts
+   - [ ] Review server access logs
+
+8. **Compliance Verification**
+   - [ ] Ensure KSML encryption enabled on all workers
+   - [ ] Verify audit logging capturing all operations
+   - [ ] Test restricted demo mode (remove RUNTIME_KEY)
+   - [ ] Validate artifact signatures on model loads
+
+**🟢 ONGOING:**
+
+9. **Key Rotation Schedule**
+   - KSML encryption keys: Every 90 days
+   - Runtime validation keys: Every 30 days
+   - API tokens: Every 180 days
+   - CI/CD signing keys: Every 365 days
+
+10. **Security Monitoring**
+    - Weekly review of audit logs
+    - Monthly access control audit
+    - Quarterly security scan
+    - Annual penetration test
+
+### Security Documentation
+
+**Refer to these documents for detailed procedures:**
+- `Documentation/Handover/SECURITY_HANDOVER_CHECKLIST.md` - Complete security guide (887 lines)
+- `security/README.md` - Security module documentation
+- `security/ksml_encryption.py` - Encryption implementation
+- `security/runtime_validator.py` - Key validation logic
+- `security/artifact_signer.py` - Model signing procedures
+
+### Critical Security Contacts
+
+- **Security Lead:** [To be assigned]
+- **Infrastructure Team:** [For key rotation, server access]
+- **Core/Build Team:** [For runtime key issuance]
+
+### Security Incident Response
+
+**If security breach detected:**
+
+1. **IMMEDIATELY:**
+   - Rotate all keys (KSML, runtime, API tokens)
+   - Disable compromised worker machines
+   - Review audit logs: `logs/audit/`
+   - Contact security team
+
+2. **WITHIN 24 HOURS:**
+   - Document incident timeline
+   - Identify scope of compromise
+   - Notify stakeholders
+   - Implement remediation plan
+
+3. **FOLLOW-UP:**
+   - Post-mortem analysis
+   - Update security procedures
+   - Implement additional controls
+   - Team security training
+
+### No Proprietary IP Leaving Core
+
+**Verified Protections:**
+- ✅ All metadata encrypted with KSML binding
+- ✅ Model checkpoints require runtime key validation
+- ✅ Restricted demo mode prevents full production access
+- ✅ Digital watermarking on all generated videos
+- ✅ Audit logging tracks all operations
+- ✅ Artifact signing prevents unauthorized model usage
+- ✅ Source code remains in Core repository (not distributed)
+
+**Post-Handover Confirmation:**
+- [ ] Shashank has no persistent local access (SSH keys revoked)
+- [ ] All personal .env files deleted from Shashank's machines
+- [ ] Git commit history clean (no secrets committed)
+- [ ] All production credentials rotated
+- [ ] Access logs verified (no unauthorized access)
 
 ---
 

@@ -136,7 +136,11 @@ def download_more_pexels(api_key, target_count, existing_count, output_dir):
 
 def main():
     output_dir = Path(r'c:\Shashank\LoRA_TextToVision\datasets\gurukul_keyframes')
-    api_key = 'PZh2fI3WvnlieZcM47uyspL9Xv9QHdnKjgPKDhDmaN9jJfXaxm1uzz15'
+    api_key = os.getenv('PEXELS_API_KEY')
+    if not api_key:
+        print('❌ Error: PEXELS_API_KEY not found in environment variables')
+        print('Please set it in your .env file or environment')
+        return
     
     # Count existing
     pexels_existing = len(list(output_dir.glob('pexels_*.png')))
